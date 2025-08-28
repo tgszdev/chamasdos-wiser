@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 Chamados WMS WISER</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 { font-size: 24px; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 14px; }
+        
+        .form {
+            padding: 30px;
+        }
+        
+        .field {
+            margin-bottom: 20px;
+        }
+        
+        .field label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        
+        .field select, .field input, .field textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .field select:focus, .field input:focus, .field textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        .field textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        
+        .btn:hover { transform: translateY(-2px); }
+        
+        .btn-primary { background: #25d366; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-secondary { background: #6b7280; color: white; }
+        
+        .resultado {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            display: none;
+        }
+        
+        .texto-gerado {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-line;
+            font-size: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #d1d5db;
+        }
+        
+        .whatsapp-numero {
+            margin-bottom: 16px;
+        }
+        
+        .whatsapp-numero input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #25d366;
+            border-radius: 8px;
+        }
+        
+        .feedback {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .feedback.success { background: #dcfce7; color: #166534; }
+        .feedback.info { background: #dbeafe; color: #1d4ed8; }
+        
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .header, .form { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Chamados WMS WISER</h1>
+            <p>Gerador rápido de chamados para WhatsApp</p>
+        </div>
+        
+        <div class="form">
+            <form id="form">
+                <div class="field">
+                    <label>🗂️ Categoria:</label>
+                    <select id="categoria" required>
+                        <option value="">Selecione...</option>
+                        <option value="Recebimento">📦 Recebimento</option>
+                        <option value="Expedição">🚚 Expedição</option>
+                        <option value="Movimentações Internas">🔄 Movimentações Internas</option>
+                        <option value="Relatório">📊 Relatório</option>
+                        <option value="Melhoria">🚀 Melhoria</option>
+                    </select>
+                </div>
+                
+                <div class="field">
+                    <label>📝 Título:</label>
+                    <input type="text" id="titulo" placeholder="Ex: Erro na conferência" required>
+                </div>
+                
+                <div class="field">
+                    <label>📄 Descrição:</label>
+                    <textarea id="descricao" placeholder="Descreva o problema..." required></textarea>
+                </div>
+                
+                <div class="field">
+                    <label>⚡ Prioridade:</label>
+                    <select id="prioridade" required>
+                        <option value="">Selecione...</option>
+                        <option value="🔴 Crítica">🔴 Crítica</option>
+                        <option value="🟠 Alta">🟠 Alta</option>
+                        <option value="🟡 Média">🟡 Média</option>
+                        <option value="🟢 Baixa">🟢 Baixa</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">📱 GERAR PARA WHATSAPP</button>
+            </form>
+            
+            <div id="resultado" class="resultado">
+                <h3>✅ Mensagem pronta!</h3>
+                <div id="texto" class="texto-gerado"></div>
+                
+                <div class="whatsapp-numero">
+                    <label>📞 WhatsApp (opcional):</label>
+                    <input type="text" id="numero" placeholder="5511999999999">
+                </div>
+                
+                <a id="whatsapp" href="#" target="_blank" class="btn btn-primary">📱 ENVIAR WHATSAPP</a>
+                <button id="copiar" class="btn btn-success">📋 COPIAR TEXTO</button>
+                <button id="limpar" class="btn btn-secondary">🔄 NOVO CHAMADO</button>
+                
+                <div id="feedback" class="feedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('form');
+        const resultado = document.getElementById('resultado');
+        const texto = document.getElementById('texto');
+        const whatsapp = document.getElementById('whatsapp');
+        const numero = document.getElementById('numero');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const categoria = document.getElementById('categoria').value;
+            const titulo = document.getElementById('titulo').value;
+            const descricao = document.getElementById('descricao').value;
+            const prioridade = document.getElementById('prioridade').value;
+            
+            if (!categoria || !titulo || !descricao || !prioridade) {
+                mostrarFeedback('❌ Preencha todos os campos!', 'info');
+                return;
+            }
+            
+            const agora = new Date();
+            const dataHora = agora.toLocaleString('pt-BR', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+            
+            const mensagem = `🚨 CHAMADO WMS WISER
+
+
+🗂️ Categoria: ${categoria}
+📝 Título: ${titulo}
+📄 Descrição: ${descricao}
+⚡ Prioridade: ${prioridade}
+
+📅 Criado em: ${dataHora}`;
+            
+            texto.textContent = mensagem;
+            resultado.style.display = 'block';
+            atualizarWhatsApp(mensagem);
+            
+            resultado.scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        function atualizarWhatsApp(mensagem) {
+            const num = numero.value.replace(/\D/g, '');
+            const url = num ? 
+                `https://wa.me/${num}?text=${encodeURIComponent(mensagem)}` :
+                `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+            whatsapp.href = url;
+        }
+        
+        numero.addEventListener('input', () => {
+            const mensagem = texto.textContent;
+            if (mensagem) atualizarWhatsApp(mensagem);
+        });
+        
+        document.getElementById('copiar').addEventListener('click', function() {
+            const mensagem = texto.textContent;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(mensagem).then(() => {
+                    mostrarFeedback('✅ Texto copiado!', 'success');
+                });
+            } else {
+                // Fallback
+                const textArea = document.createElement('textarea');
+                textArea.value = mensagem;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                mostrarFeedback('✅ Texto copiado!', 'success');
+            }
+        });
+        
+        document.getElementById('limpar').addEventListener('click', function() {
+            form.reset();
+            numero.value = '';
+            resultado.style.display = 'none';
+            document.getElementById('categoria').focus();
+        });
+        
+        function mostrarFeedback(msg, tipo) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = msg;
+            feedback.className = `feedback ${tipo}`;
+            feedback.style.display = 'block';
+            setTimeout(() => feedback.style.display = 'none', 3000);
+        }
+        
+        // Salvar número do WhatsApp
+        numero.value = localStorage.getItem('wms_numero') || '';
+        numero.addEventListener('input', () => {
+            localStorage.setItem('wms_numero', numero.value);
+        });
+        
+        // Focar no primeiro campo
+        document.getElementById('categoria').focus();
+    </script>
+</body>
+</html>

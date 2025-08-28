@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chamados WMS WISER - Portátil</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000000;
+            background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.3);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.4);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 32px 28px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -0.5px;
+        }
+        
+        .header p {
+            font-size: 15px;
+            opacity: 0.9;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .version-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 12px;
+            display: inline-block;
+        }
+        
+        .form-container {
+            padding: 32px 28px;
+            background: rgba(248, 250, 252, 0.9);
+        }
+        
+        .field {
+            margin-bottom: 24px;
+            position: relative;
+        }
+        
+        .field label {
+            display: block;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 15px;
+            letter-spacing: -0.2px;
+        }
+        
+        .field select,
+        .field input,
+        .field textarea {
+            width: 100%;
+            padding: 16px 18px;
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            font-size: 16px;
+            font-family: 'Inter', sans-serif;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #1e293b;
+        }
+        
+        .field select:focus,
+        .field input:focus,
+        .field textarea:focus {
+            outline: none;
+            border-color: #4f46e5;
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .field textarea {
+            resize: vertical;
+            min-height: 90px;
+            line-height: 1.6;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 18px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 12px;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.3px;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.3);
+        }
+        
+        .btn-whatsapp:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(37, 211, 102, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(100, 116, 139, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(100, 116, 139, 0.4);
+        }
+        
+        .resultado {
+            margin-top: 28px;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .resultado::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+        
+        .resultado h3 {
+            color: #1e293b;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+        
+        .texto-gerado {
+            background: rgba(248, 250, 252, 0.9);
+            padding: 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            font-family: 'Inter', sans-serif;
+            white-space: pre-line;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #334155;
+            margin-bottom: 16px;
+        }
+        
+        .whatsapp-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .whatsapp-input {
+            grid-column: 1 / -1;
+            margin-bottom: 12px;
+        }
+        
+        .whatsapp-input input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(37, 211, 102, 0.2);
+            border-radius: 12px;
+            font-size: 14px;
+            color: #1e293b;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .whatsapp-input input:focus {
+            outline: none;
+            border-color: #25d366;
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+        }
+        
+        .whatsapp-input label {
+            font-size: 13px;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+        
+        .feedback {
+            text-align: center;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 12px;
+            display: none;
+            font-weight: 500;
+            letter-spacing: -0.2px;
+        }
+        
+        .feedback.success {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #065f46;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+        
+        .feedback.info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .prioridade-critica { color: #dc2626; }
+        .prioridade-alta { color: #ea580c; }
+        .prioridade-media { color: #ca8a04; }
+        .prioridade-baixa { color: #16a34a; }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(248, 250, 252, 0.5);
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 12px;
+                border-radius: 20px;
+            }
+            
+            body {
+                padding: 12px;
+            }
+            
+            .header {
+                padding: 28px 24px;
+            }
+            
+            .form-container {
+                padding: 28px 24px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .whatsapp-options {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .resultado {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 Chamados WMS WISER</h1>
+            <p>Os detalhes fazem toda a diferença: quanto mais completas forem as informações no chamado, mais rápida e eficaz será a análise e a solução.</p>
+            <div class="version-info">
+                📱 Versão Portátil - Funciona Offline
+            </div>
+        </div>
+        
+        <div class="form-container">
+            <form id="chamadoForm">
+                <div class="field">
+                    <label for="categoria">🗂️ Categoria:</label>
+                    <select id="categoria" required>
+                        <option value="">Selecione a categoria...</option>
+                        <option value="Recebimento">📦 Recebimento</option>
+                        <option value="Expedição">🚚 Expedição</option>
+                        <option value="Movimentações Internas">🔄 Movimentações Internas</option>
+                        <option value="Relatório">📊 Relatório</option>
+                        <option value="Melhoria">🚀 Melhoria</option>
+                    </select>
+                </div>
+                
+                <div class="field">
+                    <label for="titulo">📝 Título do Chamado:</label>
+                    <input type="text" id="titulo" placeholder="Ex: Erro na conferência de produtos" required>
+                </div>
+                
+                <div class="field">
+                    <label for="descricao">📄 Descrição:</label>
+                    <textarea id="descricao" placeholder="Descreva detalhadamente o que aconteceu..." required></textarea>
+                </div>
+                
+                <div class="field">
+                    <label for="prioridade">⚡ Prioridade do Chamado:</label>
+                    <select id="prioridade" required>
+                        <option value="">Selecione a prioridade...</option>
+                        <option value="🔴 Crítica" class="prioridade-critica">🔴 Crítica (SISTEMA OU PROCESSO PARADO)</option>
+                        <option value="🟠 Alta" class="prioridade-alta">🟠 Alta</option>
+                        <option value="🟡 Média" class="prioridade-media">🟡 Média</option>
+                        <option value="🟢 Baixa" class="prioridade-baixa">🟢 Baixa</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-whatsapp">📱 GERAR MENSAGEM PARA WHATSAPP</button>
+            </form>
+            
+            <div id="resultado" class="resultado">
+                <h3>✅ Mensagem gerada com sucesso!</h3>
+                <div id="textoGerado" class="texto-gerado"></div>
+                
+                <div class="whatsapp-input">
+                    <label>📞 Número do WhatsApp (opcional):</label>
+                    <input type="text" id="numeroWhatsapp" placeholder="Ex: 5511999999999 (com código do país)" 
+                           title="Formato: 55 + DDD + Número (ex: 5511999999999)">
+                </div>
+                
+                <div class="whatsapp-options">
+                    <a id="whatsappBtn" href="#" target="_blank" class="btn btn-whatsapp">
+                        📱 ABRIR WHATSAPP
+                    </a>
+                    <button id="whatsappWebBtn" class="btn btn-success">💻 WHATSAPP WEB</button>
+                </div>
+                
+                <button id="copiarBtn" class="btn btn-success">📋 COPIAR TEXTO</button>
+                <button id="limparBtn" class="btn btn-secondary">🔄 NOVO CHAMADO</button>
+                
+                <div id="feedback" class="feedback"></div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            📄 Arquivo HTML Portátil - Funciona offline em qualquer dispositivo<br>
+            🔄 Última atualização: <span id="dataAtual"></span>
+        </div>
+    </div>
+
+    <script>
+        // Função para formatar data e hora brasileira
+        function formatarDataHora() {
+            const agora = new Date();
+            const opcoes = {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'America/Sao_Paulo'
+            };
+            return agora.toLocaleString('pt-BR', opcoes);
+        }
+        
+        // Função para gerar URL do WhatsApp
+        function gerarWhatsAppURL(texto, numero = '') {
+            const textoEncoded = encodeURIComponent(texto);
+            
+            if (numero && numero.trim()) {
+                // Remove todos os caracteres não numéricos
+                const numeroLimpo = numero.replace(/\D/g, '');
+                return `https://wa.me/${numeroLimpo}?text=${textoEncoded}`;
+            } else {
+                return `https://wa.me/?text=${textoEncoded}`;
+            }
+        }
+        
+        // Função para gerar URL do WhatsApp Web
+        function gerarWhatsAppWebURL(texto, numero = '') {
+            const textoEncoded = encodeURIComponent(texto);
+            
+            if (numero && numero.trim()) {
+                const numeroLimpo = numero.replace(/\D/g, '');
+                return `https://web.whatsapp.com/send?phone=${numeroLimpo}&text=${textoEncoded}`;
+            } else {
+                return `https://web.whatsapp.com/send?text=${textoEncoded}`;
+            }
+        }
+        
+        // Detectar se é mobile
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        document.getElementById('chamadoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const categoria = document.getElementById('categoria').value;
+            const titulo = document.getElementById('titulo').value;
+            const descricao = document.getElementById('descricao').value;
+            const prioridade = document.getElementById('prioridade').value;
+            
+            if (!categoria || !titulo || !descricao || !prioridade) {
+                mostrarFeedback('❌ Por favor, preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+            
+            const dataHoraAtual = formatarDataHora();
+            
+            const textoFormatado = `🚨 CHAMADO WMS WISER
+
+
+🗂️  Categoria: ${categoria}
+📝 Título: ${titulo}
+📄 Descrição: ${descricao}
+⚡ Prioridade: ${prioridade}
+
+📅 Criado em: ${dataHoraAtual}`;
+            
+            document.getElementById('textoGerado').textContent = textoFormatado;
+            document.getElementById('resultado').style.display = 'block';
+            
+            // Atualizar links do WhatsApp
+            atualizarLinksWhatsApp(textoFormatado);
+            
+            // Scroll suave para o resultado
+            document.getElementById('resultado').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+            
+            // Mostrar dica baseada no dispositivo
+            if (isMobile()) {
+                mostrarFeedback('💡 Dica: Use "ABRIR WHATSAPP" para enviar pelo app móvel', 'info');
+            } else {
+                mostrarFeedback('💡 Dica: Use "WHATSAPP WEB" para enviar pelo navegador', 'info');
+            }
+        });
+        
+        function atualizarLinksWhatsApp(texto) {
+            const numero = document.getElementById('numeroWhatsapp').value;
+            
+            document.getElementById('whatsappBtn').href = gerarWhatsAppURL(texto, numero);
+            document.getElementById('whatsappWebBtn').onclick = function() {
+                window.open(gerarWhatsAppWebURL(texto, numero), '_blank');
+            };
+        }
+        
+        // Atualizar links quando número mudar
+        document.getElementById('numeroWhatsapp').addEventListener('input', function() {
+            const texto = document.getElementById('textoGerado').textContent;
+            if (texto) {
+                atualizarLinksWhatsApp(texto);
+            }
+        });
+        
+        document.getElementById('copiarBtn').addEventListener('click', function() {
+            const texto = document.getElementById('textoGerado').textContent;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(texto).then(function() {
+                    mostrarFeedback('✅ Texto copiado com sucesso! Cole no WhatsApp.', 'success');
+                }).catch(function() {
+                    copiarTextoFallback(texto);
+                });
+            } else {
+                copiarTextoFallback(texto);
+            }
+        });
+        
+        function copiarTextoFallback(texto) {
+            const textArea = document.createElement('textarea');
+            textArea.value = texto;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            textArea.style.top = '0';
+            textArea.style.left = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            textArea.setSelectionRange(0, 99999); // Para mobile
+            
+            try {
+                document.execCommand('copy');
+                mostrarFeedback('✅ Texto copiado! Cole no WhatsApp.', 'success');
+            } catch (err) {
+                mostrarFeedback('❌ Erro ao copiar. Selecione o texto manualmente.', 'error');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        document.getElementById('limparBtn').addEventListener('click', function() {
+            document.getElementById('chamadoForm').reset();
+            document.getElementById('numeroWhatsapp').value = '';
+            document.getElementById('resultado').style.display = 'none';
+            document.getElementById('categoria').focus();
+        });
+        
+        function mostrarFeedback(mensagem, tipo) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = mensagem;
+            feedback.className = `feedback ${tipo}`;
+            feedback.style.display = 'block';
+            
+            setTimeout(() => {
+                feedback.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Permitir Ctrl+Enter para submeter
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                document.getElementById('chamadoForm').dispatchEvent(new Event('submit'));
+            }
+        });
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animação de entrada
+            document.querySelector('.container').style.animation = 'slideIn 0.6s ease-out';
+            
+            // Mostrar data atual no rodapé
+            document.getElementById('dataAtual').textContent = new Date().toLocaleDateString('pt-BR');
+            
+            // Focar no primeiro campo
+            document.getElementById('categoria').focus();
+            
+            // Salvar dados no localStorage (opcional)
+            const campos = ['categoria', 'titulo', 'descricao', 'prioridade', 'numeroWhatsapp'];
+            
+            // Carregar dados salvos
+            campos.forEach(campo => {
+                const valorSalvo = localStorage.getItem('wms_' + campo);
+                if (valorSalvo && campo !== 'titulo' && campo !== 'descricao') {
+                    document.getElementById(campo).value = valorSalvo;
+                }
+            });
+            
+            // Salvar dados ao digitar (só alguns campos)
+            ['numeroWhatsapp'].forEach(campo => {
+                document.getElementById(campo).addEventListener('input', function() {
+                    localStorage.setItem('wms_' + campo, this.value);
+                });
+            });
+        });
+        
+        // Adicionar validação de número de telefone
+        document.getElementById('numeroWhatsapp').addEventListener('input', function() {
+            let valor = this.value.replace(/\D/g, ''); // Remove não numéricos
+            
+            // Formatar conforme digita (opcional)
+            if (valor.length > 2) {
+                if (valor.length <= 4) {
+                    valor = valor.replace(/(\d{2})(\d+)/, '$1 $2');
+                } else if (valor.length <= 9) {
+                    valor = valor.replace(/(\d{2})(\d{2})(\d+)/, '$1 $2 $3');
+                } else {
+                    valor = valor.replace(/(\d{2})(\d{2})(\d{5})(\d+)/, '$1 $2 $3-$4');
+                }
+            }
+            
+            // Não aplicar formatação automática para não confundir
+            // this.value = valor;
+        });
+        
+        // Adicionar dicas de uso
+        const dicas = [
+            '💡 Dica: Você pode usar Ctrl+Enter para enviar o formulário rapidamente',
+            '📱 Dica: Este arquivo funciona offline - salve na área de trabalho',
+            '📋 Dica: O número do WhatsApp é opcional - deixe vazio para escolher contato',
+            '🔄 Dica: Seus dados ficam salvos no navegador (número WhatsApp)',
+            '📧 Dica: Você pode enviar este arquivo por email para compartilhar'
+        ];
+        
+        // Mostrar dica aleatória ao carregar
+        setTimeout(() => {
+            const dicaAleatoria = dicas[Math.floor(Math.random() * dicas.length)];
+            mostrarFeedback(dicaAleatoria, 'info');
+        }, 2000);
+    </script>
+</body>
+</html>
