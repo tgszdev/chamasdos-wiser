@@ -1,17 +1,27 @@
 {
-  "name": "webapp",
-  "type": "module",
+  "name": "wms-wiser-chamados",
+  "version": "1.0.0",
+  "description": "Aplicativo para gerar chamados WMS WISER formatados para WhatsApp Web",
+  "main": "index.html",
   "scripts": {
     "dev": "vite",
+    "build": "echo 'Static site - no build needed'",
+    "start": "echo 'Static site deployed to Vercel'",
+    "preview": "vite preview",
     "dev:sandbox": "wrangler pages dev dist --ip 0.0.0.0 --port 3000",
-    "build": "vite build",
-    "preview": "wrangler pages dev dist",
-    "deploy": "npm run build && wrangler pages deploy dist",
-    "deploy:prod": "npm run build && wrangler pages deploy dist --project-name webapp",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
-    "clean-port": "fuser -k 3000/tcp 2>/dev/null || true",
+    "deploy:cf": "npm run build && wrangler pages deploy dist",
     "test": "curl http://localhost:3000"
   },
+  "keywords": [
+    "wms",
+    "wiser", 
+    "chamados",
+    "whatsapp",
+    "vercel",
+    "webapp"
+  ],
+  "author": "WMS WISER Team",
+  "license": "MIT",
   "dependencies": {
     "hono": "^4.9.4"
   },
@@ -20,5 +30,8 @@
     "@hono/vite-dev-server": "^0.18.2",
     "vite": "^6.3.5",
     "wrangler": "^4.4.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

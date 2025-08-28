@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "name": "wms-wiser-chamados",
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "chamados-wms-*.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/chamados-wms-simples.html",
+      "dest": "/chamados-wms-simples.html"
+    },
+    {
+      "src": "/chamados-wms-wiser-portable.html", 
+      "dest": "/chamados-wms-wiser-portable.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "wms-wiser-chamados",
+  "version": "1.0.0",
+  "description": "Aplicativo para gerar chamados WMS WISER formatados para WhatsApp",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "vercel-build": "npm run build"
+  },
+  "dependencies": {
+    "hono": "^4.9.4"
+  },
+  "devDependencies": {
+    "@hono/vite-build": "^1.2.0",
+    "@hono/vite-dev-server": "^0.18.2",
+    "vite": "^6.3.5"
+  },
+  "keywords": ["wms", "chamados", "whatsapp", "vercel"],
+  "author": "WMS WISER Team",
+  "license": "MIT"
+}
