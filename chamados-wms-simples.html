@@ -111,16 +111,7 @@
             border: 1px solid #d1d5db;
         }
         
-        .whatsapp-numero {
-            margin-bottom: 16px;
-        }
-        
-        .whatsapp-numero input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 2px solid #25d366;
-            border-radius: 8px;
-        }
+
         
         .feedback {
             text-align: center;
@@ -189,11 +180,6 @@
                 <h3>✅ Mensagem pronta!</h3>
                 <div id="texto" class="texto-gerado"></div>
                 
-                <div class="whatsapp-numero">
-                    <label>📞 WhatsApp (opcional):</label>
-                    <input type="text" id="numero" placeholder="5511999999999">
-                </div>
-                
                 <button id="whatsappWeb" class="btn btn-primary">💻 ABRIR WHATSAPP WEB</button>
                 <button id="copiar" class="btn btn-success">📋 COPIAR TEXTO</button>
                 <button id="limpar" class="btn btn-secondary">🔄 NOVO CHAMADO</button>
@@ -208,7 +194,7 @@
         const resultado = document.getElementById('resultado');
         const texto = document.getElementById('texto');
         const whatsappWeb = document.getElementById('whatsappWeb');
-        const numero = document.getElementById('numero');
+
         
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -247,10 +233,7 @@
         
         function abrirWhatsAppWeb() {
             const mensagem = texto.textContent;
-            const num = numero.value.replace(/\D/g, '');
-            const url = num ? 
-                `https://web.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(mensagem)}` :
-                `https://web.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
+            const url = `https://web.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
             window.open(url, '_blank');
         }
         
@@ -280,7 +263,6 @@
         
         document.getElementById('limpar').addEventListener('click', function() {
             form.reset();
-            numero.value = '';
             resultado.style.display = 'none';
             document.getElementById('categoria').focus();
         });
@@ -293,11 +275,7 @@
             setTimeout(() => feedback.style.display = 'none', 3000);
         }
         
-        // Salvar número do WhatsApp
-        numero.value = localStorage.getItem('wms_numero') || '';
-        numero.addEventListener('input', () => {
-            localStorage.setItem('wms_numero', numero.value);
-        });
+
         
         // Focar no primeiro campo
         document.getElementById('categoria').focus();

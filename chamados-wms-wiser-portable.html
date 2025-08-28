@@ -263,32 +263,7 @@
             margin-bottom: 16px;
         }
         
-        .whatsapp-input {
-            grid-column: 1 / -1;
-            margin-bottom: 12px;
-        }
-        
-        .whatsapp-input input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid rgba(37, 211, 102, 0.2);
-            border-radius: 12px;
-            font-size: 14px;
-            color: #1e293b;
-            background: rgba(255, 255, 255, 0.9);
-        }
-        
-        .whatsapp-input input:focus {
-            outline: none;
-            border-color: #25d366;
-            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
-        }
-        
-        .whatsapp-input label {
-            font-size: 13px;
-            color: #475569;
-            margin-bottom: 6px;
-        }
+
         
         .feedback {
             text-align: center;
@@ -426,12 +401,6 @@
                 <h3>✅ Mensagem gerada com sucesso!</h3>
                 <div id="textoGerado" class="texto-gerado"></div>
                 
-                <div class="whatsapp-input">
-                    <label>📞 Número do WhatsApp (opcional):</label>
-                    <input type="text" id="numeroWhatsapp" placeholder="Ex: 5511999999999 (com código do país)" 
-                           title="Formato: 55 + DDD + Número (ex: 5511999999999)">
-                </div>
-                
                 <div class="whatsapp-options">
                     <button id="whatsappWebBtn" class="btn btn-whatsapp">💻 ABRIR WHATSAPP WEB</button>
                 </div>
@@ -467,15 +436,9 @@
 
         
         // Função para gerar URL do WhatsApp Web
-        function gerarWhatsAppWebURL(texto, numero = '') {
+        function gerarWhatsAppWebURL(texto) {
             const textoEncoded = encodeURIComponent(texto);
-            
-            if (numero && numero.trim()) {
-                const numeroLimpo = numero.replace(/\D/g, '');
-                return `https://web.whatsapp.com/send?phone=${numeroLimpo}&text=${textoEncoded}`;
-            } else {
-                return `https://web.whatsapp.com/send?text=${textoEncoded}`;
-            }
+            return `https://web.whatsapp.com/send?text=${textoEncoded}`;
         }
         
         // Detectar se é mobile
@@ -525,20 +488,10 @@
         });
         
         function atualizarLinkWhatsAppWeb(texto) {
-            const numero = document.getElementById('numeroWhatsapp').value;
-            
             document.getElementById('whatsappWebBtn').onclick = function() {
-                window.open(gerarWhatsAppWebURL(texto, numero), '_blank');
+                window.open(gerarWhatsAppWebURL(texto), '_blank');
             };
         }
-        
-        // Atualizar link quando número mudar
-        document.getElementById('numeroWhatsapp').addEventListener('input', function() {
-            const texto = document.getElementById('textoGerado').textContent;
-            if (texto) {
-                atualizarLinkWhatsAppWeb(texto);
-            }
-        });
         
         document.getElementById('copiarBtn').addEventListener('click', function() {
             const texto = document.getElementById('textoGerado').textContent;
@@ -577,7 +530,6 @@
         
         document.getElementById('limparBtn').addEventListener('click', function() {
             document.getElementById('chamadoForm').reset();
-            document.getElementById('numeroWhatsapp').value = '';
             document.getElementById('resultado').style.display = 'none';
             document.getElementById('categoria').focus();
         });
@@ -612,50 +564,17 @@
             // Focar no primeiro campo
             document.getElementById('categoria').focus();
             
-            // Salvar dados no localStorage (opcional)
-            const campos = ['categoria', 'titulo', 'descricao', 'prioridade', 'numeroWhatsapp'];
-            
-            // Carregar dados salvos
-            campos.forEach(campo => {
-                const valorSalvo = localStorage.getItem('wms_' + campo);
-                if (valorSalvo && campo !== 'titulo' && campo !== 'descricao') {
-                    document.getElementById(campo).value = valorSalvo;
-                }
-            });
-            
-            // Salvar dados ao digitar (só alguns campos)
-            ['numeroWhatsapp'].forEach(campo => {
-                document.getElementById(campo).addEventListener('input', function() {
-                    localStorage.setItem('wms_' + campo, this.value);
-                });
-            });
+            // Focar no primeiro campo
+            document.getElementById('categoria').focus();
         });
         
-        // Adicionar validação de número de telefone
-        document.getElementById('numeroWhatsapp').addEventListener('input', function() {
-            let valor = this.value.replace(/\D/g, ''); // Remove não numéricos
-            
-            // Formatar conforme digita (opcional)
-            if (valor.length > 2) {
-                if (valor.length <= 4) {
-                    valor = valor.replace(/(\d{2})(\d+)/, '$1 $2');
-                } else if (valor.length <= 9) {
-                    valor = valor.replace(/(\d{2})(\d{2})(\d+)/, '$1 $2 $3');
-                } else {
-                    valor = valor.replace(/(\d{2})(\d{2})(\d{5})(\d+)/, '$1 $2 $3-$4');
-                }
-            }
-            
-            // Não aplicar formatação automática para não confundir
-            // this.value = valor;
-        });
+
         
         // Adicionar dicas de uso
         const dicas = [
             '💡 Dica: Você pode usar Ctrl+Enter para enviar o formulário rapidamente',
             '📱 Dica: Este arquivo funciona offline - salve na área de trabalho',
-            '📋 Dica: O número do WhatsApp é opcional - deixe vazio para escolher contato',
-            '🔄 Dica: Seus dados ficam salvos no navegador (número WhatsApp)',
+            '📋 Dica: Clique em "ABRIR WHATSAPP WEB" e escolha o contato',
             '📧 Dica: Você pode enviar este arquivo por email para compartilhar'
         ];
         
