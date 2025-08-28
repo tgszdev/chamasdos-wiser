@@ -194,7 +194,7 @@
                     <input type="text" id="numero" placeholder="5511999999999">
                 </div>
                 
-                <a id="whatsapp" href="#" target="_blank" class="btn btn-primary">📱 ENVIAR WHATSAPP</a>
+                <button id="whatsappWeb" class="btn btn-primary">💻 ABRIR WHATSAPP WEB</button>
                 <button id="copiar" class="btn btn-success">📋 COPIAR TEXTO</button>
                 <button id="limpar" class="btn btn-secondary">🔄 NOVO CHAMADO</button>
                 
@@ -207,7 +207,7 @@
         const form = document.getElementById('form');
         const resultado = document.getElementById('resultado');
         const texto = document.getElementById('texto');
-        const whatsapp = document.getElementById('whatsapp');
+        const whatsappWeb = document.getElementById('whatsappWeb');
         const numero = document.getElementById('numero');
         
         form.addEventListener('submit', function(e) {
@@ -241,23 +241,21 @@
             
             texto.textContent = mensagem;
             resultado.style.display = 'block';
-            atualizarWhatsApp(mensagem);
             
             resultado.scrollIntoView({ behavior: 'smooth' });
         });
         
-        function atualizarWhatsApp(mensagem) {
+        function abrirWhatsAppWeb() {
+            const mensagem = texto.textContent;
             const num = numero.value.replace(/\D/g, '');
             const url = num ? 
-                `https://wa.me/${num}?text=${encodeURIComponent(mensagem)}` :
-                `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
-            whatsapp.href = url;
+                `https://web.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(mensagem)}` :
+                `https://web.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
+            window.open(url, '_blank');
         }
         
-        numero.addEventListener('input', () => {
-            const mensagem = texto.textContent;
-            if (mensagem) atualizarWhatsApp(mensagem);
-        });
+        // Evento do botão WhatsApp Web
+        whatsappWeb.addEventListener('click', abrirWhatsAppWeb);
         
         document.getElementById('copiar').addEventListener('click', function() {
             const mensagem = texto.textContent;

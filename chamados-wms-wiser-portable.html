@@ -258,7 +258,7 @@
         
         .whatsapp-options {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 12px;
             margin-bottom: 16px;
         }
@@ -433,10 +433,7 @@
                 </div>
                 
                 <div class="whatsapp-options">
-                    <a id="whatsappBtn" href="#" target="_blank" class="btn btn-whatsapp">
-                        📱 ABRIR WHATSAPP
-                    </a>
-                    <button id="whatsappWebBtn" class="btn btn-success">💻 WHATSAPP WEB</button>
+                    <button id="whatsappWebBtn" class="btn btn-whatsapp">💻 ABRIR WHATSAPP WEB</button>
                 </div>
                 
                 <button id="copiarBtn" class="btn btn-success">📋 COPIAR TEXTO</button>
@@ -467,18 +464,7 @@
             return agora.toLocaleString('pt-BR', opcoes);
         }
         
-        // Função para gerar URL do WhatsApp
-        function gerarWhatsAppURL(texto, numero = '') {
-            const textoEncoded = encodeURIComponent(texto);
-            
-            if (numero && numero.trim()) {
-                // Remove todos os caracteres não numéricos
-                const numeroLimpo = numero.replace(/\D/g, '');
-                return `https://wa.me/${numeroLimpo}?text=${textoEncoded}`;
-            } else {
-                return `https://wa.me/?text=${textoEncoded}`;
-            }
-        }
+
         
         // Função para gerar URL do WhatsApp Web
         function gerarWhatsAppWebURL(texto, numero = '') {
@@ -525,8 +511,8 @@
             document.getElementById('textoGerado').textContent = textoFormatado;
             document.getElementById('resultado').style.display = 'block';
             
-            // Atualizar links do WhatsApp
-            atualizarLinksWhatsApp(textoFormatado);
+            // Atualizar link do WhatsApp Web
+            atualizarLinkWhatsAppWeb(textoFormatado);
             
             // Scroll suave para o resultado
             document.getElementById('resultado').scrollIntoView({ 
@@ -534,28 +520,23 @@
                 block: 'nearest'
             });
             
-            // Mostrar dica baseada no dispositivo
-            if (isMobile()) {
-                mostrarFeedback('💡 Dica: Use "ABRIR WHATSAPP" para enviar pelo app móvel', 'info');
-            } else {
-                mostrarFeedback('💡 Dica: Use "WHATSAPP WEB" para enviar pelo navegador', 'info');
-            }
+            // Mostrar dica
+            mostrarFeedback('💡 Clique em "ABRIR WHATSAPP WEB" para enviar pelo navegador', 'info');
         });
         
-        function atualizarLinksWhatsApp(texto) {
+        function atualizarLinkWhatsAppWeb(texto) {
             const numero = document.getElementById('numeroWhatsapp').value;
             
-            document.getElementById('whatsappBtn').href = gerarWhatsAppURL(texto, numero);
             document.getElementById('whatsappWebBtn').onclick = function() {
                 window.open(gerarWhatsAppWebURL(texto, numero), '_blank');
             };
         }
         
-        // Atualizar links quando número mudar
+        // Atualizar link quando número mudar
         document.getElementById('numeroWhatsapp').addEventListener('input', function() {
             const texto = document.getElementById('textoGerado').textContent;
             if (texto) {
-                atualizarLinksWhatsApp(texto);
+                atualizarLinkWhatsAppWeb(texto);
             }
         });
         
