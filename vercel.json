@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "wms-wiser-chamados",
+  "name": "wms-chamados",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
@@ -10,7 +10,7 @@
     },
     {
       "source": "/completo", 
-      "destination": "/chamados-wms-wiser-portable.html"
+      "destination": "/chamados-wms-portable.html"
     }
   ]
 }

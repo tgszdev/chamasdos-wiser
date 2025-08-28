@@ -1,8 +1,8 @@
-# 🚨 Chamados WMS WISER
+# 🚨 Chamados WMS
 
 ## 📱 Aplicativo Web Multiplataforma
 
-Um aplicativo web responsivo para gerar chamados WMS WISER formatados e enviá-los diretamente via WhatsApp. **Funciona em qualquer sistema operacional (Windows, macOS, Linux, mobile) sem necessidade de instalação**.
+Um aplicativo web responsivo para gerar chamados WMS formatados e enviá-los diretamente via WhatsApp. **Funciona em qualquer sistema operacional (Windows, macOS, Linux, mobile) sem necessidade de instalação**.
 
 ## 🌐 URLs do Aplicativo
 

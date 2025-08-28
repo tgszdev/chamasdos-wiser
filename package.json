@@ -1,7 +1,7 @@
 {
-  "name": "wms-wiser-chamados",
+  "name": "wms-chamados",
   "version": "1.0.0",
-  "description": "Aplicativo para gerar chamados WMS WISER formatados para WhatsApp Web",
+  "description": "Aplicativo para gerar chamados WMS formatados para WhatsApp Web",
   "main": "index.html",
   "scripts": {
     "dev": "vite",
@@ -14,13 +14,12 @@
   },
   "keywords": [
     "wms",
-    "wiser", 
     "chamados",
     "whatsapp",
     "vercel",
     "webapp"
   ],
-  "author": "WMS WISER Team",
+  "author": "WMS Team",
   "license": "MIT",
   "dependencies": {
     "hono": "^4.9.4"
