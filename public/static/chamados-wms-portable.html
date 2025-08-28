@@ -567,15 +567,34 @@
         });
         
         // Inicialização
+        // Sistema de autenticação
+        function checkAuthentication() {
+            const savedLogin = localStorage.getItem('wms_session') || sessionStorage.getItem('wms_session');
+            if (savedLogin) {
+                try {
+                    const session = JSON.parse(atob(savedLogin));
+                    const now = new Date().getTime();
+                    if (session.expires > now && session.user) {
+                        return session;
+                    }
+                } catch (e) {}
+            }
+            return null;
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
+            // Verificar autenticação PRIMEIRO
+            const session = checkAuthentication();
+            if (!session) {
+                window.location.href = '/login.html';
+                return;
+            }
+            
             // Animação de entrada
             document.querySelector('.container').style.animation = 'slideIn 0.6s ease-out';
             
             // Mostrar data atual no rodapé
             document.getElementById('dataAtual').textContent = new Date().toLocaleDateString('pt-BR');
-            
-            // Focar no primeiro campo
-            document.getElementById('categoria').focus();
             
             // Focar no primeiro campo
             document.getElementById('categoria').focus();

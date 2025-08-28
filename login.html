@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Login - Chamados WMS</title>
+    
+    <!-- Meta tags -->
+    <meta name="description" content="Acesso restrito ao sistema de chamados WMS">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            object-fit: cover;
+            object-position: center center;
+            filter: blur(3px);
+        }
+        
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: -1;
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            max-width: 400px;
+            width: 90%;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.3);
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .login-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M 8 0 L 0 0 0 8" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .login-header p {
+            opacity: 0.9;
+            font-size: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .login-form {
+            padding: 40px 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1f2937;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            transform: translateY(-1px);
+            background: white;
+        }
+        
+        .form-group input::placeholder {
+            color: #9ca3af;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+        }
+        
+        .password-toggle:hover {
+            color: #4f46e5;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .login-btn:hover::before { left: 100%; }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(79, 70, 229, 0.4);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            position: relative;
+        }
+        
+        .loading::after {
+            content: '';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+        
+        .error-message {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            border: 1px solid #fecaca;
+            display: none;
+            animation: shake 0.5s ease-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .remember-me input {
+            margin-right: 10px;
+            width: auto;
+        }
+        
+        .remember-me label {
+            margin-bottom: 0;
+            font-size: 14px;
+            color: #6b7280;
+            cursor: pointer;
+        }
+        
+        .login-footer {
+            text-align: center;
+            padding-bottom: 10px;
+        }
+        
+        .login-footer p {
+            color: #9ca3af;
+            font-size: 12px;
+        }
+        
+        .login-footer a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .security-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: #1e40af;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 20px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
+        .attempts-warning {
+            background: linear-gradient(135deg, #fef3cd, #fde68a);
+            color: #92400e;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            border: 1px solid #f59e0b;
+            display: none;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 20px;
+                border-radius: 20px;
+            }
+            
+            .login-header {
+                padding: 30px 25px;
+            }
+            
+            .login-form {
+                padding: 30px 25px;
+            }
+            
+            .login-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Vídeo de fundo -->
+    <video class="video-background" crossorigin="anonymous" playsinline preload="auto" muted loop autoplay>
+        <source src="https://video.wixstatic.com/video/5d6ed6_f3549dd5db72460c90c6acef09667697/1080p/mp4/file.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+    
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🔐 Acesso Restrito</h1>
+            <p>Sistema de Chamados WMS<br>Faça login para continuar</p>
+        </div>
+        
+        <div class="login-form">
+            <div id="attemptsWarning" class="attempts-warning">
+                ⚠️ Muitas tentativas incorretas. Aguarde alguns segundos.
+            </div>
+            
+            <div id="errorMessage" class="error-message">
+                ❌ Usuário ou senha incorretos. Tente novamente.
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">👤 Usuário:</label>
+                    <input type="text" id="username" placeholder="Digite seu usuário" required autocomplete="username">
+                </div>
+                
+                <div class="form-group" style="position: relative;">
+                    <label for="password">🔑 Senha:</label>
+                    <input type="password" id="password" placeholder="Digite sua senha" required autocomplete="current-password">
+                    <button type="button" class="password-toggle" id="togglePassword">👁️</button>
+                </div>
+                
+                <div class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Lembrar-me neste dispositivo</label>
+                </div>
+                
+                <button type="submit" class="login-btn" id="loginBtn">
+                    🚀 ENTRAR NO SISTEMA
+                </button>
+            </form>
+            
+            <div class="security-info">
+                🔒 <strong>Acesso Seguro:</strong> Suas credenciais são verificadas localmente. Mantenha seus dados em sigilo.
+            </div>
+        </div>
+        
+        <div class="login-footer">
+            <p>Sistema WMS v1.0 | <a href="#" onclick="showHelp()">Precisa de ajuda?</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Configuração de usuários (em produção, isso seria criptografado)
+        const USERS = {
+            'admin': {
+                password: 'wms2024',
+                name: 'Administrador',
+                role: 'admin',
+                lastLogin: null
+            },
+            'supervisor': {
+                password: 'sup123',
+                name: 'Supervisor',
+                role: 'supervisor', 
+                lastLogin: null
+            },
+            'operador': {
+                password: 'op456',
+                name: 'Operador',
+                role: 'user',
+                lastLogin: null
+            }
+        };
+        
+        // Controle de tentativas
+        let loginAttempts = 0;
+        const MAX_ATTEMPTS = 3;
+        let blockTime = 0;
+        
+        // Elementos DOM
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const attemptsWarning = document.getElementById('attemptsWarning');
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const usernameInput = document.getElementById('username');
+        const rememberMe = document.getElementById('rememberMe');
+        
+        // Função para criptografia simples (Base64 + Salt)
+        function hashPassword(password, salt = 'wms-secure') {
+            return btoa(salt + password + salt).replace(/=/g, '');
+        }
+        
+        // Verificar se já está logado
+        function checkExistingLogin() {
+            const savedLogin = localStorage.getItem('wms_session');
+            if (savedLogin) {
+                try {
+                    const session = JSON.parse(atob(savedLogin));
+                    const now = new Date().getTime();
+                    
+                    // Verificar se a sessão ainda é válida (24 horas)
+                    if (session.expires > now && session.user && USERS[session.user]) {
+                        redirectToApp(session.user);
+                        return true;
+                    }
+                } catch (e) {
+                    localStorage.removeItem('wms_session');
+                }
+            }
+            return false;
+        }
+        
+        // Função para fazer login
+        function performLogin(username, password, remember = false) {
+            // Verificar se usuário existe e senha está correta
+            if (USERS[username] && USERS[username].password === password) {
+                // Login bem-sucedido
+                const sessionData = {
+                    user: username,
+                    name: USERS[username].name,
+                    role: USERS[username].role,
+                    loginTime: new Date().getTime(),
+                    expires: new Date().getTime() + (remember ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000) // 7 dias se lembrar, 1 dia se não
+                };
+                
+                // Salvar sessão
+                const encodedSession = btoa(JSON.stringify(sessionData));
+                if (remember) {
+                    localStorage.setItem('wms_session', encodedSession);
+                } else {
+                    sessionStorage.setItem('wms_session', encodedSession);
+                }
+                
+                // Atualizar último login
+                USERS[username].lastLogin = new Date().getTime();
+                
+                // Reset tentativas
+                loginAttempts = 0;
+                
+                // Redirecionar
+                redirectToApp(username);
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // Função para redirecionar para o app
+        function redirectToApp(username) {
+            // Mostrar loading
+            loginBtn.classList.add('loading');
+            loginBtn.textContent = 'Entrando...';
+            loginBtn.disabled = true;
+            
+            setTimeout(() => {
+                // Redirecionar para a página principal
+                window.location.href = '/';
+            }, 1500);
+        }
+        
+        // Função para mostrar erro
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Função para verificar bloqueio por tentativas
+        function checkBlocking() {
+            if (blockTime > 0) {
+                const remaining = Math.ceil((blockTime - new Date().getTime()) / 1000);
+                if (remaining > 0) {
+                    attemptsWarning.textContent = `⚠️ Aguarde ${remaining} segundos para tentar novamente.`;
+                    attemptsWarning.style.display = 'block';
+                    loginBtn.disabled = true;
+                    return true;
+                } else {
+                    blockTime = 0;
+                    loginAttempts = 0;
+                    attemptsWarning.style.display = 'none';
+                    loginBtn.disabled = false;
+                    return false;
+                }
+            }
+            return false;
+        }
+        
+        // Toggle mostrar/ocultar senha
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+        
+        // Evento de submit do formulário
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Verificar se está bloqueado
+            if (checkBlocking()) {
+                return;
+            }
+            
+            const username = usernameInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
+            const remember = rememberMe.checked;
+            
+            if (!username || !password) {
+                showError('❌ Por favor, preencha todos os campos.');
+                return;
+            }
+            
+            // Mostrar loading
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
+            const originalText = loginBtn.textContent;
+            loginBtn.textContent = 'Verificando...';
+            
+            // Simular delay de verificação (segurança)
+            setTimeout(() => {
+                if (performLogin(username, password, remember)) {
+                    // Login bem-sucedido - redirecionamento já acontece em performLogin
+                } else {
+                    // Login falhou
+                    loginAttempts++;
+                    
+                    if (loginAttempts >= MAX_ATTEMPTS) {
+                        blockTime = new Date().getTime() + (30 * 1000); // 30 segundos
+                        showError('❌ Muitas tentativas incorretas. Acesso bloqueado temporariamente.');
+                        checkBlocking();
+                    } else {
+                        const remaining = MAX_ATTEMPTS - loginAttempts;
+                        showError(`❌ Usuário ou senha incorretos. ${remaining} tentativa(s) restante(s).`);
+                    }
+                    
+                    // Reset form
+                    passwordInput.value = '';
+                    loginBtn.classList.remove('loading');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = originalText;
+                    passwordInput.focus();
+                }
+            }, 1000);
+        });
+        
+        // Função para mostrar ajuda
+        function showHelp() {
+            alert(`🔐 CREDENCIAIS DE ACESSO:\n\nUsuários disponíveis:\n• admin / wms2024\n• supervisor / sup123\n• operador / op456\n\n📞 Para suporte: Entre em contato com o administrador do sistema.`);
+        }
+        
+        // Verificar bloqueio a cada segundo
+        setInterval(checkBlocking, 1000);
+        
+        // Verificar se já está logado ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!checkExistingLogin()) {
+                // Focar no campo usuário
+                usernameInput.focus();
+                
+                // Carregar usuário lembrado
+                const rememberedUser = localStorage.getItem('wms_remembered_user');
+                if (rememberedUser) {
+                    usernameInput.value = rememberedUser;
+                    passwordInput.focus();
+                }
+            }
+        });
+        
+        // Salvar usuário se "lembrar-me" estiver marcado
+        usernameInput.addEventListener('change', function() {
+            if (rememberMe.checked) {
+                localStorage.setItem('wms_remembered_user', this.value);
+            }
+        });
+        
+        rememberMe.addEventListener('change', function() {
+            if (this.checked && usernameInput.value) {
+                localStorage.setItem('wms_remembered_user', usernameInput.value);
+            } else {
+                localStorage.removeItem('wms_remembered_user');
+            }
+        });
+        
+        // Atalho Enter
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !loginBtn.disabled) {
+                loginForm.dispatchEvent(new Event('submit'));
+            }
+        });
+        
+        // Prevenir ataques básicos
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('selectstart', e => e.preventDefault());
+        
+        // Log de tentativas (desenvolvimento)
+        console.log('🔐 Sistema de Login WMS carregado');
+        console.log('👥 Usuários disponíveis:', Object.keys(USERS));
+    </script>
+</body>
+</html>

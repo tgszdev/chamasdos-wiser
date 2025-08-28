@@ -507,13 +507,108 @@
             }
         });
         
+        // Sistema de autenticação
+        function checkAuthentication() {
+            // Verificar sessão no localStorage
+            const savedLogin = localStorage.getItem('wms_session');
+            if (savedLogin) {
+                try {
+                    const session = JSON.parse(atob(savedLogin));
+                    const now = new Date().getTime();
+                    
+                    if (session.expires > now && session.user) {
+                        return session;
+                    }
+                } catch (e) {
+                    localStorage.removeItem('wms_session');
+                }
+            }
+            
+            // Verificar sessão no sessionStorage
+            const tempLogin = sessionStorage.getItem('wms_session');
+            if (tempLogin) {
+                try {
+                    const session = JSON.parse(atob(tempLogin));
+                    const now = new Date().getTime();
+                    
+                    if (session.expires > now && session.user) {
+                        return session;
+                    }
+                } catch (e) {
+                    sessionStorage.removeItem('wms_session');
+                }
+            }
+            
+            return null;
+        }
+        
+        function redirectToLogin() {
+            window.location.href = '/login.html';
+        }
+        
+        function logout() {
+            if (confirm('Tem certeza que deseja sair do sistema?')) {
+                localStorage.removeItem('wms_session');
+                sessionStorage.removeItem('wms_session');
+                redirectToLogin();
+            }
+        }
+        
+        function updateUserInfo(session) {
+            // Criar barra de usuário
+            const userBar = document.createElement('div');
+            userBar.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: rgba(79, 70, 229, 0.95);
+                color: white;
+                padding: 8px 20px;
+                font-size: 12px;
+                z-index: 1000;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                backdrop-filter: blur(10px);
+            `;
+            
+            userBar.innerHTML = `
+                <span>👤 Logado como: <strong>${session.name}</strong> | ${session.role}</span>
+                <button onclick="logout()" style="
+                    background: rgba(255,255,255,0.2);
+                    border: none;
+                    color: white;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 11px;
+                ">🚪 Sair</button>
+            `;
+            
+            document.body.insertBefore(userBar, document.body.firstChild);
+            
+            // Ajustar padding do body
+            document.body.style.paddingTop = '40px';
+        }
+        
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
+            // Verificar autenticação ANTES de tudo
+            const session = checkAuthentication();
+            if (!session) {
+                redirectToLogin();
+                return;
+            }
+            
+            // Usuário autenticado - configurar interface
+            updateUserInfo(session);
+            
             document.getElementById('categoria').focus();
             
             // Dica inicial
             setTimeout(() => {
-                mostrarFeedback('💡 Preencha todos os campos e clique no botão verde para gerar o chamado!', 'info');
+                mostrarFeedback(`💡 Bem-vindo(a), ${session.name}! Preencha os campos para gerar o chamado.`, 'info');
             }, 1500);
         });
         

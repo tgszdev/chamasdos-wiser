@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚪 Logout - Chamados WMS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logout-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+        }
+        
+        .logout-container h1 {
+            color: #374151;
+            margin-bottom: 20px;
+        }
+        
+        .logout-container p {
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <h1>🚪 Logout Realizado</h1>
+        <p>Você foi desconectado com sucesso do sistema.</p>
+        <a href="/login.html" class="btn btn-primary">🔐 Fazer Login Novamente</a>
+    </div>
+    
+    <script>
+        // Limpar todas as sessões
+        localStorage.removeItem('wms_session');
+        sessionStorage.removeItem('wms_session');
+        localStorage.removeItem('wms_remembered_user');
+        
+        // Redirecionar automaticamente após 3 segundos
+        setTimeout(() => {
+            window.location.href = '/login.html';
+        }, 3000);
+    </script>
+</body>
+</html>

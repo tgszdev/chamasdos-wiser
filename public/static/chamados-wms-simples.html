@@ -307,8 +307,36 @@
         
 
         
-        // Focar no primeiro campo
-        document.getElementById('categoria').focus();
+        // Sistema de autenticação
+        function checkAuthentication() {
+            const savedLogin = localStorage.getItem('wms_session') || sessionStorage.getItem('wms_session');
+            if (savedLogin) {
+                try {
+                    const session = JSON.parse(atob(savedLogin));
+                    const now = new Date().getTime();
+                    if (session.expires > now && session.user) {
+                        return session;
+                    }
+                } catch (e) {}
+            }
+            return null;
+        }
+        
+        function redirectToLogin() {
+            window.location.href = '/login.html';
+        }
+        
+        // Verificar autenticação ao carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            const session = checkAuthentication();
+            if (!session) {
+                redirectToLogin();
+                return;
+            }
+            
+            // Focar no primeiro campo
+            document.getElementById('categoria').focus();
+        });
     </script>
 </body>
 </html>
