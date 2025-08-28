@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="#4f46e5"/>
+  
+  <!-- Main Icon Design -->
+  <g transform="translate(256,256)">
+    <!-- Alert/Warning Symbol -->
+    <circle r="180" fill="#ffffff" opacity="0.1"/>
+    <circle r="140" fill="#ffffff" opacity="0.2"/>
+    
+    <!-- WMS Text -->
+    <text x="0" y="10" font-family="Arial, sans-serif" font-size="80" font-weight="bold" 
+          text-anchor="middle" fill="white">WMS</text>
+    
+    <!-- Alert Icon -->
+    <g transform="translate(0,-80)">
+      <circle r="25" fill="#fbbf24"/>
+      <text x="0" y="8" font-family="Arial, sans-serif" font-size="24" font-weight="bold" 
+            text-anchor="middle" fill="#1f2937">!</text>
+    </g>
+    
+    <!-- Document/List Icons -->
+    <g transform="translate(-60,60)">
+      <rect x="-12" y="-15" width="24" height="30" rx="4" fill="white"/>
+      <line x1="-8" y1="-8" x2="8" y2="-8" stroke="#4f46e5" stroke-width="2"/>
+      <line x1="-8" y1="-2" x2="8" y2="-2" stroke="#4f46e5" stroke-width="2"/>
+      <line x1="-8" y1="4" x2="8" y2="4" stroke="#4f46e5" stroke-width="2"/>
+    </g>
+    
+    <g transform="translate(60,60)">
+      <rect x="-12" y="-15" width="24" height="30" rx="4" fill="white"/>
+      <line x1="-8" y1="-8" x2="8" y2="-8" stroke="#4f46e5" stroke-width="2"/>
+      <line x1="-8" y1="-2" x2="8" y2="-2" stroke="#4f46e5" stroke-width="2"/>
+      <line x1="-8" y1="4" x2="8" y2="4" stroke="#4f46e5" stroke-width="2"/>
+    </g>
+  </g>
+</svg>

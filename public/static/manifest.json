@@ -1,0 +1,41 @@
+{
+  "name": "Chamados WMS WISER",
+  "short_name": "WMS WISER",
+  "description": "Aplicativo para gerar chamados WMS WISER formatados para WhatsApp",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#4f46e5",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["productivity", "business"],
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icon-512.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Novo Chamado Crítico",
+      "short_name": "Crítico",
+      "description": "Criar novo chamado com prioridade crítica",
+      "url": "/?priority=critica",
+      "icons": [
+        {
+          "src": "/static/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
