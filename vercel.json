@@ -15,6 +15,10 @@
     {
       "source": "/completo", 
       "destination": "/chamados-wms-portable.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
     }
   ]
 }
