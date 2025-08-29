@@ -439,6 +439,7 @@
             <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
             <button class="tab-btn" onclick="showTab('users')">👥 Usuários</button>
             <button class="tab-btn" onclick="showTab('add-user')">➕ Novo Usuário</button>
+            <button class="tab-btn" onclick="showTab('change-password')">🔑 Alterar Senha</button>
             <button class="tab-btn" onclick="showTab('password-gen')">🔐 Gerador de Senha</button>
         </div>
         
@@ -464,11 +465,6 @@
                     <div class="stat-number" id="lastLogin">-</div>
                     <div class="stat-label">Último Login</div>
                 </div>
-            </div>
-            
-            <div class="card">
-                <h3>📈 Atividade Recente</h3>
-                <div id="recentActivity"></div>
             </div>
         </div>
         
@@ -551,6 +547,74 @@
                     
                     <button type="submit" class="btn btn-success">
                         ➕ CRIAR USUÁRIO
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Tab: Alterar Senha -->
+        <div id="tab-change-password" class="tab-content">
+            <div class="card">
+                <h3>🔑 Alterar Senha do Usuário</h3>
+                <p>Selecione um usuário e defina uma nova senha</p>
+                
+                <form id="changePasswordForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="selectUser">👤 Selecionar Usuário:</label>
+                            <select id="selectUser" required>
+                                <option value="">-- Selecione um usuário --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="currentUserInfo">ℹ️ Informações do Usuário:</label>
+                            <div id="currentUserInfo" style="
+                                padding: 12px; 
+                                background: #f3f4f6; 
+                                border-radius: 8px; 
+                                color: #6b7280;
+                                font-size: 14px;
+                                min-height: 60px;
+                                display: flex;
+                                align-items: center;
+                            ">
+                                Selecione um usuário para ver as informações
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newUserPassword">🔐 Nova Senha:</label>
+                            <input 
+                                type="password" 
+                                id="newUserPassword" 
+                                placeholder="Digite a nova senha" 
+                                required
+                                minlength="4"
+                            >
+                            <div style="display: flex; gap: 10px; margin-top: 8px;">
+                                <button type="button" onclick="togglePassword('newUserPassword')" class="btn btn-secondary btn-small">
+                                    👁️ Mostrar
+                                </button>
+                                <button type="button" onclick="generatePasswordForChange()" class="btn btn-secondary btn-small">
+                                    🎲 Gerar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>💪 Força da Senha:</label>
+                            <div class="password-strength">
+                                <div class="strength-bar">
+                                    <div id="changeStrengthFill" class="strength-fill"></div>
+                                </div>
+                                <span id="changeStrengthText">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        ✅ Alterar Senha
                     </button>
                 </form>
             </div>
@@ -814,8 +878,9 @@
             document.getElementById('strengthFill').className = 'strength-fill';
             document.getElementById('strengthText').textContent = '-';
             
-            // Atualizar dashboard se estiver ativo
+            // Atualizar dashboard e select se estiver ativo
             updateDashboard();
+            loadUsersInSelect();
         });
         
         // Excluir usuário
@@ -830,6 +895,7 @@
                 saveUsers();
                 showFeedback(`✅ Usuário "${username}" excluído com sucesso!`, 'success');
                 loadUsersTable();
+                loadUsersInSelect();
                 updateDashboard();
             }
         }
@@ -982,6 +1048,100 @@
             }
         }
         
+        // ===== FUNÇÕES DE ALTERAÇÃO DE SENHA =====
+        
+        // Carregar usuários no select
+        function loadUsersInSelect() {
+            const selectUser = document.getElementById('selectUser');
+            selectUser.innerHTML = '<option value="">-- Selecione um usuário --</option>';
+            
+            Object.keys(users).forEach(username => {
+                const user = users[username];
+                const option = document.createElement('option');
+                option.value = username;
+                option.textContent = `${user.name} (@${username}) - ${user.role}`;
+                selectUser.appendChild(option);
+            });
+        }
+        
+        // Mostrar informações do usuário selecionado
+        document.getElementById('selectUser')?.addEventListener('change', function() {
+            const username = this.value;
+            const userInfo = document.getElementById('currentUserInfo');
+            
+            if (username && users[username]) {
+                const user = users[username];
+                const lastLogin = user.lastLogin 
+                    ? new Date(user.lastLogin).toLocaleString('pt-BR')
+                    : 'Nunca';
+                    
+                userInfo.innerHTML = `
+                    <div style="display: grid; gap: 8px;">
+                        <div><strong>Nome:</strong> ${user.name}</div>
+                        <div><strong>Email:</strong> ${user.email || 'Não informado'}</div>
+                        <div><strong>Role:</strong> ${user.role}</div>
+                        <div><strong>Último Login:</strong> ${lastLogin}</div>
+                    </div>
+                `;
+            } else {
+                userInfo.innerHTML = 'Selecione um usuário para ver as informações';
+            }
+        });
+        
+        // Monitorar senha de alteração
+        document.getElementById('newUserPassword')?.addEventListener('input', function() {
+            updatePasswordStrength(this.value, 'changeStrengthFill', 'changeStrengthText');
+        });
+        
+        // Gerar senha para alteração
+        function generatePasswordForChange() {
+            const password = generatePassword(12, {
+                uppercase: true,
+                lowercase: true,
+                numbers: true,
+                symbols: true,
+                excludeSimilar: true
+            });
+            
+            document.getElementById('newUserPassword').value = password;
+            updatePasswordStrength(password, 'changeStrengthFill', 'changeStrengthText');
+        }
+        
+        // Formulário de alteração de senha
+        document.getElementById('changePasswordForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('selectUser').value;
+            const newPassword = document.getElementById('newUserPassword').value.trim();
+            
+            if (!username) {
+                showFeedback('❌ Selecione um usuário!', 'error');
+                return;
+            }
+            
+            if (!newPassword) {
+                showFeedback('❌ Digite uma nova senha!', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                showFeedback('❌ A senha deve ter pelo menos 4 caracteres!', 'error');
+                return;
+            }
+            
+            // Alterar senha
+            users[username].password = newPassword;
+            saveUsers();
+            
+            showFeedback(`✅ Senha do usuário "${username}" alterada com sucesso!`, 'success');
+            
+            // Limpar formulário
+            this.reset();
+            document.getElementById('currentUserInfo').innerHTML = 'Selecione um usuário para ver as informações';
+            document.getElementById('changeStrengthFill').className = 'strength-fill';
+            document.getElementById('changeStrengthText').textContent = '-';
+        });
+        
         // Voltar ao app
         function goBack() {
             window.location.href = '/';
@@ -996,6 +1156,7 @@
             // Carregar usuários e atualizar interface
             loadUsers();
             updateDashboard();
+            loadUsersInSelect();
             
             // Gerar primeira senha
             generateNewPassword();
