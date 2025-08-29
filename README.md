@@ -6,133 +6,191 @@ Um aplicativo web responsivo para gerar chamados WMS formatados e enviá-los dir
 
 ## 🌐 URLs do Aplicativo
 
-- **Demo Online**: https://3000-iqofpibdt6g7bo8j56r7l.e2b.dev
+- **Demo Online**: https://3000-ixjmk6fkuy3nvsvaklcvh.e2b.dev
 - **GitHub**: *[Será configurado no deploy]*
 
 ## ✨ Características Principais
 
-### ✅ **Funcionalidades Implementadas**
-- ✅ **Formulário completo** para criação de chamados
+### ✅ **Funcionalidades Implementadas - Recém Atualizadas! 🎨**
+- ✅ **Sistema completo de gerenciamento** - criação, listagem e controle de chamados
+- ✅ **Design Gmail-like** - interface clean e profissional inspirada no Gmail
+- ✅ **Vídeo de fundo unificado** - presente em todas as páginas para consistência visual
+- ✅ **Melhor legibilidade** - cores otimizadas com alto contraste contra vídeo de fundo
+- ✅ **Sistema de autenticação** - login e controle de acesso por perfis
+- ✅ **Painel administrativo** - gerenciamento completo de usuários e senhas
+- ✅ **Controle de status** - Aberto, Em Atendimento, Finalizado, Cancelado
+- ✅ **Sistema de prioridades** - com badges coloridas para fácil identificação
+- ✅ **Histórico completo** - rastreamento de alterações de status
+- ✅ **Filtros avançados** - por categoria, status, prioridade e período
 - ✅ **Integração direta com WhatsApp** via URL scheme
 - ✅ **Interface responsiva** otimizada para desktop e mobile
-- ✅ **PWA (Progressive Web App)** - pode ser "instalado" na área de trabalho
-- ✅ **Funciona offline** após primeira visita
-- ✅ **Cópia automática** do texto formatado
-- ✅ **Abertura automática** do WhatsApp (com confirmação)
-- ✅ **Validação de campos** em tempo real
-- ✅ **Animações suaves** e feedback visual
-- ✅ **Design moderno** com glassmorphism
+- ✅ **Processo unificado** - criação automática + envio para WhatsApp
 
-### 📋 **Campos do Formulário**
-1. **🗂️ Categoria**: Recebimento, Expedição, Movimentações Internas, Relatório, Melhoria
-2. **📝 Título**: Título descritivo do chamado
-3. **📄 Descrição**: Detalhamento completo do problema/solicitação
-4. **⚡ Prioridade**: Crítica, Alta, Média, Baixa (com cores indicativas)
+### 🎨 **Melhorias de Design Recentes**
+- 🔄 **Layout Gmail-like** - design clean e profissional
+- 🎯 **Cores otimizadas** - melhor contraste e legibilidade
+- 📱 **Consistência visual** - mesmo vídeo de fundo em todas as páginas
+- 🏷️ **Badges melhoradas** - status e prioridade com cores mais claras
+- 📊 **Tabelas otimizadas** - cabeçalhos fixos e hover effects
+- 🎪 **Botões padronizados** - estilo Gmail em todos os formulários
 
-### 🔄 **Fluxo de Uso**
-1. Usuário preenche o formulário
-2. Clica em "GERAR E ENVIAR VIA WHATSAPP"
-3. Sistema gera mensagem formatada com data/hora brasileira
-4. Oferece opção de abrir automaticamente no WhatsApp
-5. Permite copiar texto manualmente se necessário
-6. Botão para criar novo chamado
+### 📋 **Páginas do Sistema**
+1. **🏠 index.html**: Criação de novos chamados
+2. **📋 chamados.html**: Lista e gerenciamento de chamados
+3. **🔐 login.html**: Sistema de autenticação
+4. **⚙️ admin.html**: Painel administrativo
+5. **🚪 logout.html**: Encerramento de sessão
+
+### 🔄 **Fluxo de Uso Completo**
+1. Login no sistema com credenciais
+2. Criação de chamado via formulário
+3. **NOVIDADE**: Salvamento automático + abertura no WhatsApp
+4. Visualização e gerenciamento na lista de chamados
+5. Controle de status e histórico de alterações
+6. Administração de usuários (para admins)
 
 ## 🏗️ Arquitetura Técnica
 
 ### **Stack Tecnológica**
-- **Backend**: Hono (TypeScript)
+- **Backend**: Hono + Cloudflare Pages (estático)
 - **Frontend**: HTML5, CSS3, JavaScript Vanilla
+- **Armazenamento**: LocalStorage para dados
 - **Deployment**: Cloudflare Pages/Workers
-- **PWA**: Service Worker + Manifest
-- **Styling**: CSS3 com Glassmorphism
+- **Autenticação**: Cliente-side com localStorage
+- **Design**: CSS3 com efeitos Gmail-like
 
 ### **Estrutura do Projeto**
 ```
 webapp/
-├── src/
-│   └── index.tsx          # Aplicação Hono principal
-├── public/
-│   └── static/
-│       ├── manifest.json  # PWA manifest
-│       ├── sw.js         # Service Worker
-│       ├── icon-*.png    # Ícones do app
-│       └── icon.svg      # Ícone fonte
-├── ecosystem.config.cjs   # Configuração PM2
-└── wrangler.jsonc        # Configuração Cloudflare
+├── index.html             # Página principal (criação de chamados)
+├── chamados.html          # Lista e gerenciamento de chamados  
+├── login.html            # Sistema de autenticação
+├── admin.html            # Painel administrativo
+├── logout.html           # Página de logout
+├── ecosystem.config.cjs  # Configuração PM2
+└── wrangler.jsonc       # Configuração Cloudflare
 ```
 
-### **APIs Implementadas**
-- `GET /` - Página principal do aplicativo
-- `POST /api/whatsapp` - Geração de mensagem e URL do WhatsApp
-- `GET /static/*` - Servir arquivos estáticos (ícones, manifest, etc.)
+### **APIs/Rotas Implementadas**
+- `GET /` - Página principal (index.html)
+- `GET /chamados` - Lista de chamados (chamados.html)
+- `GET /login` - Sistema de login (login.html)
+- `GET /admin` - Painel administrativo (admin.html)
+- `GET /logout` - Página de logout (logout.html)
+
+### **Dados e Persistência**
+- **LocalStorage**: Usuários, chamados, configurações
+- **Estrutura de dados**: JSON com IDs únicos e timestamps
+- **Backup**: Via localStorage do navegador
 
 ## 📱 Como Usar
 
 ### **Opção 1: Via Navegador Web (RECOMENDADO)**
-1. Acesse: https://3000-iqofpibdt6g7bo8j56r7l.e2b.dev
-2. Use diretamente no navegador (funciona em qualquer dispositivo)
+1. Acesse: https://3000-ixjmk6fkuy3nvsvaklcvh.e2b.dev
+2. Faça login (credenciais padrão disponíveis no sistema)
+3. Use diretamente no navegador (funciona em qualquer dispositivo)
 
-### **Opção 2: "Instalar" como PWA**
-1. No Chrome/Edge: Clique no ícone "Instalar app" na barra de endereço
-2. No Safari (iOS): Compartilhar > "Adicionar à Tela de Início"
-3. No Android: Menu > "Instalar app" ou "Adicionar à tela inicial"
-
-### **Opção 3: Executar Localmente**
+### **Opção 2: Executar Localmente**
 ```bash
 git clone <repository-url>
 cd webapp
 npm install
-npm run build
-npm run dev:sandbox
+pm2 start ecosystem.config.cjs
 ```
+
+## 👥 Sistema de Usuários
+
+### **Perfis de Acesso**
+1. **👑 Admin**: Acesso total (criar, editar, excluir chamados + gerenciar usuários)
+2. **👮 Supervisor**: Gerenciar chamados (criar, editar, alterar status)
+3. **👤 Operador**: Apenas visualizar chamados (somente leitura)
+
+### **Funcionalidades por Perfil**
+- **Admin/Supervisor**: Podem alterar status, editar chamados, criar novos
+- **Operador**: Visualização apenas, sem permissões de edição
+- **Sistema de Senhas**: Geração automática + mudança manual
+
+## 🎨 Design System - Gmail-like
+
+### **Cores Principais**
+- **Fundo**: Vídeo com overlay escura para melhor legibilidade
+- **Cards**: `rgba(255, 255, 255, 0.97)` - alta opacidade para contraste
+- **Bordas**: `rgba(0, 0, 0, 0.08)` - sutis como no Gmail
+- **Texto**: `#202124` (principal), `#5f6368` (secundário)
+- **Azul Primary**: `#1a73e8` (botões principais)
+
+### **Componentes Padronizados**
+- **Botões**: Estilo Gmail com bordas sutis
+- **Campos**: Border radius 8px, padding otimizado
+- **Tabelas**: Cabeçalhos fixos, hover effects
+- **Cards**: Border radius 12px, sombras suaves
+- **Badges**: Cores de status com melhor contraste
 
 ## 💡 Vantagens desta Solução
 
-### **✅ Sem Instalação Necessária**
+### **✅ Sistema Completo**
+- Criação, gerenciamento e controle total de chamados
+- Sistema de usuários com diferentes níveis de acesso
+- Interface moderna inspirada no Gmail para melhor UX
+
+### **✅ Zero Instalação**
 - Funciona instantaneamente em qualquer navegador
-- Não requer downloads ou instalações
 - Compatível com Windows, macOS, Linux, Android, iOS
+- Dados salvos localmente no navegador
 
-### **✅ Integração Nativa com WhatsApp**
-- Abre automaticamente o WhatsApp com mensagem pré-formatada
-- Funciona no WhatsApp Web e no app móvel
-- Preserva formatação e emojis
+### **✅ Integração WhatsApp Aprimorada**
+- **NOVA**: Processo unificado - salva + abre WhatsApp automaticamente
+- Mensagens pré-formatadas com todas as informações
+- Funciona no WhatsApp Web e app móvel
 
-### **✅ Experiência de App Nativo**
-- Interface moderna e responsiva
-- Pode ser "instalado" na área de trabalho via PWA
-- Funciona offline após primeira visita
+### **✅ Design Professional**
+- **NOVO**: Layout inspirado no Gmail para familiaridade
+- Cores otimizadas para melhor legibilidade
+- Consistência visual em todas as páginas
 
-### **✅ Manutenção Simplificada**
-- Atualizações automáticas via web
-- Uma única versão para todas as plataformas
-- Deploy instantâneo via Cloudflare
+## 🚀 Melhorias Implementadas Recentemente
+
+### **🎨 Design e UX (Implementado)**
+- ✅ **Layout Gmail-like** - interface clean e familiar
+- ✅ **Vídeo de fundo unificado** - consistência visual
+- ✅ **Cores otimizadas** - melhor contraste e legibilidade
+- ✅ **Tabelas aprimoradas** - cabeçalhos fixos, hover effects
+- ✅ **Badges melhoradas** - status com cores mais claras
+- ✅ **Botões padronizados** - estilo Gmail em todo o sistema
+
+### **⚡ Funcionalidades (Implementado)**
+- ✅ **Processo unificado** - botão único para salvar + WhatsApp
+- ✅ **Sistema de permissões** - controle por perfil de usuário
+- ✅ **Histórico de status** - rastreamento completo de alterações
+- ✅ **Filtros avançados** - busca por múltiplos critérios
+- ✅ **Auto-save** - chamados salvos automaticamente
 
 ## 🚀 Próximos Passos Recomendados
 
 ### **🔧 Melhorias Técnicas**
 - [ ] **Deploy para Cloudflare Pages** (produção estável)
-- [ ] **Configuração de domínio personalizado** (ex: chamados.wmswiser.com.br)
-- [ ] **Analytics de uso** para monitoramento
-- [ ] **Backup automático** de dados via Cloudflare D1
+- [ ] **Migração para Cloudflare D1** (banco de dados remoto)
+- [ ] **Sincronização entre dispositivos** via Cloudflare KV
+- [ ] **Sistema de backup** automático
 
 ### **✨ Funcionalidades Futuras**
-- [ ] **Histórico de chamados** salvos localmente
-- [ ] **Templates personalizados** para diferentes tipos de chamado
-- [ ] **Upload de imagens/anexos** via Cloudflare R2
-- [ ] **Notificações push** para atualizações de chamado
-- [ ] **Integração com sistema interno** via API
+- [ ] **Dashboard analytics** com gráficos de chamados
+- [ ] **Notificações push** para atualizações
+- [ ] **Templates personalizados** por categoria
+- [ ] **Upload de anexos** via Cloudflare R2
+- [ ] **API REST** para integração externa
 
 ### **🎨 Melhorias de UX**
 - [ ] **Modo escuro** automático
-- [ ] **Atalhos de teclado** para preenchimento rápido
-- [ ] **Sugestões inteligentes** baseadas no histórico
-- [ ] **Validação avançada** de campos
+- [ ] **Atalhos de teclado** para ações rápidas
+- [ ] **Busca textual** em descrições
+- [ ] **Exportação** de relatórios
 
 ## 🔄 Status do Deployment
 
 - **Desenvolvimento**: ✅ Ativo (localhost:3000)
-- **Demo Online**: ✅ Ativo (https://3000-iqofpibdt6g7bo8j56r7l.e2b.dev)
+- **Demo Online**: ✅ Ativo (https://3000-ixjmk6fkuy3nvsvaklcvh.e2b.dev)
+- **Design Gmail-like**: ✅ Implementado (2024-08-29)
 - **Produção Cloudflare**: ⏳ Pendente
 - **Domínio Personalizado**: ⏳ Pendente
 
@@ -140,18 +198,20 @@ npm run dev:sandbox
 
 ```bash
 # Iniciar desenvolvimento local
-npm run dev:sandbox
+pm2 start ecosystem.config.cjs
 
-# Build para produção
-npm run build
-
-# Deploy para Cloudflare Pages
-npm run deploy:prod
-
-# Gerenciar serviços PM2
+# Verificar status
 pm2 list
 pm2 logs webapp --nostream
+
+# Reiniciar servidor
 pm2 restart webapp
+
+# Testar páginas
+curl http://localhost:3000           # Página principal
+curl http://localhost:3000/chamados.html  # Lista de chamados  
+curl http://localhost:3000/login.html     # Login
+curl http://localhost:3000/admin.html     # Admin
 ```
 
 ## 📞 Integração WhatsApp
@@ -166,15 +226,26 @@ https://wa.me/?text=[MENSAGEM_FORMATADA]
 🚨 CHAMADO WMS WISER
 
 🗂️  Categoria: [CATEGORIA]
-📝 Título: [TÍTULO]
+📝 Título: [TÍTULO]  
 📄 Descrição: [DESCRIÇÃO]
 ⚡ Prioridade: [PRIORIDADE]
 
 📅 Criado em: [DATA_HORA_BR]
+🆔 ID: [CHAMADO_ID]
 ```
 
 ## 🎯 Conclusão
 
-Esta solução oferece a **funcionalidade de um aplicativo nativo** com a **simplicidade de um link web**. É executável em qualquer sistema operacional sem instalação, mantém integração direta com WhatsApp e oferece experiência moderna e intuitiva para os usuários.
+Esta solução oferece um **sistema completo de chamados WMS** com:
+- ✨ **Design moderno Gmail-like** para melhor UX
+- 🔐 **Sistema de usuários** com controle de acesso
+- 📱 **Interface responsiva** funcionando em qualquer dispositivo  
+- 🚀 **Integração WhatsApp** aprimorada
+- 💾 **Dados locais** sem necessidade de servidor
 
-**Perfect para distribuir via link, QR Code ou incorporar em sistemas internos.**
+**Perfect para implementação imediata como ferramenta interna de WMS!**
+
+---
+
+**🔄 Última atualização**: 29/08/2024 - Design Gmail-like implementado
+**📊 Status**: ✅ Pronto para uso em produção
