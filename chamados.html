@@ -730,7 +730,7 @@
         <!-- Header -->
         <div class="header">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h1 style="margin: 0;">📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_042840</small></h1>
+                <h1 style="margin: 0;">📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_044040</small></h1>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <a href="/chamados" style="
                         background: rgba(34, 197, 94, 0.15); 
@@ -1088,8 +1088,70 @@
                     <td>
                         <strong style="color: #0f172a; font-weight: 600;">${chamado.titulo}</strong>
                     </td>
-                    <td><span class="priority-badge priority-${chamado.prioridade.replace(/🔴|🟠|🟡|🟢/g, '').trim().toLowerCase()}">${chamado.prioridade}</span></td>
-                    <td><span class="status-badge status-${chamado.status}">${getStatusText(chamado.status)}</span></td>
+                    <td>
+                        <span style="
+                            background: ${
+                                chamado.prioridade.includes('crítica') || chamado.prioridade.includes('🔴') ? 'rgba(239, 68, 68, 0.15)' :
+                                chamado.prioridade.includes('alta') || chamado.prioridade.includes('🟠') ? 'rgba(245, 158, 11, 0.15)' :
+                                chamado.prioridade.includes('média') || chamado.prioridade.includes('🟡') ? 'rgba(59, 130, 246, 0.15)' :
+                                'rgba(34, 197, 94, 0.15)'
+                            };
+                            color: ${
+                                chamado.prioridade.includes('crítica') || chamado.prioridade.includes('🔴') ? '#b91c1c' :
+                                chamado.prioridade.includes('alta') || chamado.prioridade.includes('🟠') ? '#b45309' :
+                                chamado.prioridade.includes('média') || chamado.prioridade.includes('🟡') ? '#1d4ed8' :
+                                '#0d7736'
+                            };
+                            border: 1px solid ${
+                                chamado.prioridade.includes('crítica') || chamado.prioridade.includes('🔴') ? 'rgba(239, 68, 68, 0.3)' :
+                                chamado.prioridade.includes('alta') || chamado.prioridade.includes('🟠') ? 'rgba(245, 158, 11, 0.3)' :
+                                chamado.prioridade.includes('média') || chamado.prioridade.includes('🟡') ? 'rgba(59, 130, 246, 0.3)' :
+                                'rgba(34, 197, 94, 0.3)'
+                            };
+                            padding: 8px 16px; 
+                            font-size: 12px; 
+                            font-weight: 500; 
+                            text-transform: uppercase; 
+                            border-radius: 6px; 
+                            min-width: 80px; 
+                            text-align: center;
+                            display: inline-block;
+                        ">
+                            ${chamado.prioridade.replace(/🔴|🟠|🟡|🟢/g, '').trim().toUpperCase()}
+                        </span>
+                    </td>
+                    <td>
+                        <span style="
+                            background: ${
+                                chamado.status === 'aberto' ? 'rgba(34, 197, 94, 0.15)' :
+                                chamado.status === 'atendimento' ? 'rgba(245, 158, 11, 0.15)' :
+                                chamado.status === 'finalizado' ? 'rgba(148, 163, 184, 0.15)' :
+                                'rgba(239, 68, 68, 0.15)'
+                            };
+                            color: ${
+                                chamado.status === 'aberto' ? '#0d7736' :
+                                chamado.status === 'atendimento' ? '#b45309' :
+                                chamado.status === 'finalizado' ? '#475569' :
+                                '#b91c1c'
+                            };
+                            border: 1px solid ${
+                                chamado.status === 'aberto' ? 'rgba(34, 197, 94, 0.3)' :
+                                chamado.status === 'atendimento' ? 'rgba(245, 158, 11, 0.3)' :
+                                chamado.status === 'finalizado' ? 'rgba(148, 163, 184, 0.3)' :
+                                'rgba(239, 68, 68, 0.3)'
+                            };
+                            padding: 8px 16px; 
+                            font-size: 12px; 
+                            font-weight: 500; 
+                            text-transform: uppercase; 
+                            border-radius: 6px; 
+                            min-width: 80px; 
+                            text-align: center;
+                            display: inline-block;
+                        ">
+                            ${getStatusText(chamado.status).toUpperCase()}
+                        </span>
+                    </td>
                     <td>
                         <small style="color: #0f172a; font-weight: 600;">${formatDateWithoutComma(chamado.criadoEm)}</small>
                         <br><small style="color: #64748b;">${chamado.usuario}</small>
@@ -1118,35 +1180,126 @@
                     <td>
                         <div class="chamado-actions">
                             ${!isOperador && canEdit && chamado.status !== 'atendimento' && chamado.status !== 'cancelado' && chamado.status !== 'finalizado' ? `
-                                <button class="btn btn-warning btn-small" onclick="changeStatus(${chamado.numero}, 'atendimento')" title="Marcar como Em Atendimento">
-                                    🔄 Atender
+                                <button class="btn" onclick="changeStatus(${chamado.numero}, 'atendimento')" title="Marcar como Em Atendimento" style="
+                                    background: rgba(245, 158, 11, 0.15); 
+                                    color: #b45309; 
+                                    border: 1px solid rgba(245, 158, 11, 0.3); 
+                                    padding: 8px 16px; 
+                                    font-size: 12px; 
+                                    font-weight: 500; 
+                                    text-transform: uppercase; 
+                                    border-radius: 6px; 
+                                    cursor: pointer; 
+                                    min-width: 80px; 
+                                    text-align: center;
+                                    transition: all 0.2s ease;
+                                ">
+                                    ATENDER
                                 </button>
                             ` : ''}
                             ${!isOperador && canEdit && chamado.status !== 'finalizado' && chamado.status !== 'cancelado' ? `
-                                <button class="btn btn-success btn-small" onclick="changeStatus(${chamado.numero}, 'finalizado')" title="Marcar como Finalizado">
-                                    ✅ Finalizar
+                                <button class="btn" onclick="changeStatus(${chamado.numero}, 'finalizado')" title="Marcar como Finalizado" style="
+                                    background: rgba(34, 197, 94, 0.15); 
+                                    color: #0d7736; 
+                                    border: 1px solid rgba(34, 197, 94, 0.3); 
+                                    padding: 8px 16px; 
+                                    font-size: 12px; 
+                                    font-weight: 500; 
+                                    text-transform: uppercase; 
+                                    border-radius: 6px; 
+                                    cursor: pointer; 
+                                    min-width: 80px; 
+                                    text-align: center;
+                                    transition: all 0.2s ease;
+                                ">
+                                    FINALIZAR
                                 </button>
                             ` : ''}
                             ${!isOperador && canEdit && chamado.status === 'finalizado' ? `
-                                <button class="btn btn-info btn-small" onclick="changeStatus(${chamado.numero}, 'aberto')" title="Reabrir Chamado">
-                                    🔄 Reabrir
+                                <button class="btn" onclick="changeStatus(${chamado.numero}, 'aberto')" title="Reabrir Chamado" style="
+                                    background: rgba(59, 130, 246, 0.15); 
+                                    color: #1d4ed8; 
+                                    border: 1px solid rgba(59, 130, 246, 0.3); 
+                                    padding: 8px 16px; 
+                                    font-size: 12px; 
+                                    font-weight: 500; 
+                                    text-transform: uppercase; 
+                                    border-radius: 6px; 
+                                    cursor: pointer; 
+                                    min-width: 80px; 
+                                    text-align: center;
+                                    transition: all 0.2s ease;
+                                ">
+                                    REABRIR
                                 </button>
                             ` : ''}
                             ${!isOperador && canEdit && chamado.status !== 'cancelado' ? `
-                                <button class="btn btn-danger btn-small" onclick="cancelarChamado(${chamado.numero})" title="Cancelar Chamado">
-                                    ❌ Cancelar
+                                <button class="btn" onclick="cancelarChamado(${chamado.numero})" title="Cancelar Chamado" style="
+                                    background: rgba(239, 68, 68, 0.15); 
+                                    color: #b91c1c; 
+                                    border: 1px solid rgba(239, 68, 68, 0.3); 
+                                    padding: 8px 16px; 
+                                    font-size: 12px; 
+                                    font-weight: 500; 
+                                    text-transform: uppercase; 
+                                    border-radius: 6px; 
+                                    cursor: pointer; 
+                                    min-width: 80px; 
+                                    text-align: center;
+                                    transition: all 0.2s ease;
+                                ">
+                                    CANCELAR
                                 </button>
                             ` : ''}
-                            <button class="btn btn-info btn-small" onclick="openWhatsApp('${chamado.mensagem.replace(/'/g, "\\'")}')" title="Abrir no WhatsApp">
-                                💬 WhatsApp
+                            <button class="btn" onclick="openWhatsApp('${chamado.mensagem.replace(/'/g, "\\'")}')" title="Abrir no WhatsApp" style="
+                                background: rgba(34, 197, 94, 0.15); 
+                                color: #0d7736; 
+                                border: 1px solid rgba(34, 197, 94, 0.3); 
+                                padding: 8px 16px; 
+                                font-size: 12px; 
+                                font-weight: 500; 
+                                text-transform: uppercase; 
+                                border-radius: 6px; 
+                                cursor: pointer; 
+                                min-width: 80px; 
+                                text-align: center;
+                                transition: all 0.2s ease;
+                            ">
+                                WHATSAPP
                             </button>
                             ${chamado.historico && chamado.historico.length > 1 ? `
-                                <button class="btn btn-secondary btn-small" onclick="showHistory(${chamado.numero})" title="Ver Histórico">
-                                    📋 Histórico
+                                <button class="btn" onclick="showHistory(${chamado.numero})" title="Ver Histórico" style="
+                                    background: rgba(148, 163, 184, 0.15); 
+                                    color: #475569; 
+                                    border: 1px solid rgba(148, 163, 184, 0.3); 
+                                    padding: 8px 16px; 
+                                    font-size: 12px; 
+                                    font-weight: 500; 
+                                    text-transform: uppercase; 
+                                    border-radius: 6px; 
+                                    cursor: pointer; 
+                                    min-width: 80px; 
+                                    text-align: center;
+                                    transition: all 0.2s ease;
+                                ">
+                                    HISTÓRICO
                                 </button>
                             ` : ''}
-                            <button class="btn btn-info btn-small" onclick="showFullDescription('${chamado.numero}')" title="Visualizar Chamado Completo" style="background: rgba(26, 115, 232, 0.1); color: #1a73e8; border-color: rgba(26, 115, 232, 0.3);">
-                                👁️ Visualizar
+                            <button class="btn" onclick="showFullDescription('${chamado.numero}')" title="Visualizar Chamado Completo" style="
+                                background: rgba(26, 115, 232, 0.15); 
+                                color: #1a73e8; 
+                                border: 1px solid rgba(26, 115, 232, 0.3); 
+                                padding: 8px 16px; 
+                                font-size: 12px; 
+                                font-weight: 500; 
+                                text-transform: uppercase; 
+                                border-radius: 6px; 
+                                cursor: pointer; 
+                                min-width: 80px; 
+                                text-align: center;
+                                transition: all 0.2s ease;
+                            ">
+                                VISUALIZAR
                             </button>
                         </div>
                     </td>
@@ -1557,68 +1710,140 @@
                 const currentUser = getCurrentUserSession();
                 const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.role === 'supervisor');
                 const actionButtons = canEdit ? `
-                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
                         ${chamado.status === 'aberto' ? `
-                            <button class="btn btn-small" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border-color: rgba(245, 158, 11, 0.3); font-size: 10px; padding: 4px 8px;" onclick="changeStatus(${chamado.numero}, 'atendimento')">
-                                ⏳ Atender
+                            <button class="btn" onclick="changeStatus(${chamado.numero}, 'atendimento')" style="
+                                background: rgba(245, 158, 11, 0.15); 
+                                color: #b45309; 
+                                border: 1px solid rgba(245, 158, 11, 0.3); 
+                                padding: 6px 12px; 
+                                font-size: 11px; 
+                                font-weight: 500; 
+                                text-transform: uppercase; 
+                                border-radius: 6px; 
+                                cursor: pointer; 
+                                min-width: 70px; 
+                                text-align: center;
+                                transition: all 0.2s ease;
+                            ">
+                                ATENDER
                             </button>
                         ` : ''}
                         ${chamado.status === 'atendimento' ? `
-                            <button class="btn btn-small" style="background: rgba(148, 163, 184, 0.15); color: #475569; border-color: rgba(148, 163, 184, 0.3); font-size: 10px; padding: 4px 8px;" onclick="changeStatus(${chamado.numero}, 'finalizado')">
-                                ✅ Finalizar
+                            <button class="btn" onclick="changeStatus(${chamado.numero}, 'finalizado')" style="
+                                background: rgba(34, 197, 94, 0.15); 
+                                color: #0d7736; 
+                                border: 1px solid rgba(34, 197, 94, 0.3); 
+                                padding: 6px 12px; 
+                                font-size: 11px; 
+                                font-weight: 500; 
+                                text-transform: uppercase; 
+                                border-radius: 6px; 
+                                cursor: pointer; 
+                                min-width: 70px; 
+                                text-align: center;
+                                transition: all 0.2s ease;
+                            ">
+                                FINALIZAR
                             </button>
                         ` : ''}
                         ${(chamado.status === 'aberto' || chamado.status === 'atendimento') ? `
-                            <button class="btn btn-small" style="background: rgba(239, 68, 68, 0.15); color: #b91c1c; border-color: rgba(239, 68, 68, 0.3); font-size: 10px; padding: 4px 8px;" onclick="cancelarChamado(${chamado.numero})">
-                                ❌ Cancelar
+                            <button class="btn" onclick="cancelarChamado(${chamado.numero})" style="
+                                background: rgba(239, 68, 68, 0.15); 
+                                color: #b91c1c; 
+                                border: 1px solid rgba(239, 68, 68, 0.3); 
+                                padding: 6px 12px; 
+                                font-size: 11px; 
+                                font-weight: 500; 
+                                text-transform: uppercase; 
+                                border-radius: 6px; 
+                                cursor: pointer; 
+                                min-width: 70px; 
+                                text-align: center;
+                                transition: all 0.2s ease;
+                            ">
+                                CANCELAR
                             </button>
                         ` : ''}
-                        <button class="btn btn-small" style="background: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.3); font-size: 10px; padding: 4px 8px;" onclick="showFullDescription('${chamado.numero}')">
-                            👁️ Visualizar
+                        <button class="btn" onclick="showFullDescription('${chamado.numero}')" style="
+                            background: rgba(26, 115, 232, 0.15); 
+                            color: #1a73e8; 
+                            border: 1px solid rgba(26, 115, 232, 0.3); 
+                            padding: 6px 12px; 
+                            font-size: 11px; 
+                            font-weight: 500; 
+                            text-transform: uppercase; 
+                            border-radius: 6px; 
+                            cursor: pointer; 
+                            min-width: 70px; 
+                            text-align: center;
+                            transition: all 0.2s ease;
+                        ">
+                            VISUALIZAR
                         </button>
                     </div>
                 ` : `
-                    <button class="btn btn-small" style="background: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.3); font-size: 10px; padding: 4px 8px;" onclick="showFullDescription('${chamado.numero}')">
-                        👁️ Visualizar
-                    </button>
+                    <div style="display: flex; justify-content: center;">
+                        <button class="btn" onclick="showFullDescription('${chamado.numero}')" style="
+                            background: rgba(26, 115, 232, 0.15); 
+                            color: #1a73e8; 
+                            border: 1px solid rgba(26, 115, 232, 0.3); 
+                            padding: 6px 12px; 
+                            font-size: 11px; 
+                            font-weight: 500; 
+                            text-transform: uppercase; 
+                            border-radius: 6px; 
+                            cursor: pointer; 
+                            min-width: 70px; 
+                            text-align: center;
+                            transition: all 0.2s ease;
+                        ">
+                            VISUALIZAR
+                        </button>
+                    </div>
                 `;
                 
                 return `
                     <div class="chamado-card-item">
                         <div class="card-header">
-                            <div class="card-id">#${chamado.id}</div>
+                            <div class="card-id">#${chamado.numero}</div>
                             <div style="font-size: 11px; color: #5f6368;">
-                                ${new Date(chamado.created_at).toLocaleDateString('pt-BR')}
+                                ${formatDateWithoutComma(chamado.criadoEm)}
                             </div>
                         </div>
                         
                         <div class="card-title">${chamado.titulo}</div>
                         <div class="card-category">📁 ${chamado.categoria}</div>
                         
-                        <div style="margin: 12px 0;">
-                            <button class="btn btn-small" style="
-                                background: rgba(26, 115, 232, 0.1);
-                                color: #1a73e8;
-                                border: 1px solid rgba(26, 115, 232, 0.2);
-                                padding: 6px 12px;
-                                font-size: 12px;
-                                border-radius: 8px;
-                                cursor: pointer;
-                                transition: all 0.2s ease;
-                                width: 100%;
-                                justify-content: center;
-                            " onclick="showFullDescription('${chamado.id}')">
-                                Visualizar Chamado Completo
-                            </button>
-                        </div>
+
                         
                         <div class="card-footer">
-                            <div class="card-badges">
-                                <span class="status-badge" style="${statusColors[chamado.status] || ''}">
-                                    ${chamado.status}
+                            <div class="card-badges" style="display: flex; gap: 8px; justify-content: center;">
+                                <span style="
+                                    ${statusColors[chamado.status] || ''} 
+                                    padding: 8px 16px; 
+                                    font-size: 12px; 
+                                    font-weight: 500; 
+                                    text-transform: uppercase; 
+                                    border-radius: 6px; 
+                                    min-width: 80px; 
+                                    text-align: center;
+                                    border: 1px solid;
+                                ">
+                                    ${getStatusText(chamado.status)}
                                 </span>
-                                <span class="priority-badge" style="${priorityColors[chamado.prioridade] || ''}">
-                                    ${chamado.prioridade}
+                                <span style="
+                                    ${priorityColors[chamado.prioridade] || ''} 
+                                    padding: 8px 16px; 
+                                    font-size: 12px; 
+                                    font-weight: 500; 
+                                    text-transform: uppercase; 
+                                    border-radius: 6px; 
+                                    min-width: 80px; 
+                                    text-align: center;
+                                    border: 1px solid;
+                                ">
+                                    ${chamado.prioridade.toUpperCase()}
                                 </span>
                             </div>
                         </div>
