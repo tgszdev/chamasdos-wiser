@@ -1,15 +1,24 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { serveStatic } from 'hono/cloudflare-workers'
-import { Resend } from 'resend'
+import { serve } from '@hono/node-server'
+import { serveStatic } from '@hono/node-server/serve-static'
+import nodemailer from 'nodemailer'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const app = new Hono()
 
 // Enable CORS for API routes
 app.use('/api/*', cors())
 
-// Serve static files
-app.use('/static/*', serveStatic({ root: './public' }))
+// Serve static files from public directory
+app.use('/static/*', serveStatic({
+  root: path.join(__dirname, '../public')
+}))
 
 // API route to generate WhatsApp URL
 app.post('/api/whatsapp', async (c) => {
@@ -48,13 +57,41 @@ app.post('/api/whatsapp', async (c) => {
   })
 })
 
-// ===== ENDPOINTS SMTP =====
+// ===== ENDPOINTS SMTP REAL =====
 
-// Testar configuração SMTP (validação + teste Resend se disponível)
+// Função helper para criar transporter nodemailer
+function createSMTPTransporter(config: any) {
+  const transporterConfig: any = {
+    host: config.host,
+    port: parseInt(config.port),
+    secure: config.security === 'SSL', // true para 465, false para outros ports
+    auth: {
+      user: config.user,
+      pass: config.password
+    }
+  }
+
+  // Para Gmail e outros que usam STARTTLS na porta 587
+  if (config.security === 'STARTTLS' || parseInt(config.port) === 587) {
+    transporterConfig.secure = false
+    transporterConfig.requireTLS = true
+  }
+
+  console.log('🔧 Configuração SMTP:', {
+    host: config.host,
+    port: config.port,
+    secure: transporterConfig.secure,
+    user: config.user
+  })
+
+  return nodemailer.createTransport(transporterConfig)
+}
+
+// Testar configuração SMTP REAL
 app.post('/api/smtp/test', async (c) => {
   try {
     const body = await c.req.json()
-    const { host, port, user, password, security, useResend, resendApiKey } = body
+    const { host, port, user, password, security } = body
     
     // Validar campos obrigatórios
     if (!host || !port || !user || !password) {
@@ -93,44 +130,37 @@ app.post('/api/smtp/test', async (c) => {
       }, 400)
     }
     
-    // Se tiver Resend API Key, testar com Resend
-    if (useResend && resendApiKey) {
-      try {
-        const resend = new Resend(resendApiKey)
-        
-        // Teste simples com Resend
-        await resend.domains.list()
-        
-        return c.json({ 
-          success: true, 
-          message: `✅ Conexão Resend estabelecida com sucesso! Pronto para enviar e-mails reais.`,
-          mode: 'resend'
-        })
-      } catch (resendError) {
-        return c.json({ 
-          success: false, 
-          error: `Erro Resend: ${resendError.message}` 
-        }, 400)
-      }
-    }
+    // Testar conexão SMTP REAL
+    console.log(`🔧 Testando conexão SMTP: ${user}@${host}:${port} (${security})`)
     
-    // Caso contrário, validação local
-    await new Promise(resolve => setTimeout(resolve, 1000)) // Simula delay
+    const transporter = createSMTPTransporter({ host, port, user, password, security })
+    
+    // Verificar conexão real
+    await transporter.verify()
+    
+    console.log(`✅ Conexão SMTP estabelecida com sucesso!`)
     
     return c.json({ 
       success: true, 
-      message: `✅ Configuração SMTP válida para ${host}:${port}. Para envio real, configure Resend API Key.`,
-      mode: 'simulation'
+      message: `✅ Conexão SMTP REAL estabelecida com ${host}:${port}! Pronto para enviar e-mails reais.`,
+      mode: 'nodemailer_real'
     })
     
   } catch (error) {
-    console.error('Erro ao testar SMTP:', error)
+    console.error('❌ Erro ao testar SMTP:', error)
     
-    let errorMessage = 'Erro desconhecido'
-    if (typeof error === 'string') {
-      errorMessage = error
-    } else if (error && typeof error === 'object' && 'message' in error) {
+    let errorMessage = 'Erro de conexão SMTP'
+    if (error instanceof Error) {
       errorMessage = error.message
+      
+      // Mensagens de erro específicas para Gmail
+      if (errorMessage.includes('Username and Password not accepted')) {
+        errorMessage = 'Usuário/senha rejeitados. Para Gmail, use uma "Senha de App" ao invés da senha normal.'
+      } else if (errorMessage.includes('Invalid login')) {
+        errorMessage = 'Login inválido. Verifique e-mail e senha. Para Gmail, ative autenticação de 2 fatores e use "Senha de App".'
+      } else if (errorMessage.includes('ECONNREFUSED')) {
+        errorMessage = `Não foi possível conectar ao servidor ${host}:${port}. Verifique host e porta.`
+      }
     }
     
     return c.json({ 
@@ -140,11 +170,11 @@ app.post('/api/smtp/test', async (c) => {
   }
 })
 
-// Enviar e-mail de teste (Resend real + simulação)
+// Enviar e-mail de teste REAL
 app.post('/api/smtp/send-test', async (c) => {
   try {
     const body = await c.req.json()
-    const { host, port, user, password, security, fromName, toEmail, toName, useResend, resendApiKey, recipients } = body
+    const { host, port, user, password, security, fromName, toEmail, toName, recipients } = body
     
     // Validar campos obrigatórios
     if (!host || !port || !user || !password || !toEmail) {
@@ -154,122 +184,95 @@ app.post('/api/smtp/send-test', async (c) => {
       }, 400)
     }
     
-    // Se tiver Resend API Key, usar envio real
-    if (useResend && resendApiKey) {
-      try {
-        const resend = new Resend(resendApiKey)
-        
-        const emailsToSend = recipients && recipients.length > 0 ? recipients : [{ email: toEmail, name: toName || 'Usuário' }]
-        const results = []
-        
-        for (const recipient of emailsToSend) {
-          const emailContent = {
-            from: `${fromName || 'Sistema WMS'} <onboarding@resend.dev>`,
-            to: recipient.email,
-            subject: '🧪 Teste REAL - Sistema WMS de Chamados',
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                  <h1>🧪 E-mail de Teste REAL</h1>
-                  <p>Sistema WMS de Chamados</p>
-                </div>
-                
-                <div style="padding: 30px; background: #f8f9fa; border-radius: 0 0 10px 10px;">
-                  <h2 style="color: #333;">✅ E-mail REAL Enviado!</h2>
-                  
-                  <p>Olá <strong>${recipient.name}</strong>,</p>
-                  
-                  <p>Este é um <strong>e-mail REAL</strong> enviado via Resend API para confirmar que sua configuração está funcionando!</p>
-                  
-                  <div style="background: #d4edda; padding: 20px; border-left: 4px solid #28a745; margin: 20px 0; border-radius: 5px;">
-                    <h3 style="color: #155724; margin-top: 0;">✅ SUCESSO - E-mail Real!</h3>
-                    <p style="color: #155724; margin: 0;">Este e-mail foi enviado via <strong>Resend API</strong> e chegou na sua caixa de entrada real!</p>
-                  </div>
-                  
-                  <div style="background: white; padding: 20px; border-left: 4px solid #4f46e5; margin: 20px 0;">
-                    <h3 style="color: #4f46e5; margin-top: 0;">🔧 Detalhes do Envio:</h3>
-                    <ul style="color: #666;">
-                      <li><strong>API:</strong> Resend</li>
-                      <li><strong>Para:</strong> ${recipient.name} &lt;${recipient.email}&gt;</li>
-                      <li><strong>Remetente:</strong> ${fromName || 'Sistema WMS'}</li>
-                      <li><strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}</li>
-                    </ul>
-                  </div>
-                  
-                  <p style="color: #666; font-size: 14px; margin-top: 30px;">
-                    🎉 Parabéns! Seu sistema agora pode enviar e-mails reais automaticamente!
-                  </p>
-                  
-                  <div style="text-align: center; margin-top: 30px;">
-                    <div style="background: #28a745; color: white; padding: 15px; border-radius: 8px; display: inline-block;">
-                      ✅ <strong>Sistema WMS - E-mail Real Funcionando!</strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `
-          }
-          
-          const result = await resend.emails.send(emailContent)
-          results.push({
-            recipient: recipient.email,
-            success: true,
-            messageId: result.data?.id || 'unknown',
-            name: recipient.name
-          })
-          
-          console.log(`✅ E-mail REAL enviado para ${recipient.name}:`, result)
-        }
-        
-        const emailList = results.map(r => `${r.name} <${r.recipient}>`)
-        
-        return c.json({ 
-          success: true, 
-          message: `🎉 ${results.length} e-mail(s) REAL enviado(s) via Resend para: ${emailList.join(', ')}`,
-          mode: 'resend_real',
-          results: results
-        })
-        
-      } catch (resendError) {
-        console.error('Erro Resend:', resendError)
-        return c.json({ 
-          success: false, 
-          error: `Erro ao enviar via Resend: ${resendError.message}` 
-        }, 500)
-      }
-    }
+    console.log(`📧 Enviando e-mail de teste REAL via SMTP`)
     
-    // Caso contrário, simulação (modo desenvolvimento)
-    // Validar formato do e-mail de destino
-    if (!toEmail.includes('@') || !toEmail.includes('.')) {
-      return c.json({ 
-        success: false, 
-        error: 'E-mail de destino inválido' 
-      }, 400)
-    }
-    
-    // Simular envio
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    const transporter = createSMTPTransporter({ host, port, user, password, security })
     
     const emailsToSend = recipients && recipients.length > 0 ? recipients : [{ email: toEmail, name: toName || 'Usuário' }]
-    const messageId = `sim-${Date.now()}-${Math.random().toString(36).substring(7)}`
+    const results = []
     
-    console.log('📧 E-mails simulados para:', emailsToSend)
+    for (const recipient of emailsToSend) {
+      const mailOptions = {
+        from: `${fromName || 'Sistema WMS'} <${user}>`,
+        to: recipient.email,
+        subject: '🧪 Teste SMTP REAL - Sistema WMS de Chamados',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+              <h1>🧪 E-mail de Teste SMTP REAL</h1>
+              <p>Sistema WMS de Chamados</p>
+            </div>
+            
+            <div style="padding: 30px; background: #f8f9fa; border-radius: 0 0 10px 10px;">
+              <h2 style="color: #333;">✅ E-mail REAL via SMTP!</h2>
+              
+              <p>Olá <strong>${recipient.name}</strong>,</p>
+              
+              <p>Este é um <strong>e-mail REAL</strong> enviado via <strong>SMTP direto</strong> usando nodemailer para confirmar que sua configuração está funcionando perfeitamente!</p>
+              
+              <div style="background: #d4edda; padding: 20px; border-left: 4px solid #28a745; margin: 20px 0; border-radius: 5px;">
+                <h3 style="color: #155724; margin-top: 0;">🎉 SUCESSO - SMTP Direto!</h3>
+                <p style="color: #155724; margin: 0;">Este e-mail foi enviado via <strong>SMTP ${host}</strong> usando nodemailer e chegou na sua caixa de entrada real!</p>
+              </div>
+              
+              <div style="background: white; padding: 20px; border-left: 4px solid #4f46e5; margin: 20px 0;">
+                <h3 style="color: #4f46e5; margin-top: 0;">🔧 Detalhes do Envio:</h3>
+                <ul style="color: #666;">
+                  <li><strong>Método:</strong> SMTP Direto (nodemailer)</li>
+                  <li><strong>Servidor SMTP:</strong> ${host}:${port}</li>
+                  <li><strong>Segurança:</strong> ${security}</li>
+                  <li><strong>Para:</strong> ${recipient.name} &lt;${recipient.email}&gt;</li>
+                  <li><strong>Remetente:</strong> ${fromName || 'Sistema WMS'} &lt;${user}&gt;</li>
+                  <li><strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}</li>
+                </ul>
+              </div>
+              
+              <p style="color: #666; font-size: 14px; margin-top: 30px;">
+                🎉 Parabéns! Seu sistema agora usa SMTP REAL e pode enviar e-mails automaticamente sem depender de APIs externas!
+              </p>
+              
+              <div style="text-align: center; margin-top: 30px;">
+                <div style="background: #28a745; color: white; padding: 15px; border-radius: 8px; display: inline-block;">
+                  ✅ <strong>SMTP REAL Configurado e Funcionando!</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+      }
+      
+      const info = await transporter.sendMail(mailOptions)
+      
+      results.push({
+        recipient: recipient.email,
+        success: true,
+        messageId: info.messageId,
+        name: recipient.name
+      })
+      
+      console.log(`✅ E-mail REAL enviado para ${recipient.name} (${recipient.email}):`, info.messageId)
+    }
+    
+    const emailList = results.map(r => `${r.name} <${r.recipient}>`)
     
     return c.json({ 
       success: true, 
-      message: `✅ ${emailsToSend.length} e-mail(s) simulado(s). Para envio REAL, configure Resend API Key.`,
-      messageId: messageId,
-      mode: 'simulation',
-      recipients: emailsToSend.length
+      message: `🎉 ${results.length} e-mail(s) REAL enviado(s) via SMTP para: ${emailList.join(', ')}`,
+      mode: 'nodemailer_real',
+      results: results
     })
     
   } catch (error) {
-    console.error('Erro ao enviar e-mail:', error)
+    console.error('❌ Erro ao enviar e-mail via SMTP:', error)
     
-    let errorMessage = 'Erro ao enviar e-mail'
-    if (error && typeof error === 'object' && 'message' in error) {
+    let errorMessage = 'Erro ao enviar e-mail via SMTP'
+    if (error instanceof Error) {
       errorMessage = error.message
+      
+      // Tratamento específico para erros de Gmail
+      if (errorMessage.includes('Username and Password not accepted')) {
+        errorMessage = 'E-mail rejeitado pelo Gmail. Use uma "Senha de App" ao invés da senha normal.'
+      }
     }
     
     return c.json({ 
@@ -279,7 +282,7 @@ app.post('/api/smtp/send-test', async (c) => {
   }
 })
 
-// Enviar alerta de chamado
+// Enviar alerta de chamado via SMTP REAL
 app.post('/api/smtp/alert', async (c) => {
   try {
     const body = await c.req.json()
@@ -306,8 +309,9 @@ app.post('/api/smtp/alert', async (c) => {
       }, 400)
     }
     
-    // Simular configuração SMTP (Cloudflare Workers não suporta nodemailer)
-    console.log(`📧 Preparando envio de alerta ${alertType} para ${recipients.length} destinatário(s)`)
+    console.log(`📧 Enviando alerta ${alertType} via SMTP REAL para ${recipients.length} destinatário(s)`)
+    
+    const transporter = createSMTPTransporter(config)
     
     // Preparar conteúdo do e-mail baseado no tipo
     let subject = ''
@@ -394,7 +398,7 @@ app.post('/api/smtp/alert', async (c) => {
       `
     }
     
-    // Simular envio para cada destinatário (em produção usaria API real)
+    // Enviar e-mail REAL para cada destinatário
     const results = []
     
     for (const recipient of recipients) {
@@ -406,40 +410,23 @@ app.post('/api/smtp/alert', async (c) => {
           html: htmlContent
         }
         
-        // Simular delay de envio
-        await new Promise(resolve => setTimeout(resolve, 500))
+        const info = await transporter.sendMail(mailOptions)
         
-        // Log do e-mail que seria enviado
-        console.log(`📧 E-mail simulado:`, {
-          to: recipient.email,
-          subject: subject,
-          from: mailOptions.from
-        })
-        
-        // IMPORTANTE: Em produção, aqui você faria a chamada para API real:
-        // const response = await fetch('https://api.resend.com/emails', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Authorization': `Bearer ${RESEND_API_KEY}`,
-        //     'Content-Type': 'application/json'
-        //   },
-        //   body: JSON.stringify(mailOptions)
-        // })
-        
-        const messageId = `alert-${Date.now()}-${Math.random().toString(36).substring(7)}`
+        console.log(`✅ Alerta enviado via SMTP REAL para ${recipient.email}:`, info.messageId)
         
         results.push({
           recipient: recipient.email,
           success: true,
-          messageId: messageId,
-          simulated: true
+          messageId: info.messageId,
+          name: recipient.name
         })
         
       } catch (error) {
+        console.error(`❌ Erro ao enviar para ${recipient.email}:`, error)
         results.push({
           recipient: recipient.email,
           success: false,
-          error: error.message || 'Erro desconhecido'
+          error: error instanceof Error ? error.message : 'Erro desconhecido'
         })
       }
     }
@@ -450,20 +437,21 @@ app.post('/api/smtp/alert', async (c) => {
     
     return c.json({
       success: successful > 0,
-      message: `${successful} e-mail(s) enviado(s) com sucesso, ${failed} falharam`,
+      message: `✅ ${successful} alerta(s) enviado(s) via SMTP REAL, ${failed} falharam`,
+      mode: 'nodemailer_real',
       results: results
     })
     
   } catch (error) {
-    console.error('Erro ao enviar alerta:', error)
+    console.error('❌ Erro ao enviar alerta via SMTP:', error)
     return c.json({ 
       success: false, 
-      error: error.message || 'Erro interno do servidor' 
+      error: error instanceof Error ? error.message : 'Erro interno do servidor' 
     }, 500)
   }
 })
 
-// Main page
+// Main page route (same as before)
 app.get('/', (c) => {
   return c.html(`
     <!DOCTYPE html>
@@ -845,7 +833,7 @@ app.get('/', (c) => {
     <body>
         <div class="container">
             <div class="header">
-                <h1>🚨 Chamados WMS WISER</h1>
+                <h1>🚨 Chamados WMS WISER <small style="font-size: 0.4em; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 3px 8px; border-radius: 6px; font-weight: 500; vertical-align: middle;">📧 SMTP Real</small></h1>
                 <p>Os detalhes fazem toda a diferença: quanto mais completas forem as informações no chamado, mais rápida e eficaz será a análise e a solução.</p>
             </div>
             
@@ -1038,4 +1026,17 @@ app.get('/', (c) => {
   `)
 })
 
-export default app
+// Adicionar rota para servir página de administração
+app.get('/admin', (c) => {
+  return c.text('Admin page will be served from static file at /static/admin.html')
+})
+
+const port = 3000
+console.log(`🚀 Servidor Node.js iniciando na porta ${port}`)
+console.log(`📧 SMTP REAL configurado com nodemailer`)
+console.log(`🌐 Acesse: http://localhost:${port}`)
+
+serve({
+  fetch: app.fetch,
+  port: port
+})
