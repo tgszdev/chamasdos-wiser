@@ -1404,7 +1404,13 @@
                     document.getElementById('smtpSecurity').value = config.security || 'tls';
                     document.getElementById('smtpFromName').value = config.fromName || 'Sistema WMS';
                     
-                    // Sistema SMTP Real - campos carregados acima
+                    // Carregar campos Resend
+                    if (document.getElementById('useResendApi')) {
+                        document.getElementById('useResendApi').checked = config.useResend || false;
+                    }
+                    if (document.getElementById('resendApiKey')) {
+                        document.getElementById('resendApiKey').value = config.resendApiKey || '';
+                    }
                     
                     if (config.alerts) {
                         document.getElementById('alertNovoChamado').checked = config.alerts.novoChamado || false;
@@ -1717,7 +1723,9 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                 password: document.getElementById('smtpPassword').value.trim(),
                 security: document.getElementById('smtpSecurity').value,
                 fromName: document.getElementById('smtpFromName').value.trim() || 'Sistema WMS',
-                // Sistema SMTP Real - sem campos adicionais necessários
+                // Campos Resend
+                useResend: document.getElementById('useResendApi')?.checked || false,
+                resendApiKey: document.getElementById('resendApiKey')?.value.trim() || '',
                 alertUsers: selectedUsers,
                 alerts: {
                     novoChamado: document.getElementById('alertNovoChamado').checked,
@@ -1726,7 +1734,7 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                     resumoDaily: document.getElementById('alertResumoDaily').checked
                 },
                 enabled: true,
-                type: 'smtp', // Sempre SMTP direto com nodemailer
+                type: config.useResend && config.resendApiKey ? 'resend' : 'smtp',
                 createdAt: new Date().getTime()
             };
             
@@ -1768,7 +1776,13 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                     document.getElementById('smtpSecurity').value = config.security || 'tls';
                     document.getElementById('smtpFromName').value = config.fromName || 'Sistema WMS';
                     
-                    // Sistema SMTP Real - campos carregados acima
+                    // Carregar campos Resend
+                    if (document.getElementById('useResendApi')) {
+                        document.getElementById('useResendApi').checked = config.useResend || false;
+                    }
+                    if (document.getElementById('resendApiKey')) {
+                        document.getElementById('resendApiKey').value = config.resendApiKey || '';
+                    }
                     
                     if (config.alerts) {
                         document.getElementById('alertNovoChamado').checked = config.alerts.novoChamado || false;
@@ -1800,7 +1814,7 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
             }
         }
         
-        // Testar conexão SMTP (com suporte )
+        // Testar conexão SMTP (com suporte Resend)
         function testSmtpConnection() {
             console.log('🧪 Testando configuração SMTP...');
             
@@ -1811,7 +1825,7 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                 return;
             }
             
-            updateSmtpStatus(`🔄 Testando ${config.use ? ' API' : 'configuração SMTP'}...`, 'info');
+            updateSmtpStatus(`🔄 Testando ${config.useResend ? 'Resend API' : 'configuração SMTP'}...`, 'info');
             
             // Fazer chamada para API de teste
             fetch('/api/smtp/test', {
@@ -1825,13 +1839,14 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                     user: config.user,
                     password: config.password,
                     security: config.security,
-                    // Sistema SMTP direto - sem campos extras
+                    useResend: config.useResend || false,
+                    resendApiKey: config.resendApiKey || ''
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    const mode = data.mode === 'nodemailer_real' ? '📧 SMTP REAL' : '🗾 SIMULAÇÃO';
+                    const mode = data.mode === 'resend' ? '🚀 RESEND' : '🗾 SIMULAÇÃO';
                     updateSmtpStatus(`✅ ${mode}: ${data.message}`, 'success');
                     showFeedback(`✅ Teste realizado com sucesso! Modo: ${mode}`, 'success');
                     console.log('✅ Teste SMTP bem-sucedido:', data);
@@ -1892,7 +1907,7 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
             
             console.log('👥 Usuários selecionados para teste:', config.alertUsers);
             
-            const mode = '📧 SMTP REAL'; // Sistema sempre usa SMTP direto
+            const mode = config.useResend && config.resendApiKey ? '🚀 RESEND REAL' : '🗾 SIMULAÇÃO';
             updateSmtpStatus(`📧 ${mode}: Enviando para ${config.alertUsers.length} destinatário(s)...`, 'info');
             
             // Fazer chamada para API de envio
@@ -1908,28 +1923,29 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                     password: config.password,
                     security: config.security,
                     fromName: config.fromName,
-                    // Sistema SMTP direto - sem campos extras,
+                    useResend: config.useResend || false,
+                    resendApiKey: config.resendApiKey || '',
                     recipients: config.alertUsers
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    const resultMode = data.mode === 'nodemailer_real' ? '📧 SMTP REAL' : '🗾 SIMULAÇÃO';
+                    const resultMode = data.mode === 'resend_real' ? '🚀 RESEND REAL' : '🗾 SIMULAÇÃO';
                     updateSmtpStatus(`✅ ${resultMode}: ${data.message}`, 'success');
                     showFeedback(`🎉 ${resultMode}: E-mail(s) enviado(s) com sucesso!`, 'success');
                     console.log(`✅ Envio ${resultMode}:`, data);
                     
                     // Mostrar detalhes
-                    if (data.mode === 'nodemailer_real') {
+                    if (data.mode === 'resend_real') {
                         const details = `
-                            🎉 E-MAILS REAIS ENVIADOS VIA SMTP!
+                            🎉 E-MAILS REAIS ENVIADOS VIA RESEND!
                             
                             👥 DESTINATÁRIOS (${data.results?.length || config.alertUsers.length}):
                             ${config.alertUsers.map((user, index) => `${index + 1}. ${user.name} <${user.email}>`).join('\n                            ')}
                             
                             🚀 DETALHES:
-                            - Método: SMTP Direto (nodemailer)
+                            - API: Resend (e-mails REAIS enviados!)
                             - Remetente: ${config.fromName || 'Sistema WMS'}
                             - Status: Entregue nas caixas de entrada
                             
@@ -1954,15 +1970,17 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                         });
                         
                         const details = `
-                            🗾 E-MAILS SIMULADOS (MODO DESENVOLVIMENTO):
+                            🗾 E-MAILS SIMULADOS (SEM RESEND API):
                             
                             👥 SIMULADO PARA ${config.alertUsers.length} DESTINATÁRIO(S):
                             ${emailList.map((email, index) => `${index + 1}. ${email}`).join('\n                            ')}
                             
-                            ✅ SMTP REAL JÁ IMPLEMENTADO:
-                            - Configure suas credenciais SMTP acima
-                            - O sistema usa nodemailer para envio direto
-                            - Suporte Gmail, Outlook e servidores corporativos
+                            ⚠️ PARA ENVIO REAL:
+                            1. Configure Resend API Key
+                            2. Marque "Usar Resend para envio REAL"
+                            3. Teste novamente
+                            
+                            🔗 Criar conta: https://resend.com
                         `;
                         alert(details);
                         }, 1500);
