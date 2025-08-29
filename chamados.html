@@ -734,7 +734,7 @@
     <div class="chamados-container">
         <!-- Header -->
         <div class="header">
-            <h1>📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_034932</small></h1>
+            <h1>📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_035900</small></h1>
             <p>Controle e acompanhe todos os chamados WMS com status e histórico completo • <strong style="color: #0d7736;">Visualização Completa com Modal Profissional</strong></p>
         </div>
         
@@ -1044,15 +1044,18 @@
                     ? chamado.historico[chamado.historico.length - 1]
                     : null;
                 
-                // Encontrar datas específicas de cada status no histórico
-                const getStatusDate = (targetStatus) => {
+                // Encontrar dados específicos de cada status no histórico
+                const getStatusInfo = (targetStatus) => {
                     const statusHistory = chamado.historico?.find(h => h.status === targetStatus);
-                    return statusHistory ? statusHistory.data : null;
+                    return statusHistory ? {
+                        data: statusHistory.data,
+                        usuario: statusHistory.usuario || 'Sistema'
+                    } : null;
                 };
                 
-                const dataAtendido = getStatusDate('atendimento');
-                const dataFinalizado = getStatusDate('finalizado');
-                const dataCancelado = getStatusDate('cancelado');
+                const infoAtendido = getStatusInfo('atendimento');
+                const infoFinalizado = getStatusInfo('finalizado');
+                const infoCancelado = getStatusInfo('cancelado');
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -1082,20 +1085,23 @@
                         <br><small style="color: #64748b;">${chamado.usuario}</small>
                     </td>
                     <td>
-                        ${dataAtendido ? 
-                            `<small style="color: #d97706; font-weight: 600;">${new Date(dataAtendido).toLocaleString('pt-BR')}</small>` :
+                        ${infoAtendido ? 
+                            `<small style="color: #d97706; font-weight: 600;">${new Date(infoAtendido.data).toLocaleString('pt-BR')}</small>
+                             <br><small style="color: #64748b;">${infoAtendido.usuario}</small>` :
                             '<small style="color: #94a3b8;">-</small>'
                         }
                     </td>
                     <td>
-                        ${dataFinalizado ? 
-                            `<small style="color: #16a34a; font-weight: 600;">${new Date(dataFinalizado).toLocaleString('pt-BR')}</small>` :
+                        ${infoFinalizado ? 
+                            `<small style="color: #16a34a; font-weight: 600;">${new Date(infoFinalizado.data).toLocaleString('pt-BR')}</small>
+                             <br><small style="color: #64748b;">${infoFinalizado.usuario}</small>` :
                             '<small style="color: #94a3b8;">-</small>'
                         }
                     </td>
                     <td>
-                        ${dataCancelado ? 
-                            `<small style="color: #dc2626; font-weight: 600;">${new Date(dataCancelado).toLocaleString('pt-BR')}</small>` :
+                        ${infoCancelado ? 
+                            `<small style="color: #dc2626; font-weight: 600;">${new Date(infoCancelado.data).toLocaleString('pt-BR')}</small>
+                             <br><small style="color: #64748b;">${infoCancelado.usuario}</small>` :
                             '<small style="color: #94a3b8;">-</small>'
                         }
                     </td>
