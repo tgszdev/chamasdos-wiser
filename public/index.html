@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema WMS de Gestão de Chamados com SMTP Real e Database Unificado">
+    <meta name="keywords" content="wms, chamados, tickets, smtp, gestão">
+    <title>Sistema WMS - Abertura de Chamados</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="WMS Chamados">
+    
+    <!-- CSS Framework Unificado -->
+    <link rel="stylesheet" href="/css/styles.css">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="wms-nav">
+        <div class="wms-container">
+            <div class="wms-nav-container">
+                <a href="/" class="wms-nav-brand">
+                    <i class="fas fa-clipboard-list"></i>
+                    Sistema WMS
+                </a>
+                
+                <button class="wms-nav-toggle" onclick="toggleMobileNav()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <ul class="wms-nav-links" id="navLinks">
+                    <li><a href="/index.html" class="wms-nav-link active">Novo Chamado</a></li>
+                    <li><a href="/chamados.html" class="wms-nav-link">Meus Chamados</a></li>
+                    <li><a href="/admin.html" class="wms-nav-link">Admin</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="wms-container wms-container-sm" style="padding-top: 2rem; padding-bottom: 2rem;">
+        
+        <!-- Page Header -->
+        <div class="wms-text-center wms-mb-4">
+            <h1 class="wms-text-xl wms-font-bold" style="color: var(--wms-gray-900); margin-bottom: 0.5rem;">
+                <i class="fas fa-plus-circle" style="color: var(--wms-primary);"></i>
+                Abertura de Chamado
+            </h1>
+            <p style="color: var(--wms-gray-600);">
+                Preencha os dados abaixo para abrir um novo chamado no sistema WMS
+            </p>
+        </div>
+
+        <!-- Alert Container -->
+        <div id="alertContainer"></div>
+
+        <!-- Main Form Card -->
+        <div class="wms-card">
+            <div class="wms-card-header">
+                <h2 class="wms-modal-title">
+                    <i class="fas fa-edit"></i>
+                    Informações do Chamado
+                </h2>
+            </div>
+            
+            <form id="chamadoForm" class="wms-card-body">
+                <!-- Título -->
+                <div class="wms-form-group">
+                    <label for="titulo" class="wms-label wms-label-required">Título do Chamado</label>
+                    <input 
+                        type="text" 
+                        id="titulo" 
+                        name="titulo" 
+                        class="wms-input" 
+                        placeholder="Ex: Problema na impressora do setor financeiro"
+                        required
+                        maxlength="100"
+                    >
+                    <small style="color: var(--wms-gray-500); font-size: 0.75rem;">
+                        Máximo 100 caracteres
+                    </small>
+                </div>
+
+                <!-- Descrição -->
+                <div class="wms-form-group">
+                    <label for="descricao" class="wms-label wms-label-required">Descrição Detalhada</label>
+                    <textarea 
+                        id="descricao" 
+                        name="descricao" 
+                        class="wms-textarea" 
+                        rows="4"
+                        placeholder="Descreva o problema ou solicitação de forma detalhada..."
+                        required
+                        maxlength="500"
+                    ></textarea>
+                    <small style="color: var(--wms-gray-500); font-size: 0.75rem;">
+                        Máximo 500 caracteres
+                    </small>
+                </div>
+
+                <!-- Prioridade -->
+                <div class="wms-form-group">
+                    <label for="prioridade" class="wms-label wms-label-required">Prioridade</label>
+                    <select id="prioridade" name="prioridade" class="wms-select" required>
+                        <option value="">Selecione a prioridade</option>
+                        <option value="baixa">🟢 Baixa - Não é urgente</option>
+                        <option value="media" selected>🟡 Média - Prazo normal</option>
+                        <option value="alta">🟠 Alta - Precisa de atenção</option>
+                        <option value="urgente">🔴 Urgente - Resolver imediatamente</option>
+                    </select>
+                </div>
+
+                <!-- Dados do Solicitante -->
+                <fieldset style="border: 1px solid var(--wms-gray-200); border-radius: var(--wms-border-radius); padding: var(--wms-space-4); margin: var(--wms-space-4) 0;">
+                    <legend style="padding: 0 var(--wms-space-2); font-weight: 600; color: var(--wms-gray-700);">
+                        <i class="fas fa-user"></i> Dados do Solicitante
+                    </legend>
+
+                    <div class="wms-grid wms-grid-2">
+                        <!-- Nome -->
+                        <div class="wms-form-group">
+                            <label for="nome" class="wms-label wms-label-required">Nome Completo</label>
+                            <input 
+                                type="text" 
+                                id="nome" 
+                                name="nome" 
+                                class="wms-input" 
+                                placeholder="Seu nome completo"
+                                required
+                                maxlength="80"
+                            >
+                        </div>
+
+                        <!-- Email -->
+                        <div class="wms-form-group">
+                            <label for="email" class="wms-label wms-label-required">E-mail</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                class="wms-input" 
+                                placeholder="seu.email@empresa.com"
+                                required
+                            >
+                        </div>
+
+                        <!-- Telefone -->
+                        <div class="wms-form-group">
+                            <label for="telefone" class="wms-label">Telefone</label>
+                            <input 
+                                type="tel" 
+                                id="telefone" 
+                                name="telefone" 
+                                class="wms-input" 
+                                placeholder="(11) 99999-9999"
+                            >
+                        </div>
+
+                        <!-- Setor -->
+                        <div class="wms-form-group">
+                            <label for="setor" class="wms-label">Setor/Departamento</label>
+                            <input 
+                                type="text" 
+                                id="setor" 
+                                name="setor" 
+                                class="wms-input" 
+                                placeholder="Ex: Financeiro, TI, Vendas..."
+                            >
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- Form Actions -->
+                <div class="wms-flex wms-flex-mobile-col wms-justify-between" style="margin-top: var(--wms-space-6);">
+                    <button type="reset" class="wms-btn wms-btn-secondary">
+                        <i class="fas fa-undo"></i>
+                        Limpar Campos
+                    </button>
+                    
+                    <button type="submit" class="wms-btn wms-btn-primary" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        Abrir Chamado
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Generated Ticket Preview (Initially Hidden) -->
+        <div id="ticketPreview" class="wms-card wms-hidden" style="margin-top: var(--wms-space-6);">
+            <div class="wms-card-header">
+                <h3 class="wms-modal-title">
+                    <i class="fas fa-check-circle" style="color: var(--wms-success);"></i>
+                    Chamado Criado com Sucesso!
+                </h3>
+            </div>
+            
+            <div class="wms-card-body">
+                <div class="wms-alert wms-alert-success">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Chamado salvo no sistema!</strong>
+                        <p>Seu chamado foi registrado e está disponível em todos os seus dispositivos.</p>
+                    </div>
+                </div>
+
+                <div id="ticketDetails" style="background: var(--wms-gray-50); padding: var(--wms-space-4); border-radius: var(--wms-border-radius); margin: var(--wms-space-4) 0;">
+                    <!-- Ticket details will be populated here -->
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="wms-flex wms-flex-mobile-col" style="gap: var(--wms-space-3); margin-top: var(--wms-space-6);">
+                    <button onclick="shareWhatsApp()" class="wms-btn wms-btn-success">
+                        <i class="fab fa-whatsapp"></i>
+                        Compartilhar no WhatsApp
+                    </button>
+                    
+                    <a href="/chamados.html" class="wms-btn wms-btn-outline">
+                        <i class="fas fa-list"></i>
+                        Ver Meus Chamados
+                    </a>
+                    
+                    <button onclick="startNewTicket()" class="wms-btn wms-btn-secondary">
+                        <i class="fas fa-plus"></i>
+                        Novo Chamado
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div id="quickStats" class="wms-stats-grid" style="margin-top: var(--wms-space-8);">
+            <!-- Stats will be populated by JavaScript -->
+        </div>
+
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="wms-modal-overlay wms-hidden">
+        <div class="wms-card" style="padding: var(--wms-space-8); text-align: center;">
+            <i class="fas fa-spinner wms-animate-spin" style="font-size: 2rem; color: var(--wms-primary); margin-bottom: var(--wms-space-4);"></i>
+            <p>Processando chamado...</p>
+        </div>
+    </div>
+
+    <!-- Database JS -->
+    <script src="/js/database.js"></script>
+    
+    <!-- Main Page JavaScript -->
+    <script>
+        // Global variables
+        let currentChamadoData = null;
+        let isFormSubmitting = false;
+
+        /**
+         * Initialize page
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            setupFormValidation();
+            setupDatabaseListeners();
+            loadQuickStats();
+            loadUserData();
+            
+            console.log('📋 Sistema WMS - Página inicial carregada');
+            console.log('💾 Database unificado inicializado');
+        });
+
+        /**
+         * Setup form validation and submission
+         */
+        function setupFormValidation() {
+            const form = document.getElementById('chamadoForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (isFormSubmitting) return;
+                
+                try {
+                    isFormSubmitting = true;
+                    submitBtn.disabled = true;
+                    showLoading(true);
+                    
+                    // Collect form data
+                    const formData = new FormData(form);
+                    const chamadoData = {
+                        titulo: formData.get('titulo').trim(),
+                        descricao: formData.get('descricao').trim(),
+                        prioridade: formData.get('prioridade'),
+                        solicitante: {
+                            nome: formData.get('nome').trim(),
+                            email: formData.get('email').trim(),
+                            telefone: formData.get('telefone').trim(),
+                            setor: formData.get('setor').trim()
+                        }
+                    };
+
+                    // Validate data
+                    if (!validateChamadoData(chamadoData)) {
+                        return;
+                    }
+
+                    // Save to database
+                    currentChamadoData = chamadoData;
+                    const chamado = wmsDB.criarChamado(chamadoData);
+                    
+                    if (chamado) {
+                        // Save user data for future forms
+                        saveUserData(chamadoData.solicitante);
+                        
+                        // Show success
+                        showTicketPreview(chamado);
+                        showAlert('success', `Chamado ${chamado.id} criado com sucesso!`);
+                        
+                        // Update stats
+                        loadQuickStats();
+                        
+                        console.log('✅ Chamado criado:', chamado.id);
+                    } else {
+                        throw new Error('Erro ao salvar chamado no database');
+                    }
+
+                } catch (error) {
+                    console.error('Erro ao criar chamado:', error);
+                    showAlert('error', 'Erro ao criar chamado: ' + error.message);
+                } finally {
+                    isFormSubmitting = false;
+                    submitBtn.disabled = false;
+                    showLoading(false);
+                }
+            });
+
+            // Real-time validation
+            form.addEventListener('input', function() {
+                validateFormRealtime();
+            });
+        }
+
+        /**
+         * Validate chamado data
+         */
+        function validateChamadoData(data) {
+            const errors = [];
+
+            if (!data.titulo || data.titulo.length < 5) {
+                errors.push('Título deve ter pelo menos 5 caracteres');
+            }
+
+            if (!data.descricao || data.descricao.length < 10) {
+                errors.push('Descrição deve ter pelo menos 10 caracteres');
+            }
+
+            if (!data.prioridade) {
+                errors.push('Selecione uma prioridade');
+            }
+
+            if (!data.solicitante.nome || data.solicitante.nome.length < 3) {
+                errors.push('Nome deve ter pelo menos 3 caracteres');
+            }
+
+            if (!data.solicitante.email || !isValidEmail(data.solicitante.email)) {
+                errors.push('E-mail inválido');
+            }
+
+            if (errors.length > 0) {
+                showAlert('error', 'Corrija os seguintes erros:\n• ' + errors.join('\n• '));
+                return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Real-time form validation
+         */
+        function validateFormRealtime() {
+            const titulo = document.getElementById('titulo').value.trim();
+            const descricao = document.getElementById('descricao').value.trim();
+            const nome = document.getElementById('nome').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const isValid = titulo.length >= 5 && 
+                           descricao.length >= 10 && 
+                           nome.length >= 3 && 
+                           isValidEmail(email);
+            
+            submitBtn.disabled = !isValid || isFormSubmitting;
+        }
+
+        /**
+         * Setup database listeners for cross-tab sync
+         */
+        function setupDatabaseListeners() {
+            wmsDB.addChangeListener(function(event) {
+                if (event.type === 'chamado-criado') {
+                    loadQuickStats();
+                    console.log('🔄 Stats atualizadas após sync');
+                }
+            });
+        }
+
+        /**
+         * Show ticket preview after creation
+         */
+        function showTicketPreview(chamado) {
+            const preview = document.getElementById('ticketPreview');
+            const details = document.getElementById('ticketDetails');
+            
+            const statusBadge = `<span class="wms-badge wms-status-${chamado.status}">
+                ${getStatusIcon(chamado.status)} ${getStatusLabel(chamado.status)}
+            </span>`;
+            
+            const priorityBadge = `<span class="wms-badge wms-priority-${chamado.prioridade}">
+                ${getPriorityIcon(chamado.prioridade)} ${getPriorityLabel(chamado.prioridade)}
+            </span>`;
+            
+            details.innerHTML = `
+                <div class="wms-grid wms-grid-2">
+                    <div><strong>ID:</strong> ${chamado.id}</div>
+                    <div><strong>Data:</strong> ${formatDate(chamado.dataAbertura)}</div>
+                    <div><strong>Status:</strong> ${statusBadge}</div>
+                    <div><strong>Prioridade:</strong> ${priorityBadge}</div>
+                </div>
+                <div style="margin-top: var(--wms-space-4);">
+                    <div><strong>Título:</strong> ${chamado.titulo}</div>
+                    <div style="margin-top: var(--wms-space-2);"><strong>Solicitante:</strong> ${chamado.solicitante.nome}</div>
+                </div>
+            `;
+            
+            preview.classList.remove('wms-hidden');
+            preview.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        /**
+         * Load and display quick stats
+         */
+        function loadQuickStats() {
+            const stats = wmsDB.obterEstatisticas();
+            const container = document.getElementById('quickStats');
+            
+            container.innerHTML = `
+                <div class="wms-stat-card">
+                    <div class="wms-stat-number">${stats.total}</div>
+                    <div class="wms-stat-label">
+                        <i class="fas fa-clipboard-list"></i> Total de Chamados
+                    </div>
+                </div>
+                <div class="wms-stat-card error">
+                    <div class="wms-stat-number">${stats.abertas}</div>
+                    <div class="wms-stat-label">
+                        <i class="fas fa-exclamation-circle"></i> Abertas
+                    </div>
+                </div>
+                <div class="wms-stat-card warning">
+                    <div class="wms-stat-number">${stats.andamento}</div>
+                    <div class="wms-stat-label">
+                        <i class="fas fa-clock"></i> Em Andamento
+                    </div>
+                </div>
+                <div class="wms-stat-card success">
+                    <div class="wms-stat-number">${stats.finalizadas}</div>
+                    <div class="wms-stat-label">
+                        <i class="fas fa-check-circle"></i> Finalizadas
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Save user data to localStorage for future forms
+         */
+        function saveUserData(userData) {
+            localStorage.setItem('wms_user_data', JSON.stringify(userData));
+        }
+
+        /**
+         * Load saved user data
+         */
+        function loadUserData() {
+            try {
+                const userData = localStorage.getItem('wms_user_data');
+                if (userData) {
+                    const data = JSON.parse(userData);
+                    
+                    // Pre-fill form with saved data
+                    if (data.nome) document.getElementById('nome').value = data.nome;
+                    if (data.email) document.getElementById('email').value = data.email;
+                    if (data.telefone) document.getElementById('telefone').value = data.telefone;
+                    if (data.setor) document.getElementById('setor').value = data.setor;
+                }
+            } catch (error) {
+                console.log('Nenhum dado de usuário salvo');
+            }
+        }
+
+        /**
+         * Share ticket via WhatsApp
+         */
+        function shareWhatsApp() {
+            if (!currentChamadoData) return;
+            
+            const config = wmsDB.obterConfigEmpresa();
+            const telefone = config.telefone || '5511999999999'; // Remove formatting
+            
+            const chamado = wmsDB.listarChamados()[0]; // Get latest ticket
+            
+            const message = encodeURIComponent(`
+🎫 *NOVO CHAMADO WMS*
+
+*ID:* ${chamado.id}
+*Título:* ${chamado.titulo}
+*Prioridade:* ${getPriorityLabel(chamado.prioridade)}
+*Solicitante:* ${chamado.solicitante.nome}
+*Data:* ${formatDate(chamado.dataAbertura)}
+
+*Descrição:*
+${chamado.descricao}
+
+---
+Sistema WMS - Gestão de Chamados
+            `.trim());
+            
+            const whatsappURL = `https://wa.me/${telefone.replace(/\D/g, '')}?text=${message}`;
+            window.open(whatsappURL, '_blank');
+        }
+
+        /**
+         * Start new ticket (reset form)
+         */
+        function startNewTicket() {
+            document.getElementById('chamadoForm').reset();
+            document.getElementById('ticketPreview').classList.add('wms-hidden');
+            document.getElementById('titulo').focus();
+            currentChamadoData = null;
+            
+            // Restore user data
+            loadUserData();
+        }
+
+        /**
+         * Toggle mobile navigation
+         */
+        function toggleMobileNav() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        /**
+         * Show/hide loading overlay
+         */
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (show) {
+                overlay.classList.remove('wms-hidden');
+            } else {
+                overlay.classList.add('wms-hidden');
+            }
+        }
+
+        /**
+         * Show alert message
+         */
+        function showAlert(type, message) {
+            const container = document.getElementById('alertContainer');
+            
+            const alert = document.createElement('div');
+            alert.className = `wms-alert wms-alert-${type} wms-animate-fade-in`;
+            
+            const icon = type === 'success' ? 'check-circle' : 
+                        type === 'error' ? 'exclamation-triangle' : 'info-circle';
+            
+            alert.innerHTML = `
+                <i class="fas fa-${icon}"></i>
+                <div style="white-space: pre-line;">${message}</div>
+            `;
+            
+            container.appendChild(alert);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.remove();
+                }
+            }, 5000);
+
+            // Scroll to alert
+            alert.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Utility functions
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString('pt-BR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getStatusIcon(status) {
+            const icons = {
+                'aberta': '🔴',
+                'andamento': '🟡',
+                'finalizada': '🟢'
+            };
+            return icons[status] || '⚪';
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'aberta': 'ABERTA',
+                'andamento': 'EM ANDAMENTO',
+                'finalizada': 'FINALIZADA'
+            };
+            return labels[status] || status.toUpperCase();
+        }
+
+        function getPriorityIcon(priority) {
+            const icons = {
+                'baixa': '🟢',
+                'media': '🟡',
+                'alta': '🟠',
+                'urgente': '🔴'
+            };
+            return icons[priority] || '⚪';
+        }
+
+        function getPriorityLabel(priority) {
+            const labels = {
+                'baixa': 'BAIXA',
+                'media': 'MÉDIA',
+                'alta': 'ALTA',
+                'urgente': 'URGENTE'
+            };
+            return labels[priority] || priority.toUpperCase();
+        }
+
+        // Handle form reset
+        document.getElementById('chamadoForm').addEventListener('reset', function() {
+            setTimeout(() => {
+                loadUserData(); // Restore saved user data
+                validateFormRealtime(); // Revalidate
+            }, 10);
+        });
+
+    </script>
+</body>
+</html>

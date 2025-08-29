@@ -1,20 +1,45 @@
 {
-  "name": "webapp",
+  "name": "wms-ticket-system",
+  "version": "2.0.0",
+  "description": "Sistema WMS de Chamados com Cloudflare D1 + SMTP Real",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:sandbox": "wrangler pages dev dist --d1=wms-tickets-production --local --ip 0.0.0.0 --port 3000",
     "build": "vite build",
-    "preview": "wrangler pages dev",
-    "deploy": "npm run build && wrangler pages deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "preview": "wrangler pages dev dist",
+    "deploy": "npm run build && wrangler pages deploy dist",
+    "deploy:prod": "npm run build && wrangler pages deploy dist --project-name wms-ticket-system",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "db:create": "wrangler d1 create wms-tickets-production",
+    "db:migrate:local": "wrangler d1 migrations apply wms-tickets-production --local",
+    "db:migrate:prod": "wrangler d1 migrations apply wms-tickets-production",
+    "db:seed": "wrangler d1 execute wms-tickets-production --local --file=./seed.sql",
+    "db:reset": "rm -rf .wrangler/state/v3/d1 && npm run db:migrate:local && npm run db:seed",
+    "clean-port": "fuser -k 3000/tcp 2>/dev/null || true",
+    "start:pm2": "pm2 start ecosystem.config.cjs",
+    "test": "curl http://localhost:3000"
   },
   "dependencies": {
     "hono": "^4.9.5"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250705.0",
     "@hono/vite-build": "^1.2.0",
     "@hono/vite-dev-server": "^0.18.2",
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2",
     "vite": "^6.3.5",
     "wrangler": "^4.4.0"
-  }
+  },
+  "keywords": [
+    "wms",
+    "tickets",
+    "cloudflare",
+    "d1",
+    "hono",
+    "smtp"
+  ],
+  "author": "WMS Team",
+  "license": "MIT"
 }
