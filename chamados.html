@@ -287,14 +287,13 @@
         .stat-total .stat-number { color: #1a73e8; }
         
         .chamados-card {
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(20px);
+            background: white;
             border-radius: 12px;
             padding: 24px;
             box-shadow: 
                 0 2px 8px rgba(0, 0, 0, 0.1),
                 0 1px 3px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
             overflow: hidden;
         }
         
@@ -307,12 +306,12 @@
         }
         
         .chamados-table th {
-            background: rgba(241, 243, 244, 1);
+            background: #f1f3f4;
             padding: 12px 16px;
             text-align: left;
             font-weight: 500;
             color: #202124;
-            border-bottom: 1px solid rgba(218, 220, 224, 1);
+            border-bottom: 1px solid #dadce0;
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -323,9 +322,9 @@
         
         .chamados-table td {
             padding: 12px 16px;
-            border-bottom: 1px solid rgba(232, 234, 237, 0.8);
+            border-bottom: 1px solid #e8eaed;
             vertical-align: middle;
-            background: rgba(255, 255, 255, 0.8);
+            background: white;
             color: #202124;
             font-size: 13px;
             line-height: 1.4;
@@ -333,7 +332,7 @@
         }
         
         .chamados-table tr:hover td {
-            background: rgba(248, 249, 250, 0.95);
+            background: #f8f9fa;
             cursor: pointer;
         }
         
@@ -506,6 +505,157 @@
         
         .back-btn .btn:hover {
             background: rgba(248, 249, 250, 0.95);
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            border-radius: 8px;
+            background: #f1f3f4;
+            padding: 4px;
+        }
+        
+        .view-btn {
+            margin: 0 !important;
+            padding: 6px 12px !important;
+            border-radius: 6px !important;
+            background: transparent !important;
+            border: none !important;
+            color: #5f6368 !important;
+            font-size: 12px !important;
+            transition: all 0.2s ease;
+        }
+        
+        .view-btn.active {
+            background: white !important;
+            color: #1a73e8 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .view-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        /* Cards View Styles */
+        .cards-view {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        
+        .cards-view.active {
+            display: grid;
+        }
+        
+        .chamado-card-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .chamado-card-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-color: #dadce0;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .card-id {
+            font-size: 12px;
+            color: #5f6368;
+            font-weight: 500;
+        }
+        
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #202124;
+            margin: 4px 0;
+            line-height: 1.3;
+        }
+        
+        .card-category {
+            font-size: 12px;
+            color: #5f6368;
+            margin-bottom: 8px;
+        }
+        
+        .card-description {
+            font-size: 13px;
+            color: #202124;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            max-height: 60px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .card-description.expanded {
+            max-height: none;
+        }
+        
+        .card-description::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 50px;
+            height: 20px;
+            background: linear-gradient(90deg, transparent, white);
+        }
+        
+        .card-description.expanded::after {
+            display: none;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f1f3f4;
+        }
+        
+        .card-badges {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .card-date {
+            font-size: 11px;
+            color: #5f6368;
+        }
+        
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #1a73e8;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+        
+        .expand-btn:hover {
+            text-decoration: underline;
+        }
+        
+        .table-view {
+            display: block;
+        }
+        
+        .table-view.hidden {
+            display: none;
         }
         
         @media (max-width: 1024px) {
@@ -687,9 +837,20 @@
         
         <!-- Tabela de Chamados -->
         <div class="chamados-card">
-            <h3>📋 Lista de Chamados</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="margin: 0;">📋 Lista de Chamados</h3>
+                <div class="view-toggle">
+                    <button class="btn btn-small view-btn active" id="tableViewBtn" onclick="toggleView('table')">
+                        📋 Tabela
+                    </button>
+                    <button class="btn btn-small view-btn" id="cardViewBtn" onclick="toggleView('cards')">
+                        📰 Cards
+                    </button>
+                </div>
+            </div>
             
-            <div id="chamadosContent">
+            <!-- Visualização em Tabela -->
+            <div id="tableView" class="table-view">
                 <table class="chamados-table">
                     <thead>
                         <tr>
@@ -710,6 +871,11 @@
                         <!-- Chamados serão carregados aqui -->
                     </tbody>
                 </table>
+            </div>
+            
+            <!-- Visualização em Cards -->
+            <div id="cardsView" class="cards-view">
+                <!-- Cards serão carregados aqui -->
             </div>
             
             <div id="emptyState" class="empty-state" style="display: none;">
@@ -860,16 +1026,28 @@
         function renderChamados() {
             const tbody = document.getElementById('chamadosTableBody');
             const emptyState = document.getElementById('emptyState');
-            const content = document.getElementById('chamadosContent');
+            const tableView = document.getElementById('tableView');
+            const cardsView = document.getElementById('cardsView');
             
             if (filteredChamados.length === 0) {
-                content.style.display = 'none';
+                tableView.style.display = 'none';
+                cardsView.style.display = 'none';
                 emptyState.style.display = 'block';
                 return;
             }
             
-            content.style.display = 'block';
             emptyState.style.display = 'none';
+            
+            // Renderizar baseado na visualização atual
+            if (currentView === 'cards') {
+                tableView.style.display = 'none';
+                cardsView.style.display = 'grid';
+                renderChamadosCards();
+                return;
+            } else {
+                tableView.style.display = 'block';
+                cardsView.style.display = 'none';
+            }
             
             tbody.innerHTML = '';
             
@@ -1120,7 +1298,18 @@
         }
         
         // Mostrar descrição completa do chamado
-        function showFullDescription(numero, titulo, descricao) {
+        function showFullDescription(id, titulo = null, descricao = null) {
+            // Se não foram fornecidos título e descrição, buscar o chamado pelo ID
+            let chamado;
+            if (!titulo || !descricao) {
+                chamado = allChamados.find(c => c.id === id || c.numero === parseInt(id));
+                if (!chamado) {
+                    alert('Chamado não encontrado!');
+                    return;
+                }
+                titulo = chamado.titulo;
+                descricao = chamado.descricao;
+            }
             const modal = document.createElement('div');
             modal.style.cssText = `
                 position: fixed;
@@ -1139,17 +1328,16 @@
             
             modal.innerHTML = `
                 <div style="
-                    background: rgba(255, 255, 255, 0.95);
-                    backdrop-filter: blur(40px);
-                    border-radius: 24px;
-                    padding: 32px;
+                    background: white;
+                    border-radius: 16px;
+                    padding: 24px;
                     max-width: 600px;
                     width: 100%;
-                    box-shadow: 0 32px 64px rgba(0, 0, 0, 0.1);
-                    border: 1px solid rgba(255, 255, 255, 0.5);
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                    border: 1px solid #e0e0e0;
                 ">
-                    <h3 style="color: #0f172a; margin-bottom: 8px; font-weight: 800; font-size: 20px;">
-                        Chamado #${numero}
+                    <h3 style="color: #202124; margin-bottom: 8px; font-weight: 600; font-size: 18px;">
+                        Chamado #${chamado ? chamado.numero || chamado.id : id}
                     </h3>
                     <h4 style="color: #3b82f6; margin-bottom: 16px; font-weight: 600;">
                         ${titulo}
@@ -1218,6 +1406,155 @@
         // Voltar ao app
         function goBack() {
             window.location.href = '/';
+        }
+        
+        // Toggle entre visualizações
+        let currentView = 'table';
+        
+        function toggleView(view) {
+            currentView = view;
+            
+            const tableView = document.getElementById('tableView');
+            const cardsView = document.getElementById('cardsView');
+            const tableBtn = document.getElementById('tableViewBtn');
+            const cardBtn = document.getElementById('cardViewBtn');
+            
+            if (view === 'table') {
+                tableView.style.display = 'block';
+                cardsView.style.display = 'none';
+                tableBtn.classList.add('active');
+                cardBtn.classList.remove('active');
+            } else {
+                tableView.style.display = 'none';
+                cardsView.style.display = 'grid';
+                tableBtn.classList.remove('active');
+                cardBtn.classList.add('active');
+                renderChamadosCards();
+            }
+        }
+        
+        // Renderizar chamados em cards
+        function renderChamadosCards() {
+            const cardsContainer = document.getElementById('cardsView');
+            
+            if (filteredChamados.length === 0) {
+                cardsContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;"><h3>📝 Nenhum chamado encontrado</h3><p>Não há chamados que correspondam aos filtros selecionados.</p></div>';
+                return;
+            }
+            
+            const cardsHtml = filteredChamados.map(chamado => {
+                const priorityColors = {
+                    'crítica': 'background: rgba(239, 68, 68, 0.15); color: #b91c1c; border-color: rgba(239, 68, 68, 0.3);',
+                    'alta': 'background: rgba(245, 158, 11, 0.15); color: #b45309; border-color: rgba(245, 158, 11, 0.3);',
+                    'média': 'background: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.3);',
+                    'baixa': 'background: rgba(34, 197, 94, 0.15); color: #0d7736; border-color: rgba(34, 197, 94, 0.3);'
+                };
+                
+                const statusColors = {
+                    'Aberto': 'background: rgba(34, 197, 94, 0.15); color: #0d7736; border-color: rgba(34, 197, 94, 0.3);',
+                    'Em Atendimento': 'background: rgba(245, 158, 11, 0.15); color: #b45309; border-color: rgba(245, 158, 11, 0.3);',
+                    'Finalizado': 'background: rgba(148, 163, 184, 0.15); color: #475569; border-color: rgba(148, 163, 184, 0.3);',
+                    'Cancelado': 'background: rgba(239, 68, 68, 0.15); color: #b91c1c; border-color: rgba(239, 68, 68, 0.3);'
+                };
+                
+                const canEdit = currentUser.role === 'admin' || currentUser.role === 'supervisor';
+                const actionButtons = canEdit ? `
+                    <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                        ${chamado.status === 'Aberto' ? `
+                            <button class="btn btn-small" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border-color: rgba(245, 158, 11, 0.3); font-size: 10px; padding: 4px 8px;" onclick="changeStatus('${chamado.id}', 'Em Atendimento')">
+                                ⏳ Atender
+                            </button>
+                        ` : ''}
+                        ${chamado.status === 'Em Atendimento' ? `
+                            <button class="btn btn-small" style="background: rgba(148, 163, 184, 0.15); color: #475569; border-color: rgba(148, 163, 184, 0.3); font-size: 10px; padding: 4px 8px;" onclick="changeStatus('${chamado.id}', 'Finalizado')">
+                                ✅ Finalizar
+                            </button>
+                        ` : ''}
+                        ${(chamado.status === 'Aberto' || chamado.status === 'Em Atendimento') ? `
+                            <button class="btn btn-small" style="background: rgba(239, 68, 68, 0.15); color: #b91c1c; border-color: rgba(239, 68, 68, 0.3); font-size: 10px; padding: 4px 8px;" onclick="changeStatus('${chamado.id}', 'Cancelado')">
+                                ❌ Cancelar
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-small" style="background: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.3); font-size: 10px; padding: 4px 8px;" onclick="showFullDescription('${chamado.id}')">
+                            👁️ Detalhes
+                        </button>
+                    </div>
+                ` : `
+                    <button class="btn btn-small" style="background: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.3); font-size: 10px; padding: 4px 8px;" onclick="showFullDescription('${chamado.id}')">
+                        👁️ Ver Detalhes
+                    </button>
+                `;
+                
+                const description = chamado.descricao || '';
+                const shortDescription = description.length > 120 ? description.substring(0, 120) + '...' : description;
+                const needsExpansion = description.length > 120;
+                
+                return `
+                    <div class="chamado-card-item" onclick="showFullDescription('${chamado.id}')">
+                        <div class="card-header">
+                            <div class="card-id">#${chamado.id}</div>
+                            <div style="font-size: 11px; color: #5f6368;">
+                                ${new Date(chamado.created_at).toLocaleDateString('pt-BR')}
+                            </div>
+                        </div>
+                        
+                        <div class="card-title">${chamado.titulo}</div>
+                        <div class="card-category">📁 ${chamado.categoria}</div>
+                        
+                        <div class="card-description" id="desc-${chamado.id}">
+                            ${shortDescription}
+                            ${needsExpansion ? `
+                                <button class="expand-btn" onclick="event.stopPropagation(); toggleDescription('${chamado.id}')" id="expand-${chamado.id}">
+                                    Ver mais
+                                </button>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="card-footer">
+                            <div class="card-badges">
+                                <span class="status-badge" style="${statusColors[chamado.status] || ''}">
+                                    ${chamado.status}
+                                </span>
+                                <span class="priority-badge" style="${priorityColors[chamado.prioridade] || ''}">
+                                    ${chamado.prioridade}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f3f4;" onclick="event.stopPropagation();">
+                            ${actionButtons}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            cardsContainer.innerHTML = cardsHtml;
+        }
+        
+        // Toggle descrição no card
+        function toggleDescription(id) {
+            const descElement = document.getElementById(`desc-${id}`);
+            const expandBtn = document.getElementById(`expand-${id}`);
+            const chamado = allChamados.find(c => c.id === id);
+            
+            if (!chamado) return;
+            
+            if (descElement.classList.contains('expanded')) {
+                const shortDescription = chamado.descricao.length > 120 ? chamado.descricao.substring(0, 120) + '...' : chamado.descricao;
+                descElement.innerHTML = shortDescription + `
+                    <button class="expand-btn" onclick="event.stopPropagation(); toggleDescription('${id}')">
+                        Ver mais
+                    </button>
+                `;
+                descElement.classList.remove('expanded');
+            } else {
+                descElement.innerHTML = chamado.descricao + `
+                    <button class="expand-btn" onclick="event.stopPropagation(); toggleDescription('${id}')">
+                        Ver menos
+                    </button>
+                `;
+                descElement.classList.add('expanded');
+            }
         }
         
         // Inicialização
