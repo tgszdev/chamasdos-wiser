@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build tools
+.wrangler/
+ecosystem.config.cjs
+wrangler.jsonc
+vite.config.ts
+tsconfig.json
+
+# Documentation
+README-*.md
+
+# Logs and temp files
+*.log
+server.log
+
+# Alternative versions
+*-portable.html
+*-simples.html
+
+# Development files
+.git/

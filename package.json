@@ -1,36 +1,25 @@
 {
   "name": "wms-chamados",
   "version": "1.0.0",
-  "description": "Aplicativo para gerar chamados WMS formatados para WhatsApp Web",
+  "description": "Aplicativo Web para gerar chamados WMS formatados para WhatsApp",
   "main": "index.html",
+  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "echo 'Static site - no build needed'",
-    "start": "echo 'Static site deployed to Vercel'",
-    "preview": "vite preview",
-    "dev:sandbox": "wrangler pages dev dist --ip 0.0.0.0 --port 3000",
-    "deploy:cf": "npm run build && wrangler pages deploy dist",
-    "test": "curl http://localhost:3000"
+    "build": "echo 'Static site ready for deployment'",
+    "start": "echo 'Site deployed successfully'",
+    "dev": "npx serve .",
+    "test": "echo 'No tests - static site'"
   },
   "keywords": [
     "wms",
-    "chamados",
+    "chamados", 
     "whatsapp",
-    "vercel",
-    "webapp"
+    "html",
+    "static-site"
   ],
   "author": "WMS Team",
   "license": "MIT",
-  "dependencies": {
-    "hono": "^4.9.4"
-  },
-  "devDependencies": {
-    "@hono/vite-build": "^1.2.0",
-    "@hono/vite-dev-server": "^0.18.2",
-    "vite": "^6.3.5",
-    "wrangler": "^4.4.0"
-  },
   "engines": {
-    "node": ">=18"
+    "node": ">=16.0.0"
   }
 }
