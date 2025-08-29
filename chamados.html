@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📋 Gerenciar Chamados - WMS</title>
     
-    <!-- VERSÃO DEPLOY: 20250829_imagens_v1 - Sistema de Upload de Imagens + Visualização Modal -->
+    <!-- VERSÃO DEPLOY: 20250829_smtp_users_v1 - Sistema SMTP integrado com usuários + correções UI -->
     <!-- Meta tags -->
     <meta name="description" content="Sistema de gerenciamento de chamados WMS com controle de status e histórico">
     <meta name="robots" content="noindex, nofollow">
@@ -1422,10 +1422,13 @@ ${data.observacao ? `💬 Observação: ${data.observacao}\n` : ''}
                         break;
                 }
                 
-                if (shouldSend && smtpConfig.alertEmails?.length > 0) {
+                if (shouldSend && smtpConfig.alertUsers?.length > 0) {
+                    // Obter emails dos usuários selecionados
+                    const emailList = smtpConfig.alertUsers.map(user => `${user.name} <${user.email}>`);
+                    
                     // Simular envio de e-mail
                     console.log(`📧 ALERTA DE E-MAIL (simulado):
-Para: ${smtpConfig.alertEmails.join(', ')}
+Para: ${emailList.join(', ')}
 Assunto: ${subject}
 Mensagem: ${message}`);
                     

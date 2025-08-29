@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚨 Chamados WMS</title>
     
-    <!-- VERSÃO DEPLOY: 20250829_imagens_v1 - Sistema de Upload de Imagens COMPLETO -->
+    <!-- VERSÃO DEPLOY: 20250829_smtp_users_v1 - Sistema SMTP integrado com usuários + correções UI -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -580,10 +580,13 @@ ${data.observacao ? `💬 Observação: ${data.observacao}\n` : ''}
                         break;
                 }
                 
-                if (shouldSend && smtpConfig.alertEmails?.length > 0) {
+                if (shouldSend && smtpConfig.alertUsers?.length > 0) {
+                    // Obter emails dos usuários selecionados
+                    const emailList = smtpConfig.alertUsers.map(user => `${user.name} <${user.email}>`);
+                    
                     // Simular envio de e-mail
                     console.log(`📧 ALERTA DE E-MAIL (simulado):
-Para: ${smtpConfig.alertEmails.join(', ')}
+Para: ${emailList.join(', ')}
 Assunto: ${subject}
 Mensagem: ${message}`);
                     

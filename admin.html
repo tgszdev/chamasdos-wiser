@@ -774,8 +774,11 @@
                 </div>
                 
                 <div style="margin: 20px 0;">
-                    <label for="alertEmails">📬 E-mails para Alertas (separados por vírgula):</label>
-                    <textarea id="alertEmails" placeholder="admin@empresa.com, supervisor@empresa.com" rows="3" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dadce0; border-radius: 8px; resize: vertical;"></textarea>
+                    <label>📬 Usuários que receberão alertas por e-mail:</label>
+                    <div id="userEmailList" style="margin: 8px 0; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; background: #f8f9fa;">
+                        <!-- Lista de usuários com emails será carregada aqui -->
+                    </div>
+                    <small style="color: #5f6368;">⚠️ Apenas usuários com e-mail cadastrado aparecem na lista. Configure emails na aba "👥 Usuários".</small>
                 </div>
                 
                 <div style="margin: 20px 0; padding: 16px; background: #f8f9fa; border-radius: 8px;">
@@ -1288,6 +1291,21 @@
         
         // Salvar configuração SMTP
         function saveSmtpConfig() {
+            // Obter usuários selecionados para alertas
+            const selectedUsers = [];
+            const checkboxes = document.querySelectorAll('#userEmailList input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => {
+                const username = cb.value;
+                const user = users[username];
+                if (user && user.email) {
+                    selectedUsers.push({
+                        username: username,
+                        name: user.name,
+                        email: user.email
+                    });
+                }
+            });
+
             const config = {
                 host: document.getElementById('smtpHost').value,
                 port: parseInt(document.getElementById('smtpPort').value),
@@ -1295,7 +1313,7 @@
                 password: document.getElementById('smtpPassword').value,
                 security: document.getElementById('smtpSecurity').value,
                 fromName: document.getElementById('smtpFromName').value,
-                alertEmails: document.getElementById('alertEmails').value.split(',').map(e => e.trim()).filter(e => e),
+                alertUsers: selectedUsers, // Mudança: usar usuários em vez de emails manuais
                 alerts: {
                     novoChamado: document.getElementById('alertNovoChamado').checked,
                     statusChange: document.getElementById('alertStatusChange').checked,
@@ -1321,6 +1339,9 @@
         
         // Carregar configuração SMTP
         function loadSmtpConfig() {
+            // Primeiro carregar lista de usuários
+            loadUserEmailList();
+            
             const saved = localStorage.getItem('wms_smtp_config');
             if (saved) {
                 try {
@@ -1332,13 +1353,20 @@
                     document.getElementById('smtpPassword').value = config.password || '';
                     document.getElementById('smtpSecurity').value = config.security || 'tls';
                     document.getElementById('smtpFromName').value = config.fromName || 'Sistema WMS';
-                    document.getElementById('alertEmails').value = (config.alertEmails || []).join(', ');
                     
                     if (config.alerts) {
                         document.getElementById('alertNovoChamado').checked = config.alerts.novoChamado || false;
                         document.getElementById('alertStatusChange').checked = config.alerts.statusChange || false;
                         document.getElementById('alertChamadoVencido').checked = config.alerts.chamadoVencido || false;
                         document.getElementById('alertResumoDaily').checked = config.alerts.resumoDaily || false;
+                    }
+                    
+                    // Marcar usuários selecionados
+                    if (config.alertUsers) {
+                        config.alertUsers.forEach(user => {
+                            const checkbox = document.querySelector(`#userEmailList input[value="${user.username}"]`);
+                            if (checkbox) checkbox.checked = true;
+                        });
                     }
                     
                     updateSmtpStatus('✅ Configuração carregada. Última atualização: ' + new Date(config.createdAt).toLocaleString('pt-BR'), 'success');
@@ -1349,6 +1377,32 @@
             } else {
                 updateSmtpStatus('⚠️ Nenhuma configuração encontrada. Configure o SMTP para ativar os alertas.', 'warning');
             }
+        }
+        
+        // Carregar lista de usuários com email
+        function loadUserEmailList() {
+            const container = document.getElementById('userEmailList');
+            const usersWithEmail = Object.entries(users).filter(([username, user]) => user.email && user.email.trim());
+            
+            if (usersWithEmail.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: #5f6368; padding: 20px;">
+                        📭 Nenhum usuário com e-mail cadastrado.<br>
+                        <small>Adicione e-mails na aba "👥 Usuários" para ativar os alertas.</small>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = usersWithEmail.map(([username, user]) => `
+                <label style="display: flex; align-items: center; margin: 8px 0; padding: 8px; border: 1px solid #dadce0; border-radius: 6px; background: white;">
+                    <input type="checkbox" value="${username}" style="margin-right: 12px;">
+                    <div>
+                        <strong>${user.name}</strong> (${username})<br>
+                        <small style="color: #5f6368;">📧 ${user.email}</small>
+                    </div>
+                </label>
+            `).join('');
         }
         
         // Testar conexão SMTP (simulação)
