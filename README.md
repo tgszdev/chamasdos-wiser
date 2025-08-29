@@ -25,6 +25,7 @@ Um aplicativo web responsivo para gerar chamados WMS formatados e enviá-los dir
 - ✅ **Histórico completo** - rastreamento de alterações de status
 - ✅ **Filtros avançados** - por categoria, status, prioridade e período
 - ✅ **Integração direta com WhatsApp** via URL scheme
+- ✅ **🔗 Base de dados compartilhada** - todas as versões (web/mobile) salvam na mesma base
 - ✅ **Interface responsiva** otimizada para desktop e mobile
 - ✅ **Processo unificado** - criação automática + envio para WhatsApp
 
@@ -279,6 +280,7 @@ Esta solução oferece um **sistema completo de chamados WMS** com:
 ---
 
 **🎯 PROBLEMA RESOLVIDO**: Lista de chamados agora é 100% legível!
+**🔗 NOVA FUNCIONALIDADE**: Base de dados compartilhada entre todas as versões!
 **🔄 Última atualização**: 29/08/2025 - Versão v20250829_050600 no GitHub
 **📊 Status**: ✅ Pronto para uso em produção - GitHub 100% sincronizado!
 **🚀 GitHub**: https://github.com/tgszdev/chamasdos-wiser (ATUALIZADO)
