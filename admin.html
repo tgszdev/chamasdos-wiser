@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👑 Admin - Gerenciar Usuários</title>
     
-    <!-- VERSÃO DEPLOY: 20250829_smtp_debug_v1 - Sistema SMTP com debug e correções funcionais -->
+    <!-- VERSÃO DEPLOY: 20250829_emailjs_v1 - Sistema EmailJS para envio REAL de e-mails -->
     <!-- Meta tags -->
     <meta name="description" content="Painel administrativo para gerenciar usuários do sistema WMS">
     <meta name="robots" content="noindex, nofollow">
     
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
+    
+    <!-- EmailJS para envio real de e-mails -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -738,40 +741,41 @@
         <!-- Tab: Configuração SMTP -->
         <div id="tab-smtp-config" class="tab-content">
             <div class="card">
-                <h3>📧 Configuração de E-mail SMTP</h3>
-                <p>Configure o servidor SMTP para envio automático de alertas por e-mail quando houver chamados abertos ou interações.</p>
+                <h3>📧 Configuração de E-mail (EmailJS)</h3>
+                <p>Configure o EmailJS para envio <strong>REAL</strong> de alertas por e-mail. O EmailJS é gratuito e funciona com Gmail, Outlook e outros provedores.</p>
+                
+                <div style="background: #e8f4fd; border-left: 4px solid #1a73e8; padding: 16px; margin: 16px 0; border-radius: 8px;">
+                    <h4>📋 Como configurar (5 minutos):</h4>
+                    <ol style="margin: 8px 0; padding-left: 20px;">
+                        <li>Acesse: <a href="https://emailjs.com" target="_blank" style="color: #1a73e8;">https://emailjs.com</a></li>
+                        <li>Crie conta gratuita</li>
+                        <li>Conecte seu Gmail/Outlook</li>
+                        <li>Copie as chaves abaixo</li>
+                        <li>Teste o envio!</li>
+                    </ol>
+                </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
                     <div>
-                        <label for="smtpHost">🌐 Servidor SMTP:</label>
-                        <input type="text" id="smtpHost" placeholder="smtp.gmail.com" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dadce0; border-radius: 8px;">
+                        <label for="emailjsPublicKey">🔑 Public Key:</label>
+                        <input type="text" id="emailjsPublicKey" placeholder="Ex: user_abc123xyz" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dadce0; border-radius: 8px;">
+                        <small style="color: #5f6368;">Encontre em: Account → General</small>
                     </div>
                     <div>
-                        <label for="smtpPort">🔌 Porta:</label>
-                        <input type="number" id="smtpPort" placeholder="587" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dadce0; border-radius: 8px;">
+                        <label for="emailjsServiceId">📧 Service ID:</label>
+                        <input type="text" id="emailjsServiceId" placeholder="Ex: service_gmail123" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dadce0; border-radius: 8px;">
+                        <small style="color: #5f6368;">Encontre em: Email Services</small>
                     </div>
-                    <div>
-                        <label for="smtpUser">👤 Usuário/E-mail:</label>
-                        <input type="email" id="smtpUser" placeholder="seu-email@gmail.com" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dadce0; border-radius: 8px;">
-                    </div>
-                    <div>
-                        <label for="smtpPassword">🔑 Senha/App Password:</label>
-                        <input type="password" id="smtpPassword" placeholder="sua-senha-ou-app-password" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dadce0; border-radius: 8px;">
+                    <div style="grid-column: 1 / -1;">
+                        <label for="emailjsTemplateId">📋 Template ID:</label>
+                        <input type="text" id="emailjsTemplateId" placeholder="Ex: template_wms123" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dadce0; border-radius: 8px;">
+                        <small style="color: #5f6368;">Encontre em: Email Templates</small>
                     </div>
                 </div>
                 
                 <div style="margin: 20px 0;">
-                    <label for="smtpSecurity">🔒 Segurança:</label>
-                    <select id="smtpSecurity" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dadce0; border-radius: 8px;">
-                        <option value="tls">TLS (Recomendado)</option>
-                        <option value="ssl">SSL</option>
-                        <option value="none">Sem segurança</option>
-                    </select>
-                </div>
-                
-                <div style="margin: 20px 0;">
-                    <label for="smtpFromName">📝 Nome do Remetente:</label>
-                    <input type="text" id="smtpFromName" placeholder="Sistema WMS" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dadce0; border-radius: 8px;">
+                    <label for="emailFromName">📝 Nome do Remetente:</label>
+                    <input type="text" id="emailFromName" placeholder="Sistema WMS" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #dadce0; border-radius: 8px;">
                 </div>
                 
                 <div style="margin: 20px 0;">
@@ -805,16 +809,16 @@
                 </div>
                 
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px;">
-                    <button class="btn btn-primary" onclick="saveSmtpConfig()">
+                    <button class="btn btn-primary" onclick="saveEmailConfig()">
                         💾 Salvar Configuração
                     </button>
-                    <button class="btn btn-success" onclick="testSmtpConnection()">
-                        🧪 Testar Conexão
+                    <button class="btn btn-success" onclick="testEmailConnection()">
+                        🧪 Testar EmailJS
                     </button>
-                    <button class="btn btn-warning" onclick="sendTestEmail()">
-                        📧 Enviar E-mail Teste
+                    <button class="btn btn-warning" onclick="sendRealTestEmail()">
+                        📧 Enviar E-mail REAL
                     </button>
-                    <button class="btn btn-secondary" onclick="loadSmtpConfig()">
+                    <button class="btn btn-secondary" onclick="loadEmailConfig()">
                         🔄 Recarregar Config
                     </button>
                 </div>
@@ -912,8 +916,8 @@
             } else if (tabName === 'users') {
                 loadUsersTable();
             } else if (tabName === 'smtp-config') {
-                console.log('📧 Carregando configuração SMTP...');
-                loadSmtpConfig();
+                console.log('📧 Carregando configuração EmailJS...');
+                loadEmailConfig();
             }
         }
         
@@ -1640,6 +1644,239 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
         
         // Tornar função disponível globalmente
         window.testeCompletoSMTP = testeCompletoSMTP;
+        
+        // ===== SISTEMA EmailJS (ENVIO REAL DE E-MAILS) =====
+        
+        // Inicializar EmailJS
+        function initEmailJS() {
+            const config = getEmailConfig();
+            if (config && config.publicKey) {
+                emailjs.init(config.publicKey);
+                console.log('📧 EmailJS inicializado com sucesso');
+                return true;
+            }
+            return false;
+        }
+        
+        // Salvar configuração EmailJS
+        function saveEmailConfig() {
+            console.log('💾 Salvando configuração EmailJS...');
+            
+            // Obter usuários selecionados para alertas
+            const selectedUsers = [];
+            const checkboxes = document.querySelectorAll('#userEmailList input[type="checkbox"]:checked');
+            checkboxes.forEach(cb => {
+                const username = cb.value;
+                const user = users[username];
+                if (user && user.email) {
+                    selectedUsers.push({
+                        username: username,
+                        name: user.name,
+                        email: user.email
+                    });
+                }
+            });
+
+            const config = {
+                publicKey: document.getElementById('emailjsPublicKey').value.trim(),
+                serviceId: document.getElementById('emailjsServiceId').value.trim(),
+                templateId: document.getElementById('emailjsTemplateId').value.trim(),
+                fromName: document.getElementById('emailFromName').value.trim() || 'Sistema WMS',
+                alertUsers: selectedUsers,
+                alerts: {
+                    novoChamado: document.getElementById('alertNovoChamado').checked,
+                    statusChange: document.getElementById('alertStatusChange').checked,
+                    chamadoVencido: document.getElementById('alertChamadoVencido').checked,
+                    resumoDaily: document.getElementById('alertResumoDaily').checked
+                },
+                enabled: true,
+                type: 'emailjs',
+                createdAt: new Date().getTime()
+            };
+            
+            // Validar campos obrigatórios
+            if (!config.publicKey || !config.serviceId || !config.templateId) {
+                showFeedback('❌ Preencha os campos obrigatórios: Public Key, Service ID e Template ID!', 'error');
+                return;
+            }
+            
+            if (selectedUsers.length === 0) {
+                showFeedback('⚠️ Selecione pelo menos um usuário para receber alertas!', 'warning');
+            }
+            
+            // Salvar no localStorage
+            localStorage.setItem('wms_email_config', JSON.stringify(config));
+            
+            // Inicializar EmailJS
+            emailjs.init(config.publicKey);
+            
+            showFeedback('✅ Configuração EmailJS salva com sucesso!', 'success');
+            updateEmailStatus('✅ Configuração salva. Teste o envio para verificar.', 'success');
+            
+            console.log('✅ Configuração EmailJS salva:', config);
+        }
+        
+        // Carregar configuração EmailJS
+        function loadEmailConfig() {
+            console.log('📥 Carregando configuração EmailJS...');
+            
+            // Primeiro carregar lista de usuários
+            loadUserEmailList();
+            
+            const saved = localStorage.getItem('wms_email_config');
+            if (saved) {
+                try {
+                    const config = JSON.parse(saved);
+                    
+                    document.getElementById('emailjsPublicKey').value = config.publicKey || '';
+                    document.getElementById('emailjsServiceId').value = config.serviceId || '';
+                    document.getElementById('emailjsTemplateId').value = config.templateId || '';
+                    document.getElementById('emailFromName').value = config.fromName || 'Sistema WMS';
+                    
+                    if (config.alerts) {
+                        document.getElementById('alertNovoChamado').checked = config.alerts.novoChamado || false;
+                        document.getElementById('alertStatusChange').checked = config.alerts.statusChange || false;
+                        document.getElementById('alertChamadoVencido').checked = config.alerts.chamadoVencido || false;
+                        document.getElementById('alertResumoDaily').checked = config.alerts.resumoDaily || false;
+                    }
+                    
+                    // Marcar usuários selecionados
+                    if (config.alertUsers) {
+                        setTimeout(() => {
+                            config.alertUsers.forEach(user => {
+                                const checkbox = document.querySelector(`#userEmailList input[value="${user.username}"]`);
+                                if (checkbox) checkbox.checked = true;
+                            });
+                        }, 100);
+                    }
+                    
+                    // Inicializar EmailJS
+                    if (config.publicKey) {
+                        emailjs.init(config.publicKey);
+                    }
+                    
+                    updateEmailStatus('✅ Configuração carregada. Última atualização: ' + new Date(config.createdAt).toLocaleString('pt-BR'), 'success');
+                    showFeedback('✅ Configuração EmailJS carregada!', 'success');
+                    
+                    console.log('✅ Configuração EmailJS carregada:', config);
+                } catch (error) {
+                    showFeedback('❌ Erro ao carregar configuração EmailJS!', 'error');
+                    console.error('❌ Erro:', error);
+                }
+            } else {
+                updateEmailStatus('⚠️ Nenhuma configuração encontrada. Configure o EmailJS para ativar os alertas.', 'warning');
+            }
+        }
+        
+        // Testar conexão EmailJS
+        function testEmailConnection() {
+            console.log('🧪 Testando conexão EmailJS...');
+            
+            const config = getEmailConfig();
+            if (!config) {
+                showFeedback('❌ Nenhuma configuração EmailJS encontrada!', 'error');
+                console.log('❌ Nenhuma configuração encontrada para teste');
+                return;
+            }
+            
+            updateEmailStatus('🔄 Testando EmailJS...', 'info');
+            
+            // Inicializar EmailJS
+            emailjs.init(config.publicKey);
+            
+            setTimeout(() => {
+                if (config.publicKey && config.serviceId && config.templateId) {
+                    updateEmailStatus('✅ EmailJS configurado com sucesso! Pronto para envio real.', 'success');
+                    showFeedback('✅ EmailJS testado com sucesso! Configuração válida.', 'success');
+                    console.log('✅ EmailJS testado com sucesso');
+                } else {
+                    updateEmailStatus('❌ Configuração incompleta. Preencha todos os campos obrigatórios.', 'error');
+                    showFeedback('❌ Preencha todos os campos obrigatórios!', 'error');
+                    console.log('❌ Configuração EmailJS incompleta:', config);
+                }
+            }, 1000);
+        }
+        
+        // Enviar e-mail de teste REAL
+        function sendRealTestEmail() {
+            console.log('📧 Enviando e-mail de teste REAL...');
+            
+            const config = getEmailConfig();
+            if (!config) {
+                showFeedback('❌ Nenhuma configuração EmailJS encontrada!', 'error');
+                console.log('❌ Nenhuma configuração encontrada para teste');
+                return;
+            }
+            
+            if (!config.alertUsers || config.alertUsers.length === 0) {
+                showFeedback('❌ Selecione pelo menos um usuário para receber alertas!', 'error');
+                console.log('❌ Nenhum usuário selecionado para alertas');
+                return;
+            }
+            
+            console.log('👥 Usuários selecionados para teste:', config.alertUsers);
+            
+            updateEmailStatus('📧 Enviando e-mail de teste REAL...', 'info');
+            
+            // Inicializar EmailJS
+            emailjs.init(config.publicKey);
+            
+            // Preparar dados do template
+            const templateParams = {
+                from_name: config.fromName,
+                to_email: config.alertUsers[0].email, // Enviar para o primeiro usuário
+                to_name: config.alertUsers[0].name,
+                subject: '🧪 Teste - Sistema WMS',
+                message: `✅ Este é um e-mail de TESTE REAL do sistema WMS.
+
+🔧 Configuração EmailJS:
+- Service ID: ${config.serviceId}
+- Template ID: ${config.templateId}
+- Remetente: ${config.fromName}
+
+👥 Usuários configurados para alertas:
+${config.alertUsers.map(user => `• ${user.name} (${user.username}) - ${user.email}`).join('\n')}
+
+⏰ Enviado em: ${new Date().toLocaleString('pt-BR')}
+
+Se você recebeu este e-mail, a configuração está funcionando perfeitamente!
+
+🎉 Sistema WMS - Alertas por E-mail`
+            };
+            
+            console.log('📧 Enviando e-mail real com dados:', templateParams);
+            
+            // Enviar e-mail REAL via EmailJS
+            emailjs.send(config.serviceId, config.templateId, templateParams)
+                .then(function(response) {
+                    console.log('✅ E-mail REAL enviado com sucesso!', response);
+                    updateEmailStatus(`✅ E-mail REAL enviado para: ${config.alertUsers[0].name} <${config.alertUsers[0].email}>`, 'success');
+                    showFeedback('🎉 E-mail REAL enviado com sucesso! Verifique a caixa de entrada.', 'success');
+                }, function(error) {
+                    console.error('❌ Erro ao enviar e-mail REAL:', error);
+                    updateEmailStatus('❌ Erro ao enviar e-mail. Verifique as configurações.', 'error');
+                    showFeedback('❌ Erro ao enviar e-mail. Verifique as chaves do EmailJS.', 'error');
+                });
+        }
+        
+        // Obter configuração EmailJS
+        function getEmailConfig() {
+            const saved = localStorage.getItem('wms_email_config');
+            if (saved) {
+                try {
+                    return JSON.parse(saved);
+                } catch (error) {
+                    console.error('❌ Erro ao obter configuração EmailJS:', error);
+                    return null;
+                }
+            }
+            return null;
+        }
+        
+        // Atualizar status EmailJS (usar mesma função do SMTP)
+        function updateEmailStatus(message, type) {
+            updateSmtpStatus(message, type);
+        }
         
     </script>
 </body>
