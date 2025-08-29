@@ -745,6 +745,20 @@
                     " onmouseover="this.style.background='rgba(34, 197, 94, 0.25)'" onmouseout="this.style.background='rgba(34, 197, 94, 0.15)'">
                         📋 Chamados
                     </a>
+                    <button id="clearAllBtn" onclick="clearAllChamados()" style="
+                        background: rgba(239, 68, 68, 0.15);
+                        color: #b91c1c;
+                        border: 1px solid rgba(239, 68, 68, 0.2);
+                        padding: 6px 12px;
+                        border-radius: 20px;
+                        font-weight: 500;
+                        font-size: 12px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        display: none;
+                    " onmouseover="this.style.background='rgba(239, 68, 68, 0.25)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'">
+                        🗑️ Apagar Todos
+                    </button>
                     <button onclick="goBack()" class="btn btn-secondary" style="
                         background: rgba(95, 99, 104, 0.1);
                         color: #5f6368;
@@ -999,6 +1013,12 @@
             `;
             
             document.body.insertBefore(userBar, document.body.firstChild);
+            
+            // Mostrar botão de apagar todos apenas para admin
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            if (clearAllBtn && session.role === 'admin') {
+                clearAllBtn.style.display = 'inline-block';
+            }
         }
         
         // Logout
@@ -1860,8 +1880,33 @@
             cardsContainer.innerHTML = cardsHtml;
         }
         
+        // Apagar todos os chamados (apenas Admin)
+        function clearAllChamados() {
+            const currentUser = getCurrentUserSession();
+            if (!currentUser || currentUser.role !== 'admin') {
+                showFeedback('❌ Apenas administradores podem apagar todos os chamados!', 'error');
+                return;
+            }
+            
+            // Confirmação dupla de segurança
+            const firstConfirm = confirm('⚠️ ATENÇÃO! Você tem certeza que deseja APAGAR TODOS OS CHAMADOS?\\n\\nEsta ação é IRREVERSÍVEL!');
+            if (!firstConfirm) return;
+            
+            const secondConfirm = confirm('🚨 ÚLTIMA CHANCE!\\n\\nTodos os chamados e históricos serão PERMANENTEMENTE DELETADOS.\\n\\nDigite OK para confirmar ou Cancelar para abortar.');
+            if (!secondConfirm) return;
+            
+            // Apagar todos os dados
+            chamados = [];
+            filteredChamados = [];
+            localStorage.removeItem('wms_chamados');
+            
+            // Atualizar interface
+            renderChamados();
+            updateStats();
+            
+            showFeedback('🗑️ Todos os chamados foram apagados com sucesso!', 'success');
+        }
 
-        
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
             // Verificar autenticação
