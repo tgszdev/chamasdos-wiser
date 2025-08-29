@@ -1026,9 +1026,25 @@ app.get('/', (c) => {
   `)
 })
 
-// Adicionar rota para servir página de administração
-app.get('/admin', (c) => {
-  return c.text('Admin page will be served from static file at /static/admin.html')
+// Rota para servir página de administração
+app.get('/admin', async (c) => {
+  try {
+    // Ler o arquivo admin.html diretamente
+    const fs = await import('fs/promises')
+    const adminHtml = await fs.readFile(path.join(__dirname, '../admin.html'), 'utf-8')
+    return c.html(adminHtml)
+  } catch (error) {
+    console.error('Erro ao carregar admin.html:', error)
+    return c.html(`
+      <!DOCTYPE html>
+      <html><head><title>Admin</title></head>
+      <body>
+        <h1>⚠️ Admin Page</h1>
+        <p>Erro ao carregar admin.html. Tente: <a href="/static/admin.html">/static/admin.html</a></p>
+        <p>Error: ${error}</p>
+      </body></html>
+    `)
+  }
 })
 
 const port = 3000
