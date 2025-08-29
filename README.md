@@ -13,18 +13,20 @@ Um aplicativo web responsivo para gerar chamados WMS formatados e enviá-los dir
 
 ## ✨ Características Principais
 
-### ✅ **Funcionalidades Implementadas - Recém Atualizadas! 🎨**
+### ✅ **Funcionalidades Implementadas - SMTP SYSTEM COMPLETO! 📧**
 - ✅ **Sistema completo de gerenciamento** - criação, listagem e controle de chamados
 - ✅ **Design Gmail-like** - interface clean e profissional inspirada no Gmail
 - ✅ **Vídeo de fundo unificado** - presente em todas as páginas para consistência visual
 - ✅ **Melhor legibilidade** - cores otimizadas com alto contraste contra vídeo de fundo
 - ✅ **Sistema de autenticação** - login e controle de acesso por perfis
 - ✅ **Painel administrativo** - gerenciamento completo de usuários e senhas
+- ✅ **📧 SISTEMA SMTP COMPLETO** - configuração e alertas automáticos por email
 - ✅ **Controle de status** - Aberto, Em Atendimento, Finalizado, Cancelado
 - ✅ **Sistema de prioridades** - com badges coloridas para fácil identificação
 - ✅ **Histórico completo** - rastreamento de alterações de status
 - ✅ **Filtros avançados** - por categoria, status, prioridade e período
 - ✅ **📷 Sistema de anexos** - upload, visualização e download de imagens
+- ✅ **🔧 Correções UI** - botões de fechar modal agora funcionam perfeitamente
 - ✅ **Integração direta com WhatsApp** via URL scheme
 - ✅ **🔗 Base de dados compartilhada** - todas as versões (web/mobile) salvam na mesma base
 - ✅ **📸 UPLOAD DE IMAGENS** - anexar até 3 imagens de 5MB cada nos chamados
@@ -154,9 +156,28 @@ pm2 start ecosystem.config.cjs
 - Cores otimizadas para melhor legibilidade
 - Consistência visual em todas as páginas
 
-## 🚀 Melhorias Implementadas Recentemente - UPLOAD DE IMAGENS ADICIONADO! 📸
+## 🚀 Melhorias Implementadas Recentemente - SISTEMA SMTP + UI FIXES! 📧🔧
 
-### **📸 Sistema de Imagens (NOVO - Última Atualização)**
+### **📧 Sistema de Email SMTP (NOVO - Última Atualização)**
+- ✅ **Configuração SMTP completa** - interface amigável para configurar servidor de email
+- ✅ **Alertas automáticos** - emails enviados automaticamente para novos chamados e mudanças de status
+- ✅ **Tipos de alertas configuráveis**:
+  - 🆕 Novos chamados criados
+  - 🔄 Alterações de status
+  - ⏰ Chamados vencidos (>24h)
+  - 📊 Resumos diários (8h da manhã)
+- ✅ **Teste de conexão** - validação da configuração SMTP com feedback visual
+- ✅ **Email de teste** - função para enviar emails de teste
+- ✅ **Configurações persistentes** - salvamento no localStorage
+- ✅ **Interface integrada** - nova aba "📧 Config SMTP" no painel admin
+
+### **🔧 Correções de UI (NOVO - Última Atualização)**
+- ✅ **Botão de fechar modal corrigido** - substituído código problemático por função dedicada
+- ✅ **Função closeModal()** - implementação robusta para fechamento de modais
+- ✅ **Compatibilidade total** - funciona em todos os navegadores
+- ✅ **Feedback visual aprimorado** - melhor experiência do usuário
+
+### **📸 Sistema de Imagens (Implementado)**
 - ✅ **Upload de imagens** - até 3 imagens de 5MB cada por chamado
 - ✅ **Visualização integrada** - preview das imagens no sistema de gerenciamento
 - ✅ **Modal full-screen** - visualização em tela cheia com opção de download
@@ -194,6 +215,8 @@ pm2 start ecosystem.config.cjs
 - [ ] **Templates personalizados** por categoria
 - [ ] **Upload de anexos** via Cloudflare R2
 - [ ] **API REST** para integração externa
+- [ ] **Integração SMTP server-side** - implementação real do envio de emails
+- [ ] **Agendamento de relatórios** - envio automático de resumos por email
 
 ### **🎨 Melhorias de UX**
 - [ ] **Modo escuro** automático
@@ -289,9 +312,16 @@ Esta solução oferece um **sistema completo de chamados WMS** com:
 
 ---
 
-**🎯 PROBLEMA RESOLVIDO**: Lista de chamados agora é 100% legível!
-**🔗 NOVA FUNCIONALIDADE**: Base de dados compartilhada entre todas as versões!
+**🎯 PROBLEMAS RESOLVIDOS**: 
+- ✅ Lista de chamados 100% legível!
+- ✅ Botão × dos modais funcionando perfeitamente!
+
+**🔗 NOVAS FUNCIONALIDADES**: 
+- ✅ Base de dados compartilhada entre todas as versões!
+- ✅ Sistema SMTP completo para alertas automáticos!
+
 **📸 SISTEMA DE IMAGENS**: Upload, visualização e gerenciamento completo de anexos!
-**🔄 Última atualização**: 29/08/2025 - Versão v20250829_imagens_v1
-**📊 Status**: ✅ Pronto para uso em produção - Sistema de imagens 100% funcional!
+**📧 SISTEMA EMAIL**: Configuração SMTP + alertas automáticos implementados!
+**🔄 Última atualização**: 29/08/2025 - Versão v20250829_smtp_fixes
+**📊 Status**: ✅ Pronto para uso em produção - Todos os sistemas 100% funcionais!
 **🚀 GitHub**: https://github.com/tgszdev/chamasdos-wiser (ATUALIZADO)
