@@ -194,6 +194,7 @@
         .stat-aberto .stat-number { color: #059669; }
         .stat-atendimento .stat-number { color: #d97706; }
         .stat-finalizado .stat-number { color: #6b7280; }
+        .stat-cancelado .stat-number { color: #dc2626; }
         .stat-total .stat-number { color: #4f46e5; }
         
         .chamados-card {
@@ -253,6 +254,11 @@
         .status-finalizado {
             background: #f3f4f6;
             color: #374151;
+        }
+        
+        .status-cancelado {
+            background: #fecaca;
+            color: #991b1b;
         }
         
         .priority-badge {
@@ -374,6 +380,7 @@
                         <option value="aberto">Aberto</option>
                         <option value="atendimento">Em Atendimento</option>
                         <option value="finalizado">Finalizado</option>
+                        <option value="cancelado">Cancelado</option>
                     </select>
                 </div>
                 
@@ -434,6 +441,10 @@
                 <div class="stat-number" id="finalizadoChamados">0</div>
                 <div class="stat-label">Finalizados</div>
             </div>
+            <div class="stat-item stat-cancelado">
+                <div class="stat-number" id="canceladoChamados">0</div>
+                <div class="stat-label">Cancelados</div>
+            </div>
         </div>
         
         <!-- Tabela de Chamados -->
@@ -450,6 +461,7 @@
                             <th>Prioridade</th>
                             <th>Status</th>
                             <th>Criado em</th>
+                            <th>Última Alteração</th>
                             <th>Usuário</th>
                             <th>Ações</th>
                         </tr>
@@ -595,11 +607,13 @@
             const aberto = filteredChamados.filter(c => c.status === 'aberto').length;
             const atendimento = filteredChamados.filter(c => c.status === 'atendimento').length;
             const finalizado = filteredChamados.filter(c => c.status === 'finalizado').length;
+            const cancelado = filteredChamados.filter(c => c.status === 'cancelado').length;
             
             document.getElementById('totalChamados').textContent = total;
             document.getElementById('abertoChamados').textContent = aberto;
             document.getElementById('atendimentoChamados').textContent = atendimento;
             document.getElementById('finalizadoChamados').textContent = finalizado;
+            document.getElementById('canceladoChamados').textContent = cancelado;
         }
         
         // Renderizar tabela de chamados
@@ -622,7 +636,17 @@
             // Ordenar por número (mais recente primeiro)
             const sortedChamados = [...filteredChamados].sort((a, b) => b.numero - a.numero);
             
+            // Obter permissões do usuário atual
+            const currentUser = getCurrentUserSession();
+            const canEdit = currentUser && ['admin', 'supervisor'].includes(currentUser.role);
+            const isOperador = currentUser && currentUser.role === 'user';
+            
             sortedChamados.forEach(chamado => {
+                // Última alteração do histórico
+                const ultimaAlteracao = chamado.historico && chamado.historico.length > 0 
+                    ? chamado.historico[chamado.historico.length - 1]
+                    : null;
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>#${chamado.numero}</strong></td>
@@ -631,33 +655,49 @@
                         <strong>${chamado.titulo}</strong>
                         <br><small style="color: #6b7280; font-size: 12px;">${chamado.descricao.substring(0, 80)}${chamado.descricao.length > 80 ? '...' : ''}</small>
                     </td>
-                    <td><span class="priority-badge priority-${chamado.prioridade.toLowerCase()}">${chamado.prioridade}</span></td>
+                    <td><span class="priority-badge priority-${chamado.prioridade.replace(/🔴|🟠|🟡|🟢/g, '').trim().toLowerCase()}">${chamado.prioridade}</span></td>
                     <td><span class="status-badge status-${chamado.status}">${getStatusText(chamado.status)}</span></td>
                     <td>
                         ${new Date(chamado.criadoEm).toLocaleString('pt-BR')}
                         <br><small style="color: #6b7280;">${chamado.usuario}</small>
                     </td>
+                    <td>
+                        ${ultimaAlteracao ? 
+                            `${new Date(ultimaAlteracao.data).toLocaleString('pt-BR')}<br><small style="color: #6b7280;">${ultimaAlteracao.usuario}</small>` :
+                            `${new Date(chamado.criadoEm).toLocaleString('pt-BR')}<br><small style="color: #6b7280;">Criado</small>`
+                        }
+                    </td>
                     <td><small>${chamado.usuario}</small></td>
                     <td>
                         <div class="chamado-actions">
-                            ${chamado.status !== 'atendimento' ? `
+                            ${!isOperador && canEdit && chamado.status !== 'atendimento' && chamado.status !== 'cancelado' && chamado.status !== 'finalizado' ? `
                                 <button class="btn btn-warning btn-small" onclick="changeStatus(${chamado.numero}, 'atendimento')" title="Marcar como Em Atendimento">
                                     🔄 Atender
                                 </button>
                             ` : ''}
-                            ${chamado.status !== 'finalizado' ? `
+                            ${!isOperador && canEdit && chamado.status !== 'finalizado' && chamado.status !== 'cancelado' ? `
                                 <button class="btn btn-success btn-small" onclick="changeStatus(${chamado.numero}, 'finalizado')" title="Marcar como Finalizado">
                                     ✅ Finalizar
                                 </button>
                             ` : ''}
-                            ${chamado.status === 'finalizado' ? `
+                            ${!isOperador && canEdit && chamado.status === 'finalizado' ? `
                                 <button class="btn btn-info btn-small" onclick="changeStatus(${chamado.numero}, 'aberto')" title="Reabrir Chamado">
                                     🔄 Reabrir
+                                </button>
+                            ` : ''}
+                            ${!isOperador && canEdit && chamado.status !== 'cancelado' ? `
+                                <button class="btn btn-danger btn-small" onclick="cancelarChamado(${chamado.numero})" title="Cancelar Chamado">
+                                    ❌ Cancelar
                                 </button>
                             ` : ''}
                             <button class="btn btn-info btn-small" onclick="openWhatsApp('${chamado.mensagem.replace(/'/g, "\\'")}')" title="Abrir no WhatsApp">
                                 💬 WhatsApp
                             </button>
+                            ${chamado.historico && chamado.historico.length > 1 ? `
+                                <button class="btn btn-secondary btn-small" onclick="showHistory(${chamado.numero})" title="Ver Histórico">
+                                    📋 Histórico
+                                </button>
+                            ` : ''}
                         </div>
                     </td>
                 `;
@@ -670,23 +710,55 @@
             const statusMap = {
                 'aberto': 'Aberto',
                 'atendimento': 'Em Atendimento',
-                'finalizado': 'Finalizado'
+                'finalizado': 'Finalizado',
+                'cancelado': 'Cancelado'
             };
             return statusMap[status] || status;
         }
         
         // Alterar status do chamado
-        function changeStatus(numero, novoStatus) {
+        function changeStatus(numero, novoStatus, observacao = '') {
             const chamado = chamados.find(c => c.numero === numero);
             if (chamado) {
+                const agora = new Date().getTime();
+                const currentUser = getCurrentUserSession();
+                
+                // Atualizar status
                 chamado.status = novoStatus;
-                chamado.atualizadoEm = new Date().getTime();
+                chamado.atualizadoEm = agora;
+                
+                // Adicionar ao histórico
+                if (!chamado.historico) {
+                    chamado.historico = [];
+                }
+                
+                chamado.historico.push({
+                    status: novoStatus,
+                    data: agora,
+                    usuario: currentUser ? currentUser.name : 'Sistema',
+                    observacao: observacao || `Status alterado para ${getStatusText(novoStatus)}`
+                });
+                
                 saveChamados();
                 applyFilters();
                 
                 const statusText = getStatusText(novoStatus);
                 showFeedback(`✅ Chamado #${numero} marcado como "${statusText}"`, 'success');
             }
+        }
+        
+        // Obter sessão do usuário atual
+        function getCurrentUserSession() {
+            const savedLogin = localStorage.getItem('wms_session') || sessionStorage.getItem('wms_session');
+            if (savedLogin) {
+                try {
+                    const session = JSON.parse(atob(savedLogin));
+                    return session;
+                } catch (e) {
+                    return null;
+                }
+            }
+            return null;
         }
         
         // Abrir WhatsApp
@@ -705,10 +777,17 @@
             filteredChamados = chamados.filter(chamado => {
                 if (statusFilter && chamado.status !== statusFilter) return false;
                 if (categoryFilter && chamado.categoria !== categoryFilter) return false;
-                if (priorityFilter && chamado.prioridade !== priorityFilter) return false;
+                if (priorityFilter && !chamado.prioridade.includes(priorityFilter)) return false;
                 if (dateFilter) {
-                    const chamadoDate = new Date(chamado.criadoEm).toISOString().split('T')[0];
-                    if (chamadoDate !== dateFilter) return false;
+                    // Corrigir filtro de data - converter timestamp para data
+                    const chamadoDate = new Date(chamado.criadoEm);
+                    const filterDate = new Date(dateFilter);
+                    
+                    // Comparar apenas a data (ignorar hora)
+                    const chamadoDateStr = chamadoDate.toISOString().split('T')[0];
+                    const filterDateStr = filterDate.toISOString().split('T')[0];
+                    
+                    if (chamadoDateStr !== filterDateStr) return false;
                 }
                 return true;
             });
@@ -748,6 +827,40 @@
             setTimeout(() => {
                 document.body.removeChild(feedback);
             }, 4000);
+        }
+        
+        // Cancelar chamado (apenas admin/supervisor)
+        function cancelarChamado(numero) {
+            const currentUser = getCurrentUserSession();
+            if (!currentUser || !['admin', 'supervisor'].includes(currentUser.role)) {
+                showFeedback('❌ Apenas administradores e supervisores podem cancelar chamados!', 'error');
+                return;
+            }
+            
+            const motivo = prompt('Digite o motivo do cancelamento:');
+            if (motivo !== null && motivo.trim()) {
+                changeStatus(numero, 'cancelado', `Cancelado: ${motivo.trim()}`);
+            }
+        }
+        
+        // Mostrar histórico do chamado
+        function showHistory(numero) {
+            const chamado = chamados.find(c => c.numero === numero);
+            if (!chamado || !chamado.historico) {
+                showFeedback('❌ Histórico não encontrado!', 'error');
+                return;
+            }
+            
+            let historyText = `📋 HISTÓRICO DO CHAMADO #${numero}\n\n`;
+            chamado.historico.forEach((item, index) => {
+                const data = new Date(item.data).toLocaleString('pt-BR');
+                historyText += `${index + 1}. ${data}\n`;
+                historyText += `   Status: ${getStatusText(item.status)}\n`;
+                historyText += `   Usuário: ${item.usuario}\n`;
+                historyText += `   Observação: ${item.observacao}\n\n`;
+            });
+            
+            alert(historyText);
         }
         
         // Voltar ao app

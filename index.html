@@ -330,11 +330,6 @@
                 <button type="submit" class="btn btn-whatsapp">💻 GERAR E ABRIR WHATSAPP WEB</button>
             </form>
             
-            <!-- Botão de debug temporário -->
-            <button type="button" onclick="debugSalvarChamado()" class="btn" style="background: #059669; margin-top: 15px; width: 100%;">
-                🔧 DEBUG: Salvar Chamado Diretamente
-            </button>
-            
             <div id="resultado" class="resultado">
                 <h3>✅ Mensagem gerada com sucesso!</h3>
                 <div id="texto" class="texto-gerado"></div>
@@ -397,7 +392,7 @@
             const savedChamados = localStorage.getItem('wms_chamados');
             const chamados = savedChamados ? JSON.parse(savedChamados) : [];
             
-            console.log('📦 Chamados existentes:', chamados.length);
+            const agora = new Date().getTime();
             
             const novoChamado = {
                 numero: getNextChamadoNumber(),
@@ -408,16 +403,21 @@
                 mensagem: mensagem,
                 status: 'aberto', // Status inicial sempre "aberto"
                 usuario: usuario,
-                criadoEm: new Date().getTime(),
-                atualizadoEm: new Date().getTime()
+                criadoEm: agora,
+                atualizadoEm: agora,
+                // Histórico de mudanças de status
+                historico: [
+                    {
+                        status: 'aberto',
+                        data: agora,
+                        usuario: usuario,
+                        observacao: 'Chamado criado'
+                    }
+                ]
             };
-            
-            console.log('🆕 Novo chamado criado:', novoChamado);
             
             chamados.push(novoChamado);
             localStorage.setItem('wms_chamados', JSON.stringify(chamados));
-            
-            console.log('💾 Chamados salvos no localStorage:', chamados.length);
             
             return novoChamado;
         }
@@ -436,28 +436,7 @@
             return 'Usuário';
         }
         
-        // Função de debug para testar salvamento direto
-        function debugSalvarChamado() {
-            console.log('🔧 Iniciando debug do salvamento de chamado...');
-            
-            const categoria = document.getElementById('categoria').value || 'Recebimento';
-            const titulo = document.getElementById('titulo').value || 'Teste de Chamado';
-            const descricao = document.getElementById('descricao').value || 'Teste de descrição para debug';
-            const prioridade = document.getElementById('prioridade').value || '🟡 Média';
-            const usuario = getCurrentUser();
-            const mensagem = 'Mensagem de teste para debug';
-            
-            console.log('📝 Dados para teste:', { categoria, titulo, descricao, prioridade, usuario });
-            
-            try {
-                const chamado = salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario);
-                mostrarFeedback(`✅ DEBUG: Chamado #${chamado.numero} salvo com sucesso!`, 'success');
-                console.log('✅ Debug completo:', chamado);
-            } catch (error) {
-                console.error('❌ Erro no debug:', error);
-                mostrarFeedback(`❌ Erro no debug: ${error.message}`, 'error');
-            }
-        }
+
         
         // Salvar chamado atual com dados do formulário
         function salvarChamadoAtual(mensagem) {
@@ -481,16 +460,13 @@
             }
         }
         
-        // Função para abrir WhatsApp Web
+        // Função para abrir WhatsApp Web (usada pelos botões na página de resultado)
         function abrirWhatsAppWeb() {
             const mensagem = texto.textContent;
             if (!mensagem) {
                 mostrarFeedback('❌ Gere a mensagem primeiro!', 'info');
                 return;
             }
-            
-            // Salvar chamado antes de abrir WhatsApp
-            salvarChamadoAtual(mensagem);
             
             const url = `https://web.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
             window.open(url, '_blank');
@@ -534,6 +510,11 @@
 📅 Criado em: ${dataHora}`;
                 
                 texto.textContent = mensagem;
+                
+                // SEMPRE salvar o chamado primeiro
+                const usuario = getCurrentUser();
+                const chamado = salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario);
+                
                 resultado.style.display = 'block';
                 
                 // Reset button
@@ -544,10 +525,14 @@
                 // Scroll suave
                 resultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 
-                // Auto abrir WhatsApp Web
+                // Perguntar sobre WhatsApp DEPOIS de salvar
                 setTimeout(() => {
-                    if (confirm('Deseja abrir o WhatsApp Web automaticamente?')) {
-                        abrirWhatsAppWeb();
+                    if (confirm(`✅ Chamado #${chamado.numero} criado com sucesso!\n\n📱 Deseja enviar a mensagem pelo WhatsApp Web?`)) {
+                        const url = `https://web.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
+                        window.open(url, '_blank');
+                        mostrarFeedback('✅ WhatsApp Web aberto! Escolha o contato e envie.', 'success');
+                    } else {
+                        mostrarFeedback(`✅ Chamado #${chamado.numero} salvo! Acesse "Chamados" para gerenciar.`, 'success');
                     }
                 }, 500);
                 
