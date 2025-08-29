@@ -724,31 +724,41 @@
     </video>
     <div class="video-overlay"></div>
     
-    <!-- Botão voltar -->
-    <div class="back-btn">
-        <button onclick="goBack()" class="btn btn-secondary btn-small">
-            ← Voltar ao App
-        </button>
-    </div>
+
     
     <div class="chamados-container">
         <!-- Header -->
         <div class="header">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h1 style="margin: 0;">📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_041910</small></h1>
-                <a href="/" class="btn btn-secondary" style="
-                    background: rgba(95, 99, 104, 0.1);
-                    color: #5f6368;
-                    border: 1px solid rgba(95, 99, 104, 0.2);
-                    padding: 8px 16px;
-                    text-decoration: none;
-                    border-radius: 8px;
-                    font-weight: 500;
-                    font-size: 14px;
-                    transition: all 0.2s ease;
-                " onmouseover="this.style.background='rgba(95, 99, 104, 0.15)'" onmouseout="this.style.background='rgba(95, 99, 104, 0.1)'">
-                    ← Voltar
-                </a>
+                <h1 style="margin: 0;">📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_042840</small></h1>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <a href="/chamados" style="
+                        background: rgba(34, 197, 94, 0.15); 
+                        color: rgb(5, 150, 105); 
+                        text-decoration: none; 
+                        padding: 6px 12px; 
+                        border-radius: 20px; 
+                        font-size: 12px; 
+                        font-weight: 500; 
+                        transition: 0.3s; 
+                        border: 1px solid rgba(34, 197, 94, 0.2);
+                    " onmouseover="this.style.background='rgba(34, 197, 94, 0.25)'" onmouseout="this.style.background='rgba(34, 197, 94, 0.15)'">
+                        📋 Chamados
+                    </a>
+                    <button onclick="goBack()" class="btn btn-secondary" style="
+                        background: rgba(95, 99, 104, 0.1);
+                        color: #5f6368;
+                        border: 1px solid rgba(95, 99, 104, 0.2);
+                        padding: 6px 12px;
+                        border-radius: 20px;
+                        font-weight: 500;
+                        font-size: 12px;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.background='rgba(95, 99, 104, 0.15)'" onmouseout="this.style.background='rgba(95, 99, 104, 0.1)'">
+                        ← Voltar ao App
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -1076,21 +1086,7 @@
                     <td><strong style="color: #3b82f6; font-weight: 800;">#${chamado.numero}</strong></td>
                     <td><span style="font-weight: 600; color: #475569;">${chamado.categoria}</span></td>
                     <td>
-                        <div>
-                            <strong style="color: #0f172a; display: block; margin-bottom: 8px;">${chamado.titulo}</strong>
-                            <button class="btn btn-small" style="
-                                background: rgba(26, 115, 232, 0.1);
-                                color: #1a73e8;
-                                border: 1px solid rgba(26, 115, 232, 0.2);
-                                padding: 4px 8px;
-                                font-size: 11px;
-                                border-radius: 6px;
-                                cursor: pointer;
-                                transition: all 0.2s ease;
-                            " onclick="showFullDescription('${chamado.numero}')">
-                                Visualizar Chamado
-                            </button>
-                        </div>
+                        <strong style="color: #0f172a; font-weight: 600;">${chamado.titulo}</strong>
                     </td>
                     <td><span class="priority-badge priority-${chamado.prioridade.replace(/🔴|🟠|🟡|🟢/g, '').trim().toLowerCase()}">${chamado.prioridade}</span></td>
                     <td><span class="status-badge status-${chamado.status}">${getStatusText(chamado.status)}</span></td>
@@ -1149,6 +1145,9 @@
                                     📋 Histórico
                                 </button>
                             ` : ''}
+                            <button class="btn btn-info btn-small" onclick="showFullDescription('${chamado.numero}')" title="Visualizar Chamado Completo" style="background: rgba(26, 115, 232, 0.1); color: #1a73e8; border-color: rgba(26, 115, 232, 0.3);">
+                                👁️ Visualizar
+                            </button>
                         </div>
                     </td>
                 `;
@@ -1555,31 +1554,32 @@
                     'Cancelado': 'background: rgba(239, 68, 68, 0.15); color: #b91c1c; border-color: rgba(239, 68, 68, 0.3);'
                 };
                 
-                const canEdit = currentUser.role === 'admin' || currentUser.role === 'supervisor';
+                const currentUser = getCurrentUserSession();
+                const canEdit = currentUser && (currentUser.role === 'admin' || currentUser.role === 'supervisor');
                 const actionButtons = canEdit ? `
                     <div style="display: flex; gap: 4px; flex-wrap: wrap;">
-                        ${chamado.status === 'Aberto' ? `
-                            <button class="btn btn-small" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border-color: rgba(245, 158, 11, 0.3); font-size: 10px; padding: 4px 8px;" onclick="changeStatus('${chamado.id}', 'Em Atendimento')">
+                        ${chamado.status === 'aberto' ? `
+                            <button class="btn btn-small" style="background: rgba(245, 158, 11, 0.15); color: #b45309; border-color: rgba(245, 158, 11, 0.3); font-size: 10px; padding: 4px 8px;" onclick="changeStatus(${chamado.numero}, 'atendimento')">
                                 ⏳ Atender
                             </button>
                         ` : ''}
-                        ${chamado.status === 'Em Atendimento' ? `
-                            <button class="btn btn-small" style="background: rgba(148, 163, 184, 0.15); color: #475569; border-color: rgba(148, 163, 184, 0.3); font-size: 10px; padding: 4px 8px;" onclick="changeStatus('${chamado.id}', 'Finalizado')">
+                        ${chamado.status === 'atendimento' ? `
+                            <button class="btn btn-small" style="background: rgba(148, 163, 184, 0.15); color: #475569; border-color: rgba(148, 163, 184, 0.3); font-size: 10px; padding: 4px 8px;" onclick="changeStatus(${chamado.numero}, 'finalizado')">
                                 ✅ Finalizar
                             </button>
                         ` : ''}
-                        ${(chamado.status === 'Aberto' || chamado.status === 'Em Atendimento') ? `
-                            <button class="btn btn-small" style="background: rgba(239, 68, 68, 0.15); color: #b91c1c; border-color: rgba(239, 68, 68, 0.3); font-size: 10px; padding: 4px 8px;" onclick="changeStatus('${chamado.id}', 'Cancelado')">
+                        ${(chamado.status === 'aberto' || chamado.status === 'atendimento') ? `
+                            <button class="btn btn-small" style="background: rgba(239, 68, 68, 0.15); color: #b91c1c; border-color: rgba(239, 68, 68, 0.3); font-size: 10px; padding: 4px 8px;" onclick="cancelarChamado(${chamado.numero})">
                                 ❌ Cancelar
                             </button>
                         ` : ''}
-                        <button class="btn btn-small" style="background: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.3); font-size: 10px; padding: 4px 8px;" onclick="showFullDescription('${chamado.id}')">
-                            Detalhes
+                        <button class="btn btn-small" style="background: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.3); font-size: 10px; padding: 4px 8px;" onclick="showFullDescription('${chamado.numero}')">
+                            👁️ Visualizar
                         </button>
                     </div>
                 ` : `
-                    <button class="btn btn-small" style="background: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.3); font-size: 10px; padding: 4px 8px;" onclick="showFullDescription('${chamado.id}')">
-                        Ver Detalhes
+                    <button class="btn btn-small" style="background: rgba(59, 130, 246, 0.15); color: #1d4ed8; border-color: rgba(59, 130, 246, 0.3); font-size: 10px; padding: 4px 8px;" onclick="showFullDescription('${chamado.numero}')">
+                        👁️ Visualizar
                     </button>
                 `;
                 
