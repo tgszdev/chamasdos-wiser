@@ -330,6 +330,11 @@
                 <button type="submit" class="btn btn-whatsapp">💻 GERAR E ABRIR WHATSAPP WEB</button>
             </form>
             
+            <!-- Botão de debug temporário -->
+            <button type="button" onclick="debugSalvarChamado()" class="btn" style="background: #059669; margin-top: 15px; width: 100%;">
+                🔧 DEBUG: Salvar Chamado Diretamente
+            </button>
+            
             <div id="resultado" class="resultado">
                 <h3>✅ Mensagem gerada com sucesso!</h3>
                 <div id="texto" class="texto-gerado"></div>
@@ -374,16 +379,25 @@
             const savedChamados = localStorage.getItem('wms_chamados');
             const chamados = savedChamados ? JSON.parse(savedChamados) : [];
             
-            if (chamados.length === 0) return 1001; // Começar em 1001
+            if (chamados.length === 0) {
+                console.log('🔢 Primeiro chamado, iniciando em 1001');
+                return 1001; // Começar em 1001
+            }
             
-            const maxNumber = Math.max(...chamados.map(c => c.numero));
-            return maxNumber + 1;
+            const numeros = chamados.map(c => c.numero).filter(n => !isNaN(n));
+            const maxNumber = numeros.length > 0 ? Math.max(...numeros) : 1000;
+            const nextNumber = maxNumber + 1;
+            
+            console.log('🔢 Próximo número:', nextNumber, 'baseado em max:', maxNumber);
+            return nextNumber;
         }
         
         // Salvar chamado no localStorage
         function salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario) {
             const savedChamados = localStorage.getItem('wms_chamados');
             const chamados = savedChamados ? JSON.parse(savedChamados) : [];
+            
+            console.log('📦 Chamados existentes:', chamados.length);
             
             const novoChamado = {
                 numero: getNextChamadoNumber(),
@@ -398,8 +412,12 @@
                 atualizadoEm: new Date().getTime()
             };
             
+            console.log('🆕 Novo chamado criado:', novoChamado);
+            
             chamados.push(novoChamado);
             localStorage.setItem('wms_chamados', JSON.stringify(chamados));
+            
+            console.log('💾 Chamados salvos no localStorage:', chamados.length);
             
             return novoChamado;
         }
@@ -418,6 +436,29 @@
             return 'Usuário';
         }
         
+        // Função de debug para testar salvamento direto
+        function debugSalvarChamado() {
+            console.log('🔧 Iniciando debug do salvamento de chamado...');
+            
+            const categoria = document.getElementById('categoria').value || 'Recebimento';
+            const titulo = document.getElementById('titulo').value || 'Teste de Chamado';
+            const descricao = document.getElementById('descricao').value || 'Teste de descrição para debug';
+            const prioridade = document.getElementById('prioridade').value || '🟡 Média';
+            const usuario = getCurrentUser();
+            const mensagem = 'Mensagem de teste para debug';
+            
+            console.log('📝 Dados para teste:', { categoria, titulo, descricao, prioridade, usuario });
+            
+            try {
+                const chamado = salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario);
+                mostrarFeedback(`✅ DEBUG: Chamado #${chamado.numero} salvo com sucesso!`, 'success');
+                console.log('✅ Debug completo:', chamado);
+            } catch (error) {
+                console.error('❌ Erro no debug:', error);
+                mostrarFeedback(`❌ Erro no debug: ${error.message}`, 'error');
+            }
+        }
+        
         // Salvar chamado atual com dados do formulário
         function salvarChamadoAtual(mensagem) {
             const categoria = document.getElementById('categoria').value;
@@ -426,12 +467,18 @@
             const prioridade = document.getElementById('prioridade').value;
             const usuario = getCurrentUser();
             
+            console.log('🔍 Debug salvarChamadoAtual:', { categoria, titulo, descricao, prioridade, usuario });
+            
             if (categoria && titulo && descricao && prioridade) {
                 const chamado = salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario);
+                console.log('✅ Chamado salvo:', chamado);
                 mostrarFeedback(`✅ Chamado #${chamado.numero} criado com sucesso!`, 'success');
                 return chamado;
+            } else {
+                console.log('❌ Dados incompletos para salvar chamado');
+                mostrarFeedback('⚠️ Dados do chamado incompletos para salvamento', 'info');
+                return null;
             }
-            return null;
         }
         
         // Função para abrir WhatsApp Web
