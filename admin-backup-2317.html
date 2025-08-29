@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👑 Admin - Gerenciar Usuários</title>
     
-    <!-- 🔥 VERSÃO FINAL: 20250829_SMTP_REAL_ONLY_NO_RESEND_TIMESTAMP_2317 - Sistema SMTP direto 100% funcional -->
+    <!-- VERSÃO DEPLOY: 20250829_SMTP_REAL_NODEMAILER - Sistema SMTP direto integrado e funcional com Node.js -->
     <!-- Meta tags -->
     <meta name="description" content="Painel administrativo para gerenciar usuários do sistema WMS">
     <meta name="robots" content="noindex, nofollow">
@@ -740,7 +740,7 @@
         <!-- Tab: Configuração SMTP -->
         <div id="tab-smtp-config" class="tab-content">
             <div class="card">
-                <h3>📧 Configuração SMTP Real <small style="color: #28a745; font-size: 0.6em; background: #d4edda; padding: 2px 6px; border-radius: 3px;">✅ SEM APIS EXTERNAS</small></h3>
+                <h3>📧 Configuração SMTP Real</h3>
                 <p>Configure seu servidor SMTP para envio <strong>REAL</strong> de alertas por e-mail. Funciona com Gmail, Outlook, Yahoo e outros provedores.</p>
                 
                 <div style="background: #e8f4fd; border-left: 4px solid #1a73e8; padding: 16px; margin: 16px 0; border-radius: 8px;">
@@ -812,28 +812,11 @@
                         </ul>
                     </div>
                     
-                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                        <strong>📋 PASSO-A-PASSO GMAIL (SMTP REAL):</strong><br><br>
-                        
-                        <strong>1️⃣ Ativar 2FA:</strong><br>
-                        • Acesse: <a href="https://myaccount.google.com/security" target="_blank">Google Security</a><br>
-                        • Ative "Verificação em duas etapas"<br><br>
-                        
-                        <strong>2️⃣ Gerar Senha de App:</strong><br>
-                        • Em "Verificação em duas etapas" → "Senhas de app"<br>
-                        • Selecione "E-mail" → "Gerar"<br>
-                        • Copie a senha gerada (16 caracteres)<br><br>
-                        
-                        <strong>3️⃣ Configurar SMTP:</strong><br>
-                        • <strong>Host:</strong> smtp.gmail.com<br>
-                        • <strong>Porta:</strong> 587<br>
-                        • <strong>Segurança:</strong> STARTTLS<br>
-                        • <strong>E-mail:</strong> seuemail@gmail.com<br>
-                        • <strong>Senha:</strong> [senha de app gerada] ← NÃO a senha normal!<br><br>
-                        
-                        <div style="background: #28a745; color: white; padding: 8px; border-radius: 4px; text-align: center;">
-                            ✅ COM ESSA CONFIGURAÇÃO VOCÊ ENVIARÁ E-MAILS REAIS!
-                        </div>
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 12px; border-radius: 6px; margin: 10px 0;">
+                        <strong>🔧 Gmail - Como Configurar:</strong><br>
+                        1. Ativar autenticação de 2 fatores<br>
+                        2. Gerar "Senha de App" em: <a href="https://myaccount.google.com/security" target="_blank">Google Security</a><br>
+                        3. Usar a senha gerada (não a senha normal)
                     </div>
                 </div>
                 
