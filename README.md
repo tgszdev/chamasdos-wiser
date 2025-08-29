@@ -193,8 +193,34 @@ pm2 start ecosystem.config.cjs
 - **Desenvolvimento**: ✅ Ativo (localhost:3000)
 - **Demo Online**: ✅ Ativo (https://3000-ixjmk6fkuy3nvsvaklcvh.e2b.dev)
 - **Design Gmail-like**: ✅ Implementado (2024-08-29)
-- **Produção Cloudflare**: ⏳ Pendente
-- **Domínio Personalizado**: ⏳ Pendente
+- **Deploy Otimizado**: ✅ Pronto para Vercel/Netlify
+- **Package.json**: ✅ Otimizado para sites estáticos
+
+## 🚀 Deploy no Vercel (RECOMENDADO)
+
+### **Método 1: Deploy Direto via GitHub**
+1. Push do código para GitHub
+2. Conectar repositório no Vercel
+3. Deploy automático (zero configuração necessária)
+
+### **Método 2: Deploy via CLI**
+```bash
+# Instalar Vercel CLI
+npm i -g vercel
+
+# Deploy (na pasta do projeto)
+vercel
+
+# Deploy para produção
+vercel --prod
+```
+
+### **Configuração Automática**
+- ✅ `vercel.json` já configurado
+- ✅ Rotas limpas (/chamados → chamados.html)
+- ✅ Package.json otimizado para sites estáticos
+- ✅ Build process simplificado
+- ✅ Zero dependências de runtime
 
 ## 🛠️ Comandos de Desenvolvimento
 
