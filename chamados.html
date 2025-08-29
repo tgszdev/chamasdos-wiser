@@ -734,7 +734,7 @@
     <div class="chamados-container">
         <!-- Header -->
         <div class="header">
-            <h1>📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_034415</small></h1>
+            <h1>📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_034932</small></h1>
             <p>Controle e acompanhe todos os chamados WMS com status e histórico completo • <strong style="color: #0d7736;">Visualização Completa com Modal Profissional</strong></p>
         </div>
         
@@ -843,7 +843,6 @@
                             <th>Atendido</th>
                             <th>Finalizado</th>
                             <th>Cancelado</th>
-                            <th>Usuário</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -1100,7 +1099,6 @@
                             '<small style="color: #94a3b8;">-</small>'
                         }
                     </td>
-                    <td><small style="font-weight: 600; color: #475569;">${chamado.usuario}</small></td>
                     <td>
                         <div class="chamado-actions">
                             ${!isOperador && canEdit && chamado.status !== 'atendimento' && chamado.status !== 'cancelado' && chamado.status !== 'finalizado' ? `
@@ -1132,6 +1130,7 @@
                                 </button>
                             ` : ''}
                         </div>
+                        <br><small style="color: #64748b;">${chamado.usuario}</small>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -1288,7 +1287,7 @@
             // Se não foram fornecidos título e descrição, buscar o chamado pelo ID
             let chamado;
             if (!titulo || !descricao) {
-                chamado = allChamados.find(c => c.id === id || c.numero === parseInt(id));
+                chamado = chamados.find(c => c.id === id || c.numero === parseInt(id));
                 if (!chamado) {
                     alert('Chamado não encontrado!');
                     return;
