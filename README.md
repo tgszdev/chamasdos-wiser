@@ -7,7 +7,8 @@ Um aplicativo web responsivo para gerar chamados WMS formatados e enviá-los dir
 ## 🌐 URLs do Aplicativo
 
 - **Demo Online**: https://3000-ixjmk6fkuy3nvsvaklcvh.e2b.dev
-- **GitHub**: *[Será configurado no deploy]*
+- **GitHub**: https://github.com/tgszdev/chamasdos-wiser ✅ ATUALIZADO
+- **Versão**: v20250829_032343 🚀
 
 ## ✨ Características Principais
 
@@ -276,5 +277,6 @@ Esta solução oferece um **sistema completo de chamados WMS** com:
 ---
 
 **🎯 PROBLEMA RESOLVIDO**: Lista de chamados agora é 100% legível!
-**🔄 Última atualização**: 29/08/2024 - Legibilidade corrigida + Cards implementados  
-**📊 Status**: ✅ Pronto para uso em produção - Sem problemas de legibilidade!
+**🔄 Última atualização**: 29/08/2024 - Versão v20250829_032343 no GitHub
+**📊 Status**: ✅ Pronto para uso em produção - GitHub 100% sincronizado!
+**🚀 GitHub**: https://github.com/tgszdev/chamasdos-wiser (ATUALIZADO)
