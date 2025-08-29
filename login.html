@@ -139,22 +139,7 @@
             color: #9ca3af;
         }
         
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #6b7280;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 5px;
-        }
-        
-        .password-toggle:hover {
-            color: #4f46e5;
-        }
+
         
         .login-btn {
             width: 100%;
@@ -344,10 +329,9 @@
                     <input type="text" id="username" placeholder="Digite seu usuário" required autocomplete="username">
                 </div>
                 
-                <div class="form-group" style="position: relative;">
+                <div class="form-group">
                     <label for="password">🔑 Senha:</label>
                     <input type="password" id="password" placeholder="Digite sua senha" required autocomplete="current-password">
-                    <button type="button" class="password-toggle" id="togglePassword">👁️</button>
                 </div>
                 
                 <div class="remember-me">
@@ -366,7 +350,7 @@
         </div>
         
         <div class="login-footer">
-            <p>Sistema WMS v1.0 | <a href="#" onclick="showHelp()">Precisa de ajuda?</a></p>
+            <p>Sistema WMS v1.0</p>
         </div>
     </div>
 
@@ -426,7 +410,6 @@
         const loginBtn = document.getElementById('loginBtn');
         const errorMessage = document.getElementById('errorMessage');
         const attemptsWarning = document.getElementById('attemptsWarning');
-        const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
         const usernameInput = document.getElementById('username');
         const rememberMe = document.getElementById('rememberMe');
@@ -535,12 +518,7 @@
             return false;
         }
         
-        // Toggle mostrar/ocultar senha
-        togglePassword.addEventListener('click', function() {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            this.textContent = type === 'password' ? '👁️' : '🙈';
-        });
+
         
         // Evento de submit do formulário
         loginForm.addEventListener('submit', function(e) {
@@ -593,11 +571,7 @@
             }, 1000);
         });
         
-        // Função para mostrar ajuda
-        function showHelp() {
-            const usersList = Object.keys(USERS).map(username => `• ${username} / ${USERS[username].password}`).join('\n');
-            alert(`🔐 CREDENCIAIS DE ACESSO:\n\nUsuários disponíveis:\n${usersList}\n\n📞 Para suporte: Entre em contato com o administrador do sistema.`);
-        }
+
         
         // Verificar bloqueio a cada segundo
         setInterval(checkBlocking, 1000);
