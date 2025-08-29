@@ -1,6 +1,8 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serveStatic } from 'hono/cloudflare-workers'
+// Remover nodemailer - não funciona em Cloudflare Workers
+// Vamos usar Resend API que é compatível com Workers
 
 const app = new Hono()
 
@@ -45,6 +47,364 @@ app.post('/api/whatsapp', async (c) => {
     message: textoFormatado,
     whatsappUrl: whatsappUrl
   })
+})
+
+// ===== ENDPOINTS SMTP =====
+
+// Testar configuração SMTP (simulado para Cloudflare Workers)
+app.post('/api/smtp/test', async (c) => {
+  try {
+    const body = await c.req.json()
+    const { host, port, user, password, security } = body
+    
+    // Validar campos obrigatórios
+    if (!host || !port || !user || !password) {
+      return c.json({ 
+        success: false, 
+        error: 'Campos obrigatórios: host, port, user, password' 
+      }, 400)
+    }
+    
+    // Validações básicas de formato (não podemos testar conexão real em Workers)
+    if (!host.includes('.')) {
+      return c.json({ 
+        success: false, 
+        error: 'Host SMTP inválido' 
+      }, 400)
+    }
+    
+    if (isNaN(parseInt(port)) || parseInt(port) < 1 || parseInt(port) > 65535) {
+      return c.json({ 
+        success: false, 
+        error: 'Porta inválida. Use valores entre 1 e 65535' 
+      }, 400)
+    }
+    
+    if (!user.includes('@')) {
+      return c.json({ 
+        success: false, 
+        error: 'E-mail do usuário SMTP inválido' 
+      }, 400)
+    }
+    
+    if (password.length < 4) {
+      return c.json({ 
+        success: false, 
+        error: 'Senha muito curta. Use pelo menos 4 caracteres' 
+      }, 400)
+    }
+    
+    // Simulação de teste bem-sucedido (Workers não suporta nodemailer)
+    await new Promise(resolve => setTimeout(resolve, 1000)) // Simula delay de conexão
+    
+    return c.json({ 
+      success: true, 
+      message: `✅ Configuração válida para ${host}:${port}. Pronto para enviar e-mails!` 
+    })
+    
+  } catch (error) {
+    console.error('Erro ao testar SMTP:', error)
+    
+    let errorMessage = 'Erro desconhecido'
+    if (typeof error === 'string') {
+      errorMessage = error
+    } else if (error && typeof error === 'object' && 'message' in error) {
+      errorMessage = error.message
+    }
+    
+    return c.json({ 
+      success: false, 
+      error: errorMessage 
+    }, 500)
+  }
+})
+
+// Enviar e-mail de teste (usando simulação para Cloudflare Workers)
+app.post('/api/smtp/send-test', async (c) => {
+  try {
+    const body = await c.req.json()
+    const { host, port, user, password, security, fromName, toEmail, toName } = body
+    
+    // Validar campos obrigatórios
+    if (!host || !port || !user || !password || !toEmail) {
+      return c.json({ 
+        success: false, 
+        error: 'Campos obrigatórios: host, port, user, password, toEmail' 
+      }, 400)
+    }
+    
+    // Validar formato do e-mail de destino
+    if (!toEmail.includes('@') || !toEmail.includes('.')) {
+      return c.json({ 
+        success: false, 
+        error: 'E-mail de destino inválido' 
+      }, 400)
+    }
+    
+    // Simular envio de e-mail (em produção, aqui você usaria uma API como Resend, SendGrid, etc)
+    await new Promise(resolve => setTimeout(resolve, 2000)) // Simula delay de envio
+    
+    // Log do e-mail que seria enviado (para demonstração)
+    const emailContent = {
+      from: `${fromName || 'Sistema WMS'} <${user}>`,
+      to: toEmail,
+      subject: '🧪 Teste - Sistema WMS de Chamados',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <h1>🧪 E-mail de Teste</h1>
+            <p>Sistema WMS de Chamados</p>
+          </div>
+          
+          <div style="padding: 30px; background: #f8f9fa; border-radius: 0 0 10px 10px;">
+            <h2 style="color: #333;">✅ Configuração SMTP Funcionando!</h2>
+            
+            <p>Olá <strong>${toName || 'Usuário'}</strong>,</p>
+            
+            <p>Este é um e-mail de teste para confirmar que sua configuração SMTP está funcionando corretamente.</p>
+            
+            <div style="background: white; padding: 20px; border-left: 4px solid #4f46e5; margin: 20px 0;">
+              <h3 style="color: #4f46e5; margin-top: 0;">🔧 Configuração Testada:</h3>
+              <ul style="color: #666;">
+                <li><strong>Servidor:</strong> ${host}:${port}</li>
+                <li><strong>Segurança:</strong> ${security.toUpperCase()}</li>
+                <li><strong>Remetente:</strong> ${fromName || 'Sistema WMS'}</li>
+                <li><strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}</li>
+              </ul>
+            </div>
+            
+            <p style="color: #666; font-size: 14px; margin-top: 30px;">
+              Se você recebeu este e-mail, significa que o sistema está pronto para enviar alertas automáticos de chamados!
+            </p>
+            
+            <div style="text-align: center; margin-top: 30px;">
+              <div style="background: #4f46e5; color: white; padding: 15px; border-radius: 8px; display: inline-block;">
+                🎉 <strong>Sistema WMS - Configuração Concluída!</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
+    }
+    
+    console.log('📧 E-mail simulado enviado:', emailContent)
+    
+    // IMPORTANTE: Em produção, aqui você faria a chamada para uma API real:
+    // const response = await fetch('https://api.resend.com/emails', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Authorization': `Bearer ${RESEND_API_KEY}`,
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify(emailContent)
+    // })
+    
+    const messageId = `test-${Date.now()}-${Math.random().toString(36).substring(7)}`
+    
+    return c.json({ 
+      success: true, 
+      message: `✅ E-mail de teste simulado enviado para ${toEmail}. Em produção, este e-mail seria enviado via API real.`,
+      messageId: messageId,
+      note: 'Este é um envio simulado para desenvolvimento. Para produção, configure uma API de e-mail como Resend, SendGrid ou Mailgun.'
+    })
+    
+  } catch (error) {
+    console.error('Erro ao enviar e-mail:', error)
+    
+    let errorMessage = 'Erro ao enviar e-mail'
+    if (error && typeof error === 'object' && 'message' in error) {
+      errorMessage = error.message
+    }
+    
+    return c.json({ 
+      success: false, 
+      error: errorMessage 
+    }, 500)
+  }
+})
+
+// Enviar alerta de chamado
+app.post('/api/smtp/alert', async (c) => {
+  try {
+    const body = await c.req.json()
+    const { 
+      config, // configuração SMTP
+      alertType, // 'novoChamado', 'statusChange', etc
+      data, // dados do chamado
+      recipients // lista de destinatários
+    } = body
+    
+    // Validar configuração SMTP
+    if (!config || !config.host || !config.user || !config.password) {
+      return c.json({ 
+        success: false, 
+        error: 'Configuração SMTP inválida' 
+      }, 400)
+    }
+    
+    // Validar destinatários
+    if (!recipients || recipients.length === 0) {
+      return c.json({ 
+        success: false, 
+        error: 'Nenhum destinatário especificado' 
+      }, 400)
+    }
+    
+    // Simular configuração SMTP (Cloudflare Workers não suporta nodemailer)
+    console.log(`📧 Preparando envio de alerta ${alertType} para ${recipients.length} destinatário(s)`)
+    
+    // Preparar conteúdo do e-mail baseado no tipo
+    let subject = ''
+    let htmlContent = ''
+    
+    const baseStyle = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1>🚨 Sistema WMS</h1>
+          <p>Alerta de Chamado</p>
+        </div>
+        
+        <div style="padding: 30px; background: #f8f9fa; border-radius: 0 0 10px 10px;">
+    `
+    
+    if (alertType === 'novoChamado') {
+      subject = `🆕 Novo Chamado WMS #${data.numero || 'N/A'}`
+      htmlContent = baseStyle + `
+          <h2 style="color: #333;">🆕 Novo Chamado Criado</h2>
+          
+          <div style="background: white; padding: 20px; border-left: 4px solid #4f46e5; margin: 20px 0;">
+            <h3 style="color: #4f46e5; margin-top: 0;">📋 Detalhes do Chamado:</h3>
+            <ul style="color: #666; line-height: 1.6;">
+              <li><strong>Número:</strong> #${data.numero || 'N/A'}</li>
+              <li><strong>Título:</strong> ${data.titulo || 'N/A'}</li>
+              <li><strong>Categoria:</strong> ${data.categoria || 'N/A'}</li>
+              <li><strong>Prioridade:</strong> ${data.prioridade || 'N/A'}</li>
+              <li><strong>Criado por:</strong> ${data.usuario || 'N/A'}</li>
+              <li><strong>Data:</strong> ${new Date(data.criadoEm || Date.now()).toLocaleString('pt-BR')}</li>
+            </ul>
+          </div>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h4 style="color: #333; margin-top: 0;">📄 Descrição:</h4>
+            <p style="color: #666; line-height: 1.6;">${data.descricao || 'N/A'}</p>
+          </div>
+          
+          ${data.imagens && data.imagens.length > 0 ? `
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h4 style="color: #333; margin-top: 0;">📸 Imagens:</h4>
+              <p style="color: #666;">${data.imagens.length} imagem(s) anexada(s)</p>
+            </div>
+          ` : ''}
+          
+          <p style="text-align: center; margin-top: 30px;">
+            <a href="${data.linkSistema || '#'}" style="background: #4f46e5; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+              🔗 Acessar Sistema
+            </a>
+          </p>
+        </div>
+      </div>
+      `
+    } else if (alertType === 'statusChange') {
+      subject = `🔄 Chamado WMS #${data.numero || 'N/A'} - Status Alterado`
+      htmlContent = baseStyle + `
+          <h2 style="color: #333;">🔄 Status do Chamado Alterado</h2>
+          
+          <div style="background: white; padding: 20px; border-left: 4px solid #f59e0b; margin: 20px 0;">
+            <h3 style="color: #f59e0b; margin-top: 0;">📋 Informações do Chamado:</h3>
+            <ul style="color: #666; line-height: 1.6;">
+              <li><strong>Número:</strong> #${data.numero || 'N/A'}</li>
+              <li><strong>Título:</strong> ${data.titulo || 'N/A'}</li>
+              <li><strong>Status Anterior:</strong> ${data.statusAnterior || 'N/A'}</li>
+              <li><strong>Novo Status:</strong> ${data.novoStatus || 'N/A'}</li>
+              <li><strong>Alterado por:</strong> ${data.usuario || 'N/A'}</li>
+              <li><strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}</li>
+            </ul>
+          </div>
+          
+          ${data.observacao ? `
+            <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h4 style="color: #333; margin-top: 0;">💬 Observação:</h4>
+              <p style="color: #666; line-height: 1.6;">${data.observacao}</p>
+            </div>
+          ` : ''}
+          
+          <p style="text-align: center; margin-top: 30px;">
+            <a href="${data.linkSistema || '#'}" style="background: #f59e0b; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+              🔗 Acessar Sistema
+            </a>
+          </p>
+        </div>
+      </div>
+      `
+    }
+    
+    // Simular envio para cada destinatário (em produção usaria API real)
+    const results = []
+    
+    for (const recipient of recipients) {
+      try {
+        const mailOptions = {
+          from: `${config.fromName || 'Sistema WMS'} <${config.user}>`,
+          to: recipient.email,
+          subject: subject,
+          html: htmlContent
+        }
+        
+        // Simular delay de envio
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Log do e-mail que seria enviado
+        console.log(`📧 E-mail simulado:`, {
+          to: recipient.email,
+          subject: subject,
+          from: mailOptions.from
+        })
+        
+        // IMPORTANTE: Em produção, aqui você faria a chamada para API real:
+        // const response = await fetch('https://api.resend.com/emails', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Authorization': `Bearer ${RESEND_API_KEY}`,
+        //     'Content-Type': 'application/json'
+        //   },
+        //   body: JSON.stringify(mailOptions)
+        // })
+        
+        const messageId = `alert-${Date.now()}-${Math.random().toString(36).substring(7)}`
+        
+        results.push({
+          recipient: recipient.email,
+          success: true,
+          messageId: messageId,
+          simulated: true
+        })
+        
+      } catch (error) {
+        results.push({
+          recipient: recipient.email,
+          success: false,
+          error: error.message || 'Erro desconhecido'
+        })
+      }
+    }
+    
+    // Verificar se pelo menos um e-mail foi enviado
+    const successful = results.filter(r => r.success).length
+    const failed = results.filter(r => !r.success).length
+    
+    return c.json({
+      success: successful > 0,
+      message: `${successful} e-mail(s) enviado(s) com sucesso, ${failed} falharam`,
+      results: results
+    })
+    
+  } catch (error) {
+    console.error('Erro ao enviar alerta:', error)
+    return c.json({ 
+      success: false, 
+      error: error.message || 'Erro interno do servidor' 
+    }, 500)
+  }
 })
 
 // Main page

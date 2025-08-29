@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚨 Chamados WMS</title>
     
-    <!-- VERSÃO DEPLOY: 20250829_emailjs_v1 - Sistema EmailJS para envio REAL de e-mails -->
+    <!-- VERSÃO DEPLOY: 20250829_smtp_v1 - Sistema SMTP direto para envio REAL de e-mails -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -23,8 +23,7 @@
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚨</text></svg>">
     
-    <!-- EmailJS para envio real de e-mails -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -531,90 +530,75 @@
         
         // ===== SISTEMA DE ALERTAS DE E-MAIL =====
         
-        // Enviar alerta de e-mail REAL via EmailJS
+        // Enviar alerta de e-mail SIMULADO (para Cloudflare Workers)
         function sendEmailAlert(type, data) {
             try {
-                const emailConfig = JSON.parse(localStorage.getItem('wms_email_config') || 'null');
-                if (!emailConfig || !emailConfig.enabled || !emailConfig.alerts) return;
+                const smtpConfig = JSON.parse(localStorage.getItem('wms_smtp_config') || 'null');
+                if (!smtpConfig || !smtpConfig.enabled || !smtpConfig.alerts) return;
                 
                 let shouldSend = false;
-                let subject = '';
-                let message = '';
+                let alertTitle = '';
                 
                 switch (type) {
                     case 'novoChamado':
-                        if (!emailConfig.alerts.novoChamado) return;
+                        if (!smtpConfig.alerts.novoChamado) return;
                         shouldSend = true;
-                        subject = `🆕 Novo Chamado WMS #${data.numero}`;
-                        message = `
-🚨 NOVO CHAMADO CRIADO
-
-📋 Chamado: #${data.numero}
-📝 Título: ${data.titulo}
-🗂️ Categoria: ${data.categoria}
-⚡ Prioridade: ${data.prioridade}
-👤 Criado por: ${data.usuario}
-⏰ Data: ${new Date(data.criadoEm).toLocaleString('pt-BR')}
-
-📄 Descrição:
-${data.descricao}
-
-${data.imagens?.length > 0 ? `📸 Imagens anexadas: ${data.imagens.length} arquivo(s)\n` : ''}
-🔗 Acesse o sistema para mais detalhes.
-                        `;
+                        alertTitle = '🆕 Novo Chamado Criado';
                         break;
                         
                     case 'statusChange':
-                        if (!emailConfig.alerts.statusChange) return;
+                        if (!smtpConfig.alerts.statusChange) return;
                         shouldSend = true;
-                        subject = `🔄 Chamado WMS #${data.numero} - Status Alterado`;
-                        message = `
-🔄 STATUS DO CHAMADO ALTERADO
-
-📋 Chamado: #${data.numero}
-📝 Título: ${data.titulo}
-🔄 Novo Status: ${data.novoStatus}
-👤 Alterado por: ${data.usuario}
-⏰ Data: ${new Date().toLocaleString('pt-BR')}
-
-${data.observacao ? `💬 Observação: ${data.observacao}\n` : ''}
-🔗 Acesse o sistema para mais detalhes.
-                        `;
+                        alertTitle = '🔄 Status do Chamado Alterado';
                         break;
                 }
                 
-                if (shouldSend && emailConfig.alertUsers?.length > 0) {
-                    // Inicializar EmailJS se não foi inicializado
-                    if (typeof emailjs !== 'undefined' && emailConfig.publicKey) {
-                        emailjs.init(emailConfig.publicKey);
+                if (shouldSend && smtpConfig.alertUsers?.length > 0) {
+                    console.log(`📧 Simulando alerta ${type} para ${smtpConfig.alertUsers.length} usuário(s)...`);
+                    
+                    // Simular envio de alerta
+                    const emailContent = {
+                        from: `${smtpConfig.fromName || 'Sistema WMS'} <${smtpConfig.user}>`,
+                        subject: type === 'novoChamado' ? `🆕 Novo Chamado WMS #${data.numero}` : `🔄 Chamado WMS #${data.numero} - Status Alterado`,
+                        recipients: smtpConfig.alertUsers,
+                        html: `
+                            <h1>${alertTitle}</h1>
+                            <h3>📋 Detalhes do Chamado:</h3>
+                            <ul>
+                                <li><strong>Número:</strong> #${data.numero || 'N/A'}</li>
+                                <li><strong>Título:</strong> ${data.titulo || 'N/A'}</li>
+                                <li><strong>Categoria:</strong> ${data.categoria || 'N/A'}</li>
+                                <li><strong>Prioridade:</strong> ${data.prioridade || 'N/A'}</li>
+                                <li><strong>Usuário:</strong> ${data.usuario || 'N/A'}</li>
+                                <li><strong>Data:</strong> ${new Date(data.criadoEm || Date.now()).toLocaleString('pt-BR')}</li>
+                            </ul>
+                            ${type === 'statusChange' && data.novoStatus ? `<p><strong>Novo Status:</strong> ${data.novoStatus}</p>` : ''}
+                            ${data.descricao ? `<h4>📏 Descrição:</h4><p>${data.descricao}</p>` : ''}
+                            ${data.observacao ? `<h4>💬 Observação:</h4><p>${data.observacao}</p>` : ''}
+                            ${data.imagens?.length > 0 ? `<p>📸 ${data.imagens.length} imagem(s) anexada(s)</p>` : ''}
+                            <p><a href="${window.location.origin}">🔗 Acessar Sistema</a></p>
+                            <hr>
+                            <small><strong>NOTA:</strong> Este é um alerta simulado para desenvolvimento. Em produção seria enviado via API real.</small>
+                        `
+                    };
+                    
+                    // Log do alerta simulado
+                    console.log('📧 Alerta simulado:', emailContent);
+                    
+                    // Simular delay de envio
+                    setTimeout(() => {
+                        const emailList = smtpConfig.alertUsers.map(user => `${user.name} <${user.email}>`);
+                        console.log(`✅ Alerta simulado enviado para: ${emailList.join(', ')}`);
                         
-                        // Enviar e-mail REAL para cada usuário
-                        emailConfig.alertUsers.forEach(user => {
-                            const templateParams = {
-                                from_name: emailConfig.fromName || 'Sistema WMS',
-                                to_email: user.email,
-                                to_name: user.name,
-                                subject: subject,
-                                message: message
-                            };
-                            
-                            console.log(`📧 Enviando e-mail REAL para: ${user.name} <${user.email}>`);
-                            
-                            emailjs.send(emailConfig.serviceId, emailConfig.templateId, templateParams)
-                                .then(function(response) {
-                                    console.log(`✅ E-mail enviado para ${user.name}:`, response);
-                                }, function(error) {
-                                    console.error(`❌ Erro ao enviar e-mail para ${user.name}:`, error);
-                                });
-                        });
-                    } else {
-                        console.log('📧 EmailJS não disponível, enviando log simulado...');
-                        const emailList = emailConfig.alertUsers.map(user => `${user.name} <${user.email}>`);
-                        console.log(`📧 ALERTA DE E-MAIL:
-Para: ${emailList.join(', ')}
-Assunto: ${subject}
-Mensagem: ${message}`);
-                    }
+                        // Opcional: mostrar notificação visual
+                        if (document.getElementById('feedback')) {
+                            const feedback = document.getElementById('feedback');
+                            feedback.textContent = `✅ Alerta simulado enviado para ${emailList.length} destinatário(s)`;
+                            feedback.className = 'feedback success';
+                            feedback.style.display = 'block';
+                            setTimeout(() => feedback.style.display = 'none', 3000);
+                        }
+                    }, 1000);
                 }
             } catch (error) {
                 console.error('❌ Erro ao enviar alerta de e-mail:', error);

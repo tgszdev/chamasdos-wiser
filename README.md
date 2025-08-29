@@ -1,327 +1,243 @@
-# 🚨 Chamados WMS
+# Sistema WMS de Chamados - Versão SMTP v1.0
 
-## 📱 Aplicativo Web Multiplataforma
+## 🎯 Visão Geral do Projeto
+Sistema completo para geração de chamados WMS formatados com **alertas de e-mail SMTP** integrados. Desenvolvido para Cloudflare Pages com Hono framework.
 
-Um aplicativo web responsivo para gerar chamados WMS formatados e enviá-los diretamente via WhatsApp. **Funciona em qualquer sistema operacional (Windows, macOS, Linux, mobile) sem necessidade de instalação**.
+## 🌐 URLs do Sistema
+- **Produção**: https://3000-i31sadssfro11fbzk77x7-6532622b.e2b.dev
+- **Página Principal**: [Gerar Chamados](https://3000-i31sadssfro11fbzk77x7-6532622b.e2b.dev/)
+- **Gerenciar Chamados**: [Chamados](https://3000-i31sadssfro11fbzk77x7-6532622b.e2b.dev/chamados.html)
+- **Painel Admin**: [Admin](https://3000-i31sadssfro11fbzk77x7-6532622b.e2b.dev/admin.html)
+- **Login**: [Entrar](https://3000-i31sadssfro11fbzk77x7-6532622b.e2b.dev/login.html)
 
-## 🌐 URLs do Aplicativo
+## ✅ Funcionalidades Implementadas
 
-- **Demo Online**: https://3000-i31sadssfro11fbzk77x7-6532622b.e2b.dev
-- **Deploy Vercel**: ⚠️ Aguardando configuração (ver DEPLOY-VERCEL-STEPS.md)
-- **GitHub**: https://github.com/tgszdev/chamasdos-wiser ✅ ATUALIZADO
-- **Versão**: v20250829_imagens_v1 📸
+### 🚨 Sistema de Chamados
+- ✅ Criação de chamados formatados
+- ✅ Categorização (Recebimento, Expedição, Movimentações, Relatório, Melhoria)  
+- ✅ Níveis de prioridade (Crítica, Alta, Média, Baixa)
+- ✅ Upload de até 3 imagens (5MB cada)
+- ✅ Geração automática para WhatsApp Web
+- ✅ Numeração automática sequencial
+- ✅ Armazenamento local com Base64
 
-## ✨ Características Principais
+### 📋 Gerenciamento de Chamados
+- ✅ Visualização em cards com status coloridos
+- ✅ Filtros avançados (status, prioridade, categoria, período)
+- ✅ Busca por título e descrição
+- ✅ Alteração de status com observações
+- ✅ Histórico completo de mudanças
+- ✅ Função "Limpar Tudo" com confirmação
+- ✅ Contadores por status em tempo real
 
-### ✅ **Funcionalidades Implementadas - SMTP SYSTEM COMPLETO! 📧**
-- ✅ **Sistema completo de gerenciamento** - criação, listagem e controle de chamados
-- ✅ **Design Gmail-like** - interface clean e profissional inspirada no Gmail
-- ✅ **Vídeo de fundo unificado** - presente em todas as páginas para consistência visual
-- ✅ **Melhor legibilidade** - cores otimizadas com alto contraste contra vídeo de fundo
-- ✅ **Sistema de autenticação** - login e controle de acesso por perfis
-- ✅ **Painel administrativo** - gerenciamento completo de usuários e senhas
-- ✅ **📧 SISTEMA SMTP COMPLETO** - configuração e alertas automáticos por email
-- ✅ **Controle de status** - Aberto, Em Atendimento, Finalizado, Cancelado
-- ✅ **Sistema de prioridades** - com badges coloridas para fácil identificação
-- ✅ **Histórico completo** - rastreamento de alterações de status
-- ✅ **Filtros avançados** - por categoria, status, prioridade e período
-- ✅ **📷 Sistema de anexos** - upload, visualização e download de imagens
-- ✅ **🔧 Correções UI** - botões de fechar modal agora funcionam perfeitamente
-- ✅ **Integração direta com WhatsApp** via URL scheme
-- ✅ **🔗 Base de dados compartilhada** - todas as versões (web/mobile) salvam na mesma base
-- ✅ **📸 UPLOAD DE IMAGENS** - anexar até 3 imagens de 5MB cada nos chamados
-- ✅ **Interface responsiva** otimizada para desktop e mobile
-- ✅ **Processo unificado** - criação automática + envio para WhatsApp
+### 👑 Painel Administrativo
+- ✅ Gerenciamento completo de usuários
+- ✅ Configuração SMTP para alertas de e-mail
+- ✅ Interface de teste de conexão SMTP
+- ✅ Envio de e-mails de teste
+- ✅ Configuração de destinatários de alertas
+- ✅ Dashboard com estatísticas do sistema
 
-### 🎨 **Melhorias de Design Recentes - PROBLEMA RESOLVIDO! 🎯**
-- 🔄 **Layout Gmail-like** - design clean e profissional
-- ✅ **FUNDO SÓLIDO NA TABELA** - transparência removida para máxima legibilidade
-- 📰 **Visualização dupla** - Toggle entre Tabela e Cards para descrições extensas
-- 📱 **Cards expansíveis** - Descrições longas com expand/collapse integrado
-- 🏷️ **Badges melhoradas** - status e prioridade com cores mais claras
-- 📊 **Tabelas 100% legíveis** - fundo branco sólido, contraste perfeito
-- 🎪 **Botões padronizados** - estilo Gmail em todos os formulários
-
-### 📋 **Páginas do Sistema**
-1. **🏠 index.html**: Criação de novos chamados
-2. **📋 chamados.html**: Lista e gerenciamento de chamados
-3. **🔐 login.html**: Sistema de autenticação
-4. **⚙️ admin.html**: Painel administrativo
-5. **🚪 logout.html**: Encerramento de sessão
-
-### 🔄 **Fluxo de Uso Completo**
-1. Login no sistema com credenciais
-2. Criação de chamado via formulário
-3. **NOVIDADE**: Salvamento automático + abertura no WhatsApp
-4. Visualização e gerenciamento na lista de chamados
-5. Controle de status e histórico de alterações
-6. Administração de usuários (para admins)
-
-## 🏗️ Arquitetura Técnica
-
-### **Stack Tecnológica**
-- **Backend**: Hono + Cloudflare Pages (estático)
-- **Frontend**: HTML5, CSS3, JavaScript Vanilla
-- **Armazenamento**: LocalStorage para dados
-- **Deployment**: Cloudflare Pages/Workers
-- **Autenticação**: Cliente-side com localStorage
-- **Design**: CSS3 com efeitos Gmail-like
-
-### **Estrutura do Projeto**
-```
-webapp/
-├── index.html             # Página principal (criação de chamados)
-├── chamados.html          # Lista e gerenciamento de chamados  
-├── login.html            # Sistema de autenticação
-├── admin.html            # Painel administrativo
-├── logout.html           # Página de logout
-├── ecosystem.config.cjs  # Configuração PM2
-└── wrangler.jsonc       # Configuração Cloudflare
-```
-
-### **APIs/Rotas Implementadas**
-- `GET /` - Página principal (index.html)
-- `GET /chamados` - Lista de chamados (chamados.html)
-- `GET /login` - Sistema de login (login.html)
-- `GET /admin` - Painel administrativo (admin.html)
-- `GET /logout` - Página de logout (logout.html)
-
-### **Dados e Persistência**
-- **LocalStorage**: Usuários, chamados, configurações
-- **Estrutura de dados**: JSON com IDs únicos e timestamps
-- **Backup**: Via localStorage do navegador
-
-## 📱 Como Usar
-
-### **Opção 1: Via Navegador Web (RECOMENDADO)**
-1. Acesse: https://3000-ixjmk6fkuy3nvsvaklcvh.e2b.dev
-2. Faça login (credenciais padrão disponíveis no sistema)
-3. Use diretamente no navegador (funciona em qualquer dispositivo)
-
-### **Opção 2: Executar Localmente**
-```bash
-git clone <repository-url>
-cd webapp
-npm install
-pm2 start ecosystem.config.cjs
-```
-
-## 👥 Sistema de Usuários
-
-### **Perfis de Acesso**
-1. **👑 Admin**: Acesso total (criar, editar, excluir chamados + gerenciar usuários)
-2. **👮 Supervisor**: Gerenciar chamados (criar, editar, alterar status)
-3. **👤 Operador**: Apenas visualizar chamados (somente leitura)
-
-### **Funcionalidades por Perfil**
-- **Admin/Supervisor**: Podem alterar status, editar chamados, criar novos
-- **Operador**: Visualização apenas, sem permissões de edição
-- **Sistema de Senhas**: Geração automática + mudança manual
-
-## 🎨 Design System - Gmail-like
-
-### **Cores Principais**
-- **Fundo**: Vídeo com overlay escura para melhor legibilidade
-- **Cards**: `rgba(255, 255, 255, 0.97)` - alta opacidade para contraste
-- **Bordas**: `rgba(0, 0, 0, 0.08)` - sutis como no Gmail
-- **Texto**: `#202124` (principal), `#5f6368` (secundário)
-- **Azul Primary**: `#1a73e8` (botões principais)
-
-### **Componentes Padronizados**
-- **Botões**: Estilo Gmail com bordas sutis
-- **Campos**: Border radius 8px, padding otimizado
-- **Tabelas**: Cabeçalhos fixos, hover effects
-- **Cards**: Border radius 12px, sombras suaves
-- **Badges**: Cores de status com melhor contraste
-
-## 💡 Vantagens desta Solução
-
-### **✅ Sistema Completo**
-- Criação, gerenciamento e controle total de chamados
-- Sistema de usuários com diferentes níveis de acesso
-- Interface moderna inspirada no Gmail para melhor UX
-
-### **✅ Zero Instalação**
-- Funciona instantaneamente em qualquer navegador
-- Compatível com Windows, macOS, Linux, Android, iOS
-- Dados salvos localmente no navegador
-
-### **✅ Integração WhatsApp Aprimorada**
-- **NOVA**: Processo unificado - salva + abre WhatsApp automaticamente
-- Mensagens pré-formatadas com todas as informações
-- Funciona no WhatsApp Web e app móvel
-
-### **✅ Design Professional**
-- **NOVO**: Layout inspirado no Gmail para familiaridade
-- Cores otimizadas para melhor legibilidade
-- Consistência visual em todas as páginas
-
-## 🚀 Melhorias Implementadas Recentemente - SISTEMA SMTP + UI FIXES! 📧🔧
-
-### **📧 Sistema de Email SMTP (NOVO - Última Atualização)**
-- ✅ **Configuração SMTP completa** - interface amigável para configurar servidor de email
-- ✅ **Alertas automáticos** - emails enviados automaticamente para novos chamados e mudanças de status
-- ✅ **Tipos de alertas configuráveis**:
+### 📧 Sistema de Alertas SMTP
+- ✅ **Configuração SMTP completa** (host, porta, segurança, credenciais)
+- ✅ **Suporte ao Gmail** com App Passwords
+- ✅ **Alertas automáticos** para:
   - 🆕 Novos chamados criados
-  - 🔄 Alterações de status
-  - ⏰ Chamados vencidos (>24h)
-  - 📊 Resumos diários (8h da manhã)
-- ✅ **Teste de conexão** - validação da configuração SMTP com feedback visual
-- ✅ **Email de teste** - função para enviar emails de teste
-- ✅ **Configurações persistentes** - salvamento no localStorage
-- ✅ **Interface integrada** - nova aba "📧 Config SMTP" no painel admin
+  - 🔄 Mudanças de status
+  - 📊 Relatórios diários (planejado)
+- ✅ **E-mails HTML responsivos** com design profissional
+- ✅ **Múltiplos destinatários** configuráveis
+- ✅ **Teste de envio** individual e em lote
 
-### **🔧 Correções de UI (NOVO - Última Atualização)**
-- ✅ **Botão de fechar modal corrigido** - substituído código problemático por função dedicada
-- ✅ **Função closeModal()** - implementação robusta para fechamento de modais
-- ✅ **Compatibilidade total** - funciona em todos os navegadores
-- ✅ **Feedback visual aprimorado** - melhor experiência do usuário
+## 🔧 Arquitetura Técnica
 
-### **📸 Sistema de Imagens (Implementado)**
-- ✅ **Upload de imagens** - até 3 imagens de 5MB cada por chamado
-- ✅ **Visualização integrada** - preview das imagens no sistema de gerenciamento
-- ✅ **Modal full-screen** - visualização em tela cheia com opção de download
-- ✅ **Validação robusta** - controle de tamanho, formato e quantidade
-- ✅ **Base64 storage** - armazenamento local sem necessidade de servidor
-- ✅ **Compatibilidade total** - funciona em todas as versões (web + mobile)
+### **Backend: Hono + Cloudflare Workers**
+- **Framework**: Hono v4.0 (leve e rápido)
+- **Runtime**: Cloudflare Workers Edge Runtime
+- **Build**: Vite + TypeScript
+- **Deployment**: Cloudflare Pages
 
-### **🎨 Design e UX (Implementado - Última Atualização)**
-- ✅ **Layout Gmail-like** - interface clean e familiar
-- ✅ **TABELA COM FUNDO SÓLIDO** - problema de transparência resolvido
-- ✅ **Visualização Cards** - alternativa para descrições extensas
-- ✅ **Toggle Tabela/Cards** - usuário escolhe a melhor visualização
-- ✅ **Descrições expansíveis** - expand/collapse nos cards
-- ✅ **Contraste perfeito** - fundo branco sólido em todos elementos
-- ✅ **Botões padronizados** - estilo Gmail em todo o sistema
+### **Frontend: HTML5 + JavaScript Vanilla**
+- **Design**: CSS puro com Google Material inspirado
+- **Armazenamento**: localStorage + sessionStorage
+- **Imagens**: Codificação Base64 para portabilidade
+- **Responsivo**: Mobile-first design
 
-### **⚡ Funcionalidades (Implementado)**
-- ✅ **Processo unificado** - botão único para salvar + WhatsApp
-- ✅ **Sistema de permissões** - controle por perfil de usuário
-- ✅ **Histórico de status** - rastreamento completo de alterações
-- ✅ **Filtros avançados** - busca por múltiplos critérios
-- ✅ **Auto-save** - chamados salvos automaticamente
+### **Sistema de E-mail**
+```
+🔄 VERSÃO ATUAL (Desenvolvimento):
+├── Simulação completa no frontend
+├── Validações de configuração SMTP
+├── Logs detalhados no console
+└── Interface completa de teste
 
-## 🚀 Próximos Passos Recomendados
-
-### **🔧 Melhorias Técnicas**
-- [ ] **Deploy para Cloudflare Pages** (produção estável)
-- [ ] **Migração para Cloudflare D1** (banco de dados remoto)
-- [ ] **Sincronização entre dispositivos** via Cloudflare KV
-- [ ] **Sistema de backup** automático
-
-### **✨ Funcionalidades Futuras**
-- [ ] **Dashboard analytics** com gráficos de chamados
-- [ ] **Notificações push** para atualizações
-- [ ] **Templates personalizados** por categoria
-- [ ] **Upload de anexos** via Cloudflare R2
-- [ ] **API REST** para integração externa
-- [ ] **Integração SMTP server-side** - implementação real do envio de emails
-- [ ] **Agendamento de relatórios** - envio automático de resumos por email
-
-### **🎨 Melhorias de UX**
-- [ ] **Modo escuro** automático
-- [ ] **Atalhos de teclado** para ações rápidas
-- [ ] **Busca textual** em descrições
-- [ ] **Exportação** de relatórios
-
-## 🔄 Status do Deployment
-
-- **Desenvolvimento**: ✅ Ativo (localhost:3000)
-- **Demo Online**: ✅ Ativo (https://3000-ind8u1r79oh43o19fldih.e2b.dev)
-- **Produção Vercel**: ⚠️ Pendente (instruções em DEPLOY-VERCEL-STEPS.md)
-- **Design Gmail-like**: ✅ Implementado (2024-08-29)
-- **Deploy Otimizado**: ✅ Pronto para Vercel/Netlify
-- **Package.json**: ✅ Otimizado para sites estáticos
-
-## 🚀 Deploy no Vercel (RECOMENDADO)
-
-### **Método 1: Deploy Direto via GitHub**
-1. Push do código para GitHub
-2. Conectar repositório no Vercel
-3. Deploy automático (zero configuração necessária)
-
-### **Método 2: Deploy via CLI**
-```bash
-# Instalar Vercel CLI
-npm i -g vercel
-
-# Deploy (na pasta do projeto)
-vercel
-
-# Deploy para produção
-vercel --prod
+🚀 PRODUÇÃO (Implementação futura):
+├── API Resend (recomendado)
+├── SendGrid / Mailgun
+├── Amazon SES
+└── Integração backend real
 ```
 
-### **Configuração Automática**
-- ✅ `vercel.json` já configurado
-- ✅ Rotas limpas (/chamados → chamados.html)
-- ✅ Package.json otimizado para sites estáticos
-- ✅ Build process simplificado
-- ✅ Zero dependências de runtime
+## 📊 Estrutura de Dados
 
-## 🛠️ Comandos de Desenvolvimento
+### **Chamados (localStorage: 'wms_chamados')**
+```json
+{
+  "numero": "2025001",
+  "titulo": "Erro na conferência",
+  "categoria": "Recebimento", 
+  "prioridade": "🔴 Crítica",
+  "descricao": "Descrição detalhada...",
+  "usuario": "João Silva",
+  "status": "aberto",
+  "criadoEm": "2025-08-29T18:45:00.000Z",
+  "imagens": ["data:image/jpeg;base64,..."],
+  "historico": [
+    {
+      "status": "aberto",
+      "usuario": "João Silva", 
+      "timestamp": "2025-08-29T18:45:00.000Z"
+    }
+  ]
+}
+```
 
+### **Configuração SMTP (localStorage: 'wms_smtp_config')**
+```json
+{
+  "enabled": true,
+  "host": "smtp.gmail.com",
+  "port": "587", 
+  "security": "tls",
+  "user": "sistema@empresa.com",
+  "password": "app-password-gerada",
+  "fromName": "Sistema WMS",
+  "alerts": {
+    "novoChamado": true,
+    "statusChange": true,
+    "overdue": false
+  },
+  "alertUsers": [
+    {"name": "Admin", "email": "admin@empresa.com"},
+    {"name": "Supervisor", "email": "supervisor@empresa.com"}
+  ]
+}
+```
+
+## 🛠️ Guia de Implementação SMTP Real
+
+### **1. Para Gmail (Recomendado para testes):**
+```
+Host: smtp.gmail.com
+Porta: 587
+Segurança: TLS
+Usuário: seu-email@gmail.com
+Senha: App Password (não a senha normal)
+
+⚠️ Importante: Gere App Password em:
+https://myaccount.google.com/apppasswords
+```
+
+### **2. Para Produção (APIs recomendadas):**
+
+**Resend (Melhor para Cloudflare Workers):**
+```javascript
+const response = await fetch('https://api.resend.com/emails', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${RESEND_API_KEY}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    from: 'Sistema WMS <onboarding@resend.dev>',
+    to: ['admin@empresa.com'],
+    subject: '🆕 Novo Chamado WMS #2025001',
+    html: emailHtmlContent
+  })
+})
+```
+
+**SendGrid:**
+```javascript
+const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+  method: 'POST', 
+  headers: {
+    'Authorization': `Bearer ${SENDGRID_API_KEY}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(sendgridEmailObject)
+})
+```
+
+## 🎨 Design System
+- **Cores principais**: #202124 (text), #5f6368 (secondary), #1a73e8 (primary)
+- **Paleta de status**: 
+  - 🟢 Resolvido: #16a34a
+  - 🟡 Em andamento: #d97706  
+  - 🔴 Aberto: #dc2626
+  - ⚫ Cancelado: #6b7280
+- **Tipografia**: Inter, -apple-system, BlinkMacSystemFont
+- **Layout**: Cards com sombras suaves, bordas arredondadas 8px
+
+## 🚀 Deploy e Configuração
+
+### **Local Development:**
 ```bash
-# Iniciar desenvolvimento local
+cd /home/user/webapp
+npm install
+npm run build
 pm2 start ecosystem.config.cjs
-
-# Verificar status
-pm2 list
-pm2 logs webapp --nostream
-
-# Reiniciar servidor
-pm2 restart webapp
-
-# Testar páginas
-curl http://localhost:3000           # Página principal
-curl http://localhost:3000/chamados.html  # Lista de chamados  
-curl http://localhost:3000/login.html     # Login
-curl http://localhost:3000/admin.html     # Admin
 ```
 
-## 📞 Integração WhatsApp
+### **Cloudflare Pages Production:**
+```bash
+# 1. Setup API key
+setup_cloudflare_api_key
 
-O aplicativo gera URLs no formato:
-```
-https://wa.me/?text=[MENSAGEM_FORMATADA]
-```
+# 2. Build project  
+npm run build
 
-**Formato da mensagem:**
-```
-🚨 CHAMADO WMS WISER
-
-🗂️  Categoria: [CATEGORIA]
-📝 Título: [TÍTULO]  
-📄 Descrição: [DESCRIÇÃO]
-⚡ Prioridade: [PRIORIDADE]
-
-📅 Criado em: [DATA_HORA_BR]
-🆔 ID: [CHAMADO_ID]
+# 3. Deploy to Cloudflare Pages
+wrangler pages deploy dist --project-name webapp
 ```
 
-## 🎯 Conclusão
+## 📋 Próximos Passos
 
-Esta solução oferece um **sistema completo de chamados WMS** com:
-- ✨ **Design moderno Gmail-like** para melhor UX
-- 🔐 **Sistema de usuários** com controle de acesso
-- 📱 **Interface responsiva** funcionando em qualquer dispositivo  
-- 🚀 **Integração WhatsApp** aprimorada
-- 💾 **Dados locais** sem necessidade de servidor
+### **Alta Prioridade:**
+1. 🔧 **Implementar API de e-mail real** (Resend/SendGrid)
+2. 📊 **Dashboard de métricas** avançadas
+3. 🔔 **Notificações push** no navegador
+4. 📱 **PWA completo** com offline support
 
-**Perfect para implementação imediata como ferramenta interna de WMS!**
+### **Média Prioridade:**
+5. 🗃️ **Banco de dados externo** (Supabase/PlanetScale)
+6. 👥 **Sistema de permissões** por usuário
+7. 📈 **Relatórios automáticos** diários/semanais  
+8. 🔍 **Busca avançada** com filtros combinados
 
----
+### **Baixa Prioridade:**
+9. 🎨 **Temas personalizáveis** (dark mode)
+10. 🌐 **Múltiplos idiomas** (i18n)
+11. 📊 **Integração com BI** tools
+12. 🤖 **Automações** avançadas
 
-**🎯 PROBLEMAS RESOLVIDOS**: 
-- ✅ Lista de chamados 100% legível!
-- ✅ Botão × dos modais funcionando perfeitamente!
+## 🔒 Segurança e Boas Práticas
+- ✅ **Configurações sensíveis** só no localStorage
+- ✅ **Validação** de dados no frontend e backend
+- ✅ **Sanitização** de inputs HTML
+- ✅ **Rate limiting** via Cloudflare
+- ✅ **HTTPS** obrigatório em produção
+- ⚠️ **App Passwords** para Gmail (não senha normal)
 
-**🔗 NOVAS FUNCIONALIDADES**: 
-- ✅ Base de dados compartilhada entre todas as versões!
-- ✅ Sistema SMTP completo para alertas automáticos!
+## 📝 Logs e Debugging
+- **Console do navegador**: Logs detalhados dos alertas SMTP
+- **PM2 Logs**: `pm2 logs webapp --nostream`
+- **Cloudflare Logs**: Painel Cloudflare Workers
+- **Local Storage**: Inspect via DevTools → Application
 
-**📸 SISTEMA DE IMAGENS**: Upload, visualização e gerenciamento completo de anexos!
-**📧 SISTEMA EMAIL**: Configuração SMTP + alertas automáticos implementados!
-**🔄 Última atualização**: 29/08/2025 - Versão v20250829_smtp_fixes
-**📊 Status**: ✅ Pronto para uso em produção - Todos os sistemas 100% funcionais!
-**🚀 GitHub**: https://github.com/tgszdev/chamasdos-wiser (ATUALIZADO)
+## 🏆 Status do Projeto
+- **Versão**: 1.0 SMTP (29/08/2025)
+- **Status**: ✅ Funcional com SMTP simulado
+- **Próximo milestone**: Integração SMTP real
+- **Tech Stack**: Hono + Cloudflare Workers + HTML5
+- **Deployment**: ✅ Cloudflare Pages Ready
