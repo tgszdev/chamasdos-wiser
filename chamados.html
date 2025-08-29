@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📋 Gerenciar Chamados - WMS</title>
     
-    <!-- VERSÃO DEPLOY VERCEL: 20250829_032343 - Cards + Fundo Sólido + Toggle FUNCIONANDO -->
+    <!-- VERSÃO DEPLOY VERCEL: 20250829_033616 - Botão VISUALIZAR + Modal Profissional -->
     <!-- Meta tags -->
     <meta name="description" content="Sistema de gerenciamento de chamados WMS com controle de status e histórico">
     <meta name="robots" content="noindex, nofollow">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="build-version" content="20250829_032343">
+    <meta name="build-version" content="20250829_033616">
     <meta name="features" content="cards-toggle-solid-background">
     
     <!-- Favicon -->
@@ -595,33 +595,7 @@
             margin-bottom: 8px;
         }
         
-        .card-description {
-            font-size: 13px;
-            color: #202124;
-            line-height: 1.4;
-            margin-bottom: 12px;
-            max-height: 60px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .card-description.expanded {
-            max-height: none;
-        }
-        
-        .card-description::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 50px;
-            height: 20px;
-            background: linear-gradient(90deg, transparent, white);
-        }
-        
-        .card-description.expanded::after {
-            display: none;
-        }
+
         
         .card-footer {
             display: flex;
@@ -760,8 +734,8 @@
     <div class="chamados-container">
         <!-- Header -->
         <div class="header">
-            <h1>📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_032343</small></h1>
-            <p>Controle e acompanhe todos os chamados WMS com status e histórico completo • <strong style="color: #0d7736;">Cards + Fundo Sólido Ativo</strong></p>
+            <h1>📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_033616</small></h1>
+            <p>Controle e acompanhe todos os chamados WMS com status e histórico completo • <strong style="color: #0d7736;">👁️ Botão Visualizar + Modal Profissional</strong></p>
         </div>
         
         <!-- Filtros -->
@@ -1086,14 +1060,20 @@
                     <td><strong style="color: #3b82f6; font-weight: 800;">#${chamado.numero}</strong></td>
                     <td><span style="font-weight: 600; color: #475569;">${chamado.categoria}</span></td>
                     <td>
-                        <div style="cursor: pointer;" onclick="showFullDescription('${chamado.numero}', '${chamado.titulo.replace(/'/g, "\\'")}', '${chamado.descricao.replace(/'/g, "\\'")}')">
-                            <strong style="color: #0f172a;">${chamado.titulo}</strong>
-                            <br><small style="color: #64748b; font-size: 12px; line-height: 1.4;">
-                                ${chamado.descricao.length > 60 ? 
-                                    chamado.descricao.substring(0, 60) + '... <span style="color: #3b82f6; font-weight: 600;">clique para ver mais</span>' : 
-                                    chamado.descricao
-                                }
-                            </small>
+                        <div>
+                            <strong style="color: #0f172a; display: block; margin-bottom: 8px;">${chamado.titulo}</strong>
+                            <button class="btn btn-small" style="
+                                background: rgba(26, 115, 232, 0.1);
+                                color: #1a73e8;
+                                border: 1px solid rgba(26, 115, 232, 0.2);
+                                padding: 4px 8px;
+                                font-size: 11px;
+                                border-radius: 6px;
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                            " onclick="showFullDescription('${chamado.numero}', '${chamado.titulo.replace(/'/g, "\\'")}', '${chamado.descricao.replace(/'/g, "\\'")}')">
+                                👁️ Visualizar Chamado
+                            </button>
                         </div>
                     </td>
                     <td><span class="priority-badge priority-${chamado.prioridade.replace(/🔴|🟠|🟡|🟢/g, '').trim().toLowerCase()}">${chamado.prioridade}</span></td>
@@ -1336,46 +1316,135 @@
                 <div style="
                     background: white;
                     border-radius: 16px;
-                    padding: 24px;
-                    max-width: 600px;
+                    padding: 0;
+                    max-width: 700px;
                     width: 100%;
                     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
                     border: 1px solid #e0e0e0;
+                    overflow: hidden;
                 ">
-                    <h3 style="color: #202124; margin-bottom: 8px; font-weight: 600; font-size: 18px;">
-                        Chamado #${chamado ? chamado.numero || chamado.id : id}
-                    </h3>
-                    <h4 style="color: #3b82f6; margin-bottom: 16px; font-weight: 600;">
-                        ${titulo}
-                    </h4>
+                    <!-- Header do Modal -->
                     <div style="
-                        background: rgba(248, 250, 252, 0.6);
-                        padding: 20px;
-                        border-radius: 16px;
-                        margin-bottom: 20px;
-                        border: 1px solid rgba(226, 232, 240, 0.5);
+                        background: #f8f9fa;
+                        padding: 20px 24px;
+                        border-bottom: 1px solid #e9ecef;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
                     ">
-                        <p style="
-                            color: #1e293b; 
-                            line-height: 1.6; 
-                            margin: 0;
-                            white-space: pre-wrap;
-                            word-wrap: break-word;
-                        ">${descricao}</p>
+                        <div>
+                            <h3 style="color: #202124; margin: 0; font-weight: 600; font-size: 18px;">
+                                📋 Chamado #${chamado ? chamado.numero || chamado.id : id}
+                            </h3>
+                            <p style="color: #5f6368; margin: 4px 0 0 0; font-size: 13px;">
+                                ${chamado ? `Criado em ${new Date(chamado.criadoEm || chamado.created_at).toLocaleString('pt-BR')} • ${chamado.usuario || 'Usuário'}` : 'Detalhes do chamado'}
+                            </p>
+                        </div>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" style="
+                            background: none;
+                            border: none;
+                            font-size: 20px;
+                            color: #5f6368;
+                            cursor: pointer;
+                            padding: 4px;
+                            border-radius: 4px;
+                            transition: all 0.2s ease;
+                        " onmouseover="this.style.background='#f1f3f4'" onmouseout="this.style.background='none'">
+                            ✕
+                        </button>
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove()" style="
-                        background: rgba(99, 102, 241, 0.1);
-                        color: #6366f1;
-                        border: 1px solid rgba(99, 102, 241, 0.2);
-                        padding: 12px 24px;
-                        border-radius: 16px;
-                        cursor: pointer;
-                        font-weight: 600;
-                        transition: all 0.3s ease;
-                    " onmouseover="this.style.background='rgba(99, 102, 241, 0.15)'"
-                       onmouseout="this.style.background='rgba(99, 102, 241, 0.1)'">
-                        ✕ Fechar
-                    </button>
+                    
+                    <!-- Conteúdo do Modal -->
+                    <div style="padding: 24px;">
+                        <!-- Informações básicas -->
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="color: #202124; margin: 0 0 8px 0; font-weight: 600; font-size: 16px;">
+                                ${titulo}
+                            </h4>
+                            ${chamado ? `
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                    <div>
+                                        <span style="font-size: 12px; color: #5f6368; text-transform: uppercase; font-weight: 500;">Categoria</span>
+                                        <div style="margin-top: 4px; color: #202124; font-weight: 500;">📁 ${chamado.categoria}</div>
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 12px; color: #5f6368; text-transform: uppercase; font-weight: 500;">Prioridade</span>
+                                        <div style="margin-top: 4px;">
+                                            <span class="priority-badge priority-${chamado.prioridade}" style="font-size: 12px; padding: 4px 8px;">
+                                                ${chamado.prioridade}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 12px; color: #5f6368; text-transform: uppercase; font-weight: 500;">Status</span>
+                                        <div style="margin-top: 4px;">
+                                            <span class="status-badge status-${chamado.status}" style="font-size: 12px; padding: 4px 8px;">
+                                                ${chamado.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span style="font-size: 12px; color: #5f6368; text-transform: uppercase; font-weight: 500;">Usuário</span>
+                                        <div style="margin-top: 4px; color: #202124; font-weight: 500;">👤 ${chamado.usuario}</div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <!-- Descrição -->
+                        <div style="margin-bottom: 20px;">
+                            <span style="font-size: 12px; color: #5f6368; text-transform: uppercase; font-weight: 500; display: block; margin-bottom: 8px;">Descrição Completa</span>
+                            <div style="
+                                background: #f8f9fa;
+                                padding: 16px;
+                                border-radius: 8px;
+                                border: 1px solid #e9ecef;
+                                max-height: 300px;
+                                overflow-y: auto;
+                            ">
+                                <p style="
+                                    color: #202124; 
+                                    line-height: 1.6; 
+                                    margin: 0;
+                                    white-space: pre-wrap;
+                                    word-wrap: break-word;
+                                    font-size: 14px;
+                                ">${descricao}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Botões de ação -->
+                        <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid #e9ecef;">
+                            <button onclick="this.parentElement.parentElement.parentElement.parentElement.remove()" style="
+                                background: #f8f9fa;
+                                color: #5f6368;
+                                border: 1px solid #dadce0;
+                                padding: 8px 16px;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                font-weight: 500;
+                                font-size: 14px;
+                                transition: all 0.2s ease;
+                            " onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
+                                Fechar
+                            </button>
+                            ${chamado ? `
+                                <button onclick="window.open('https://wa.me/?text=' + encodeURIComponent('🚨 CHAMADO WMS #${chamado.numero || chamado.id}\\n\\n📝 ${titulo}\\n📄 ${descricao.replace(/'/g, "\\'")}'), '_blank')" style="
+                                    background: #1a73e8;
+                                    color: white;
+                                    border: 1px solid #1a73e8;
+                                    padding: 8px 16px;
+                                    border-radius: 8px;
+                                    cursor: pointer;
+                                    font-weight: 500;
+                                    font-size: 14px;
+                                    transition: all 0.2s ease;
+                                " onmouseover="this.style.background='#1557b0'" onmouseout="this.style.background='#1a73e8'">
+                                    📱 Enviar WhatsApp
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
                 </div>
             `;
             
@@ -1491,12 +1560,8 @@
                     </button>
                 `;
                 
-                const description = chamado.descricao || '';
-                const shortDescription = description.length > 120 ? description.substring(0, 120) + '...' : description;
-                const needsExpansion = description.length > 120;
-                
                 return `
-                    <div class="chamado-card-item" onclick="showFullDescription('${chamado.id}')">
+                    <div class="chamado-card-item">
                         <div class="card-header">
                             <div class="card-id">#${chamado.id}</div>
                             <div style="font-size: 11px; color: #5f6368;">
@@ -1507,13 +1572,21 @@
                         <div class="card-title">${chamado.titulo}</div>
                         <div class="card-category">📁 ${chamado.categoria}</div>
                         
-                        <div class="card-description" id="desc-${chamado.id}">
-                            ${shortDescription}
-                            ${needsExpansion ? `
-                                <button class="expand-btn" onclick="event.stopPropagation(); toggleDescription('${chamado.id}')" id="expand-${chamado.id}">
-                                    Ver mais
-                                </button>
-                            ` : ''}
+                        <div style="margin: 12px 0;">
+                            <button class="btn btn-small" style="
+                                background: rgba(26, 115, 232, 0.1);
+                                color: #1a73e8;
+                                border: 1px solid rgba(26, 115, 232, 0.2);
+                                padding: 6px 12px;
+                                font-size: 12px;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                                width: 100%;
+                                justify-content: center;
+                            " onclick="showFullDescription('${chamado.id}')">
+                                👁️ Visualizar Chamado Completo
+                            </button>
                         </div>
                         
                         <div class="card-footer">
@@ -1537,31 +1610,7 @@
             cardsContainer.innerHTML = cardsHtml;
         }
         
-        // Toggle descrição no card
-        function toggleDescription(id) {
-            const descElement = document.getElementById(`desc-${id}`);
-            const expandBtn = document.getElementById(`expand-${id}`);
-            const chamado = allChamados.find(c => c.id === id);
-            
-            if (!chamado) return;
-            
-            if (descElement.classList.contains('expanded')) {
-                const shortDescription = chamado.descricao.length > 120 ? chamado.descricao.substring(0, 120) + '...' : chamado.descricao;
-                descElement.innerHTML = shortDescription + `
-                    <button class="expand-btn" onclick="event.stopPropagation(); toggleDescription('${id}')">
-                        Ver mais
-                    </button>
-                `;
-                descElement.classList.remove('expanded');
-            } else {
-                descElement.innerHTML = chamado.descricao + `
-                    <button class="expand-btn" onclick="event.stopPropagation(); toggleDescription('${id}')">
-                        Ver menos
-                    </button>
-                `;
-                descElement.classList.add('expanded');
-            }
-        }
+
         
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
