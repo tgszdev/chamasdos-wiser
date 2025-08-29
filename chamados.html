@@ -1355,6 +1355,7 @@
                 const currentUser = getCurrentUserSession();
                 
                 // Atualizar status
+                const statusAnterior = chamado.status;
                 chamado.status = novoStatus;
                 chamado.atualizadoEm = agora;
                 
@@ -1375,6 +1376,63 @@
                 
                 const statusText = getStatusText(novoStatus);
                 showFeedback(`✅ Chamado #${numero} marcado como "${statusText}"`, 'success');
+                
+                // Enviar alerta de mudança de status
+                sendEmailAlert('statusChange', {
+                    numero: chamado.numero,
+                    titulo: chamado.titulo,
+                    statusAnterior: getStatusText(statusAnterior),
+                    novoStatus: getStatusText(novoStatus),
+                    usuario: currentUser ? currentUser.name : 'Sistema',
+                    observacao: observacao
+                });
+            }
+        }
+        
+        // ===== SISTEMA DE ALERTAS DE E-MAIL =====
+        
+        // Enviar alerta de e-mail
+        function sendEmailAlert(type, data) {
+            try {
+                const smtpConfig = JSON.parse(localStorage.getItem('wms_smtp_config') || 'null');
+                if (!smtpConfig || !smtpConfig.enabled || !smtpConfig.alerts) return;
+                
+                let shouldSend = false;
+                let subject = '';
+                let message = '';
+                
+                switch (type) {
+                    case 'statusChange':
+                        if (!smtpConfig.alerts.statusChange) return;
+                        shouldSend = true;
+                        subject = `🔄 Chamado WMS #${data.numero} - Status Alterado`;
+                        message = `
+🔄 STATUS DO CHAMADO ALTERADO
+
+📋 Chamado: #${data.numero}
+📝 Título: ${data.titulo}
+📊 Status anterior: ${data.statusAnterior}
+🔄 Novo Status: ${data.novoStatus}
+👤 Alterado por: ${data.usuario}
+⏰ Data: ${new Date().toLocaleString('pt-BR')}
+
+${data.observacao ? `💬 Observação: ${data.observacao}\n` : ''}
+🔗 Acesse o sistema para mais detalhes.
+                        `;
+                        break;
+                }
+                
+                if (shouldSend && smtpConfig.alertEmails?.length > 0) {
+                    // Simular envio de e-mail
+                    console.log(`📧 ALERTA DE E-MAIL (simulado):
+Para: ${smtpConfig.alertEmails.join(', ')}
+Assunto: ${subject}
+Mensagem: ${message}`);
+                    
+                    // Em ambiente real, aqui seria feita uma chamada para API do servidor
+                }
+            } catch (error) {
+                console.error('❌ Erro ao enviar alerta de e-mail:', error);
             }
         }
         
@@ -1538,7 +1596,7 @@
                                 ${chamado ? `Criado em ${formatDateWithoutComma(chamado.criadoEm || chamado.created_at)} • ${chamado.usuario || 'Usuário'}` : 'Detalhes do chamado'}
                             </p>
                         </div>
-                        <button onclick="this.parentElement.parentElement.parentElement.remove()" style="
+                        <button onclick="closeModal(this)" style="
                             background: none;
                             border: none;
                             font-size: 20px;
@@ -1685,7 +1743,7 @@
                         
                         <!-- Botões de ação -->
                         <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid #e9ecef;">
-                            <button onclick="this.parentElement.parentElement.parentElement.parentElement.remove()" style="
+                            <button onclick="closeModal(this)" style="
                                 background: #f8f9fa;
                                 color: #5f6368;
                                 border: 1px solid #dadce0;
@@ -2047,7 +2105,7 @@
                                 Imagem ${currentIndex} de ${totalImages}
                             </div>
                         </div>
-                        <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="
+                        <button onclick="closeModal(this)" style="
                             background: rgba(0, 0, 0, 0.1);
                             border: none;
                             color: #202124;
@@ -2148,6 +2206,22 @@
                 console.error('Erro ao baixar imagem:', error);
                 showFeedback('❌ Erro ao baixar imagem. Tente clicar com botão direito e "Salvar imagem como..."', 'error');
             }
+        }
+        
+        // Função para fechar modal (corrigir botão que não funcionava)
+        function closeModal(button) {
+            // Encontrar o modal pai e removê-lo
+            let modal = button;
+            while (modal && !modal.style.position === 'fixed') {
+                modal = modal.parentElement;
+                if (modal && modal.style.cssText.includes('position: fixed')) {
+                    modal.remove();
+                    return;
+                }
+            }
+            // Fallback: procurar por qualquer modal visível
+            const modals = document.querySelectorAll('[style*="position: fixed"]');
+            modals.forEach(m => m.remove());
         }
         
     </script>
