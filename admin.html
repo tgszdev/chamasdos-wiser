@@ -798,6 +798,27 @@
                     </div>
                 </div>
                 
+                <div style="background: #e8f5e8; border-left: 4px solid #28a745; padding: 16px; margin: 20px 0; border-radius: 8px;">
+                    <h4>🚀 Envio REAL via Resend API (Opcional)</h4>
+                    <p>Para enviar e-mails REAIS, configure uma API key do Resend. Sem ela, o sistema apenas simula o envio.</p>
+                    
+                    <div style="margin: 15px 0;">
+                        <label for="resendApiKey">🔑 Resend API Key (opcional):</label>
+                        <input type="password" id="resendApiKey" placeholder="re_xxxxxxxxxx... (deixe vazio para simulação)" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #28a745; border-radius: 8px;">
+                        <small style="color: #155724;">
+                            📋 Como obter: <a href="https://resend.com/api-keys" target="_blank" style="color: #28a745;">Resend API Keys</a> 
+                            | 💰 Grátis: 3000 e-mails/mês | ⚡ Funciona perfeitamente com Cloudflare Workers
+                        </small>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                            <input type="checkbox" id="useResendApi" onchange="toggleResendMode()">
+                            <span>✅ Usar Resend para envio REAL de e-mails</span>
+                        </label>
+                    </div>
+                </div>
+                
                 <div style="margin: 20px 0;">
                     <label>📬 Usuários que receberão alertas por e-mail:</label>
                     <div id="userEmailList" style="margin: 8px 0; padding: 12px; border: 1px solid #dadce0; border-radius: 8px; background: #f8f9fa;">
@@ -1382,6 +1403,14 @@
                     document.getElementById('smtpSecurity').value = config.security || 'tls';
                     document.getElementById('smtpFromName').value = config.fromName || 'Sistema WMS';
                     
+                    // Carregar campos Resend
+                    if (document.getElementById('useResendApi')) {
+                        document.getElementById('useResendApi').checked = config.useResend || false;
+                    }
+                    if (document.getElementById('resendApiKey')) {
+                        document.getElementById('resendApiKey').value = config.resendApiKey || '';
+                    }
+                    
                     if (config.alerts) {
                         document.getElementById('alertNovoChamado').checked = config.alerts.novoChamado || false;
                         document.getElementById('alertStatusChange').checked = config.alerts.statusChange || false;
@@ -1693,6 +1722,9 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                 password: document.getElementById('smtpPassword').value.trim(),
                 security: document.getElementById('smtpSecurity').value,
                 fromName: document.getElementById('smtpFromName').value.trim() || 'Sistema WMS',
+                // Campos Resend
+                useResend: document.getElementById('useResendApi')?.checked || false,
+                resendApiKey: document.getElementById('resendApiKey')?.value.trim() || '',
                 alertUsers: selectedUsers,
                 alerts: {
                     novoChamado: document.getElementById('alertNovoChamado').checked,
@@ -1701,7 +1733,7 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                     resumoDaily: document.getElementById('alertResumoDaily').checked
                 },
                 enabled: true,
-                type: 'smtp',
+                type: config.useResend && config.resendApiKey ? 'resend' : 'smtp',
                 createdAt: new Date().getTime()
             };
             
@@ -1743,6 +1775,14 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                     document.getElementById('smtpSecurity').value = config.security || 'tls';
                     document.getElementById('smtpFromName').value = config.fromName || 'Sistema WMS';
                     
+                    // Carregar campos Resend
+                    if (document.getElementById('useResendApi')) {
+                        document.getElementById('useResendApi').checked = config.useResend || false;
+                    }
+                    if (document.getElementById('resendApiKey')) {
+                        document.getElementById('resendApiKey').value = config.resendApiKey || '';
+                    }
+                    
                     if (config.alerts) {
                         document.getElementById('alertNovoChamado').checked = config.alerts.novoChamado || false;
                         document.getElementById('alertStatusChange').checked = config.alerts.statusChange || false;
@@ -1773,7 +1813,7 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
             }
         }
         
-        // Testar conexão SMTP SIMULADA (para Cloudflare Workers)
+        // Testar conexão SMTP (com suporte Resend)
         function testSmtpConnection() {
             console.log('🧪 Testando configuração SMTP...');
             
@@ -1784,46 +1824,67 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                 return;
             }
             
-            updateSmtpStatus('🔄 Validando configuração SMTP...', 'info');
+            updateSmtpStatus(`🔄 Testando ${config.useResend ? 'Resend API' : 'configuração SMTP'}...`, 'info');
             
-            // Simular teste de conexão (validações locais)
-            setTimeout(() => {
-                let errors = [];
-                
-                // Validar host
-                if (!config.host || !config.host.includes('.')) {
-                    errors.push('Host SMTP inválido');
-                }
-                
-                // Validar porta
-                if (!config.port || isNaN(config.port) || config.port < 1 || config.port > 65535) {
-                    errors.push('Porta inválida (1-65535)');
-                }
-                
-                // Validar email
-                if (!config.user || !config.user.includes('@')) {
-                    errors.push('E-mail inválido');
-                }
-                
-                // Validar senha
-                if (!config.password || config.password.length < 4) {
-                    errors.push('Senha muito curta (mínimo 4 caracteres)');
-                }
-                
-                if (errors.length > 0) {
-                    updateSmtpStatus(`❌ Erros encontrados: ${errors.join(', ')}`, 'error');
-                    showFeedback('❌ Configuração inválida!', 'error');
+            // Fazer chamada para API de teste
+            fetch('/api/smtp/test', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    host: config.host,
+                    port: config.port,
+                    user: config.user,
+                    password: config.password,
+                    security: config.security,
+                    useResend: config.useResend || false,
+                    resendApiKey: config.resendApiKey || ''
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const mode = data.mode === 'resend' ? '🚀 RESEND' : '🗾 SIMULAÇÃO';
+                    updateSmtpStatus(`✅ ${mode}: ${data.message}`, 'success');
+                    showFeedback(`✅ Teste realizado com sucesso! Modo: ${mode}`, 'success');
+                    console.log('✅ Teste SMTP bem-sucedido:', data);
                 } else {
-                    updateSmtpStatus(`✅ Configuração válida para ${config.host}:${config.port}`, 'success');
-                    showFeedback('✅ Configuração SMTP válida!', 'success');
-                    console.log('✅ Configuração validada:', {
-                        host: config.host,
-                        port: config.port,
-                        user: config.user,
-                        security: config.security
-                    });
+                    updateSmtpStatus(`❌ Erro: ${data.error}`, 'error');
+                    showFeedback(`❌ Falha no teste: ${data.error}`, 'error');
+                    console.error('❌ Erro no teste SMTP:', data.error);
                 }
-            }, 1500); // Simula delay de conexão
+            })
+            .catch(error => {
+                console.error('❌ Erro na requisição:', error);
+                updateSmtpStatus('❌ Erro ao comunicar com o servidor. Validando localmente...', 'warning');
+                
+                // Fallback: validação local
+                setTimeout(() => {
+                    let errors = [];
+                    
+                    if (!config.host || !config.host.includes('.')) {
+                        errors.push('Host SMTP inválido');
+                    }
+                    if (!config.port || isNaN(config.port) || config.port < 1 || config.port > 65535) {
+                        errors.push('Porta inválida (1-65535)');
+                    }
+                    if (!config.user || !config.user.includes('@')) {
+                        errors.push('E-mail inválido');
+                    }
+                    if (!config.password || config.password.length < 4) {
+                        errors.push('Senha muito curta (mínimo 4 caracteres)');
+                    }
+                    
+                    if (errors.length > 0) {
+                        updateSmtpStatus(`❌ Erros encontrados: ${errors.join(', ')}`, 'error');
+                        showFeedback('❌ Configuração inválida!', 'error');
+                    } else {
+                        updateSmtpStatus(`✅ Configuração básica válida (offline)`, 'success');
+                        showFeedback('✅ Configuração básica válida!', 'success');
+                    }
+                }, 1000);
+            });
         }
         
         // Enviar e-mail de teste SIMULADO (para demonstração)
@@ -1845,75 +1906,95 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
             
             console.log('👥 Usuários selecionados para teste:', config.alertUsers);
             
-            updateSmtpStatus(`📧 Simulando envio para ${config.alertUsers.length} destinatário(s)...`, 'info');
+            const mode = config.useResend && config.resendApiKey ? '🚀 RESEND REAL' : '🗾 SIMULAÇÃO';
+            updateSmtpStatus(`📧 ${mode}: Enviando para ${config.alertUsers.length} destinatário(s)...`, 'info');
             
-            // Simular envio de e-mail para TODOS os usuários
-            setTimeout(() => {
-                const allEmails = [];
-                const emailList = config.alertUsers.map(user => `${user.name} <${user.email}>`);
-                
-                // Criar e-mail para cada usuário
-                config.alertUsers.forEach(user => {
-                    const emailContent = {
-                        from: `${config.fromName || 'Sistema WMS'} <${config.user}>`,
-                        to: user.email,
-                        subject: '🧪 Teste - Sistema WMS de Chamados',
-                        html: `
-                            <h1>🧪 E-mail de Teste</h1>
-                            <p>Olá <strong>${user.name}</strong>,</p>
-                            <p>Este é um e-mail de teste para confirmar que sua configuração SMTP está funcionando corretamente.</p>
-                            <h3>🔧 Configuração Testada:</h3>
-                            <ul>
-                                <li><strong>Servidor:</strong> ${config.host}:${config.port}</li>
-                                <li><strong>Segurança:</strong> ${config.security.toUpperCase()}</li>
-                                <li><strong>Remetente:</strong> ${config.fromName || 'Sistema WMS'}</li>
-                                <li><strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}</li>
-                                <li><strong>Destinatário:</strong> ${user.name}</li>
-                            </ul>
-                            <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                                <p><strong>👥 TESTE EM LOTE:</strong></p>
-                                <p>Este e-mail foi enviado para ${config.alertUsers.length} destinatário(s):</p>
-                                <ul>
-                                    ${config.alertUsers.map(u => `<li>${u.name} &lt;${u.email}&gt;</li>`).join('')}
-                                </ul>
-                            </div>
-                            <p><strong>IMPORTANTE:</strong> Este é um e-mail simulado para desenvolvimento. Em produção, este e-mail seria enviado via API real como Resend, SendGrid ou Mailgun.</p>
-                        `
-                    };
+            // Fazer chamada para API de envio
+            fetch('/api/smtp/send-test', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    host: config.host,
+                    port: config.port,
+                    user: config.user,
+                    password: config.password,
+                    security: config.security,
+                    fromName: config.fromName,
+                    useResend: config.useResend || false,
+                    resendApiKey: config.resendApiKey || '',
+                    recipients: config.alertUsers
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const resultMode = data.mode === 'resend_real' ? '🚀 RESEND REAL' : '🗾 SIMULAÇÃO';
+                    updateSmtpStatus(`✅ ${resultMode}: ${data.message}`, 'success');
+                    showFeedback(`🎉 ${resultMode}: E-mail(s) enviado(s) com sucesso!`, 'success');
+                    console.log(`✅ Envio ${resultMode}:`, data);
                     
-                    allEmails.push(emailContent);
-                    
-                    // Log individual para cada e-mail
-                    console.log(`📧 E-mail simulado para ${user.name}:`, emailContent);
-                });
-                
-                updateSmtpStatus(`✅ ${config.alertUsers.length} e-mail(s) simulado(s) enviado(s) para: ${emailList.join(', ')}`, 'success');
-                showFeedback(`🎉 ${config.alertUsers.length} e-mail(s) de teste simulado(s)! Em produção seriam enviados via API real.`, 'success');
-                
-                // Mostrar modal com detalhes de todos os e-mails
-                const details = `
-                    📧 DETALHES DOS E-MAILS SIMULADOS:
-                    
-                    👥 ENVIADO PARA ${config.alertUsers.length} DESTINATÁRIO(S):
-                    ${emailList.map((email, index) => `${index + 1}. ${email}`).join('\n                    ')}
-                    
-                    📨 CONFIGURAÇÃO:
-                    De: ${config.fromName || 'Sistema WMS'} <${config.user}>
-                    Assunto: 🧪 Teste - Sistema WMS de Chamados
-                    Servidor: ${config.host}:${config.port} (${config.security.toUpperCase()})
-                    
-                    ⚠️ NOTA: Em produção, configure uma API real como:
-                    • Resend (recomendado para Cloudflare)
-                    • SendGrid
-                    • Mailgun
-                    • Amazon SES
-                    
-                    🔍 Veja o console do navegador (F12) para logs detalhados de cada e-mail individual.
-                `;
-                
-                alert(details);
-                
-            }, 2000); // Simula delay de envio
+                    // Mostrar detalhes
+                    if (data.mode === 'resend_real') {
+                        const details = `
+                            🎉 E-MAILS REAIS ENVIADOS VIA RESEND!
+                            
+                            👥 DESTINATÁRIOS (${data.results?.length || config.alertUsers.length}):
+                            ${config.alertUsers.map((user, index) => `${index + 1}. ${user.name} <${user.email}>`).join('\n                            ')}
+                            
+                            🚀 DETALHES:
+                            - API: Resend (e-mails REAIS enviados!)
+                            - Remetente: ${config.fromName || 'Sistema WMS'}
+                            - Status: Entregue nas caixas de entrada
+                            
+                            ✅ SUCESSO! Verifique as caixas de entrada dos destinatários.
+                        `;
+                        alert(details);
+                    } else {
+                        // Fallback para simulação (código original)
+                        setTimeout(() => {
+                        const allEmails = [];
+                        const emailList = config.alertUsers.map(user => `${user.name} <${user.email}>`);
+                        
+                        config.alertUsers.forEach(user => {
+                            const emailContent = {
+                                from: `${config.fromName || 'Sistema WMS'} <${config.user}>`,
+                                to: user.email,
+                                subject: '🧪 Teste SIMULADO - Sistema WMS',
+                                mode: 'simulation'
+                            };
+                            allEmails.push(emailContent);
+                            console.log(`📧 E-mail simulado para ${user.name}:`, emailContent);
+                        });
+                        
+                        const details = `
+                            🗾 E-MAILS SIMULADOS (SEM RESEND API):
+                            
+                            👥 SIMULADO PARA ${config.alertUsers.length} DESTINATÁRIO(S):
+                            ${emailList.map((email, index) => `${index + 1}. ${email}`).join('\n                            ')}
+                            
+                            ⚠️ PARA ENVIO REAL:
+                            1. Configure Resend API Key
+                            2. Marque "Usar Resend para envio REAL"
+                            3. Teste novamente
+                            
+                            🔗 Criar conta: https://resend.com
+                        `;
+                        alert(details);
+                        }, 1500);
+                    }
+                } else {
+                    updateSmtpStatus(`❌ Erro: ${data.error}`, 'error');
+                    showFeedback(`❌ Falha no envio: ${data.error}`, 'error');
+                    console.error('❌ Erro no envio:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('❌ Erro na requisição:', error);
+                updateSmtpStatus('❌ Erro ao comunicar com servidor. Modo offline ativado.', 'error');
+                showFeedback('❌ Erro de conexão. Tente novamente.', 'error');
+            });
         }
         
         // Obter configuração SMTP
@@ -1928,6 +2009,22 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                 }
             }
             return null;
+        }
+        
+        // Alternar modo Resend
+        function toggleResendMode() {
+            const useResend = document.getElementById('useResendApi').checked;
+            const apiKeyField = document.getElementById('resendApiKey');
+            
+            if (useResend) {
+                apiKeyField.style.borderColor = '#28a745';
+                apiKeyField.placeholder = 're_xxxxxxxxxx... (obrigatório para envio real)';
+                showFeedback('🚀 Modo RESEND ativado! Configure a API Key para envio real.', 'info');
+            } else {
+                apiKeyField.style.borderColor = '#dadce0';
+                apiKeyField.placeholder = 're_xxxxxxxxxx... (deixe vazio para simulação)';
+                showFeedback('🔄 Modo SIMULAÇÃO ativado. E-mails serão apenas simulados.', 'info');
+            }
         }
         
     </script>
