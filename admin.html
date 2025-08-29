@@ -1845,53 +1845,70 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
             
             console.log('👥 Usuários selecionados para teste:', config.alertUsers);
             
-            updateSmtpStatus('📧 Simulando envio de e-mail...', 'info');
+            updateSmtpStatus(`📧 Simulando envio para ${config.alertUsers.length} destinatário(s)...`, 'info');
             
-            const firstUser = config.alertUsers[0];
-            
-            // Simular envio de e-mail
+            // Simular envio de e-mail para TODOS os usuários
             setTimeout(() => {
-                const emailContent = {
-                    from: `${config.fromName || 'Sistema WMS'} <${config.user}>`,
-                    to: firstUser.email,
-                    subject: '🧪 Teste - Sistema WMS de Chamados',
-                    html: `
-                        <h1>🧪 E-mail de Teste</h1>
-                        <p>Olá <strong>${firstUser.name}</strong>,</p>
-                        <p>Este é um e-mail de teste para confirmar que sua configuração SMTP está funcionando.</p>
-                        <h3>🔧 Configuração Testada:</h3>
-                        <ul>
-                            <li><strong>Servidor:</strong> ${config.host}:${config.port}</li>
-                            <li><strong>Segurança:</strong> ${config.security.toUpperCase()}</li>
-                            <li><strong>Remetente:</strong> ${config.fromName || 'Sistema WMS'}</li>
-                            <li><strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}</li>
-                        </ul>
-                        <p><strong>IMPORTANTE:</strong> Este é um e-mail simulado para desenvolvimento. Em produção, este e-mail seria enviado via API real como Resend, SendGrid ou Mailgun.</p>
-                    `
-                };
+                const allEmails = [];
+                const emailList = config.alertUsers.map(user => `${user.name} <${user.email}>`);
                 
-                // Log do e-mail que seria enviado
-                console.log('📧 E-mail simulado:', emailContent);
+                // Criar e-mail para cada usuário
+                config.alertUsers.forEach(user => {
+                    const emailContent = {
+                        from: `${config.fromName || 'Sistema WMS'} <${config.user}>`,
+                        to: user.email,
+                        subject: '🧪 Teste - Sistema WMS de Chamados',
+                        html: `
+                            <h1>🧪 E-mail de Teste</h1>
+                            <p>Olá <strong>${user.name}</strong>,</p>
+                            <p>Este é um e-mail de teste para confirmar que sua configuração SMTP está funcionando corretamente.</p>
+                            <h3>🔧 Configuração Testada:</h3>
+                            <ul>
+                                <li><strong>Servidor:</strong> ${config.host}:${config.port}</li>
+                                <li><strong>Segurança:</strong> ${config.security.toUpperCase()}</li>
+                                <li><strong>Remetente:</strong> ${config.fromName || 'Sistema WMS'}</li>
+                                <li><strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}</li>
+                                <li><strong>Destinatário:</strong> ${user.name}</li>
+                            </ul>
+                            <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                                <p><strong>👥 TESTE EM LOTE:</strong></p>
+                                <p>Este e-mail foi enviado para ${config.alertUsers.length} destinatário(s):</p>
+                                <ul>
+                                    ${config.alertUsers.map(u => `<li>${u.name} &lt;${u.email}&gt;</li>`).join('')}
+                                </ul>
+                            </div>
+                            <p><strong>IMPORTANTE:</strong> Este é um e-mail simulado para desenvolvimento. Em produção, este e-mail seria enviado via API real como Resend, SendGrid ou Mailgun.</p>
+                        `
+                    };
+                    
+                    allEmails.push(emailContent);
+                    
+                    // Log individual para cada e-mail
+                    console.log(`📧 E-mail simulado para ${user.name}:`, emailContent);
+                });
                 
-                updateSmtpStatus(`✅ E-mail simulado enviado para: ${firstUser.name} <${firstUser.email}>`, 'success');
-                showFeedback('🎉 E-mail de teste simulado! Em produção seria enviado via API real.', 'success');
+                updateSmtpStatus(`✅ ${config.alertUsers.length} e-mail(s) simulado(s) enviado(s) para: ${emailList.join(', ')}`, 'success');
+                showFeedback(`🎉 ${config.alertUsers.length} e-mail(s) de teste simulado(s)! Em produção seriam enviados via API real.`, 'success');
                 
-                // Mostrar modal com detalhes do e-mail
+                // Mostrar modal com detalhes de todos os e-mails
                 const details = `
-                    📧 DETALHES DO E-MAIL SIMULADO:
+                    📧 DETALHES DOS E-MAILS SIMULADOS:
                     
-                    De: ${emailContent.from}
-                    Para: ${emailContent.to}
-                    Assunto: ${emailContent.subject}
+                    👥 ENVIADO PARA ${config.alertUsers.length} DESTINATÁRIO(S):
+                    ${emailList.map((email, index) => `${index + 1}. ${email}`).join('\n                    ')}
                     
-                    📝 CONTEÚDO:
-                    ${emailContent.html.replace(/<[^>]*>/g, '').trim()}
+                    📨 CONFIGURAÇÃO:
+                    De: ${config.fromName || 'Sistema WMS'} <${config.user}>
+                    Assunto: 🧪 Teste - Sistema WMS de Chamados
+                    Servidor: ${config.host}:${config.port} (${config.security.toUpperCase()})
                     
                     ⚠️ NOTA: Em produção, configure uma API real como:
                     • Resend (recomendado para Cloudflare)
                     • SendGrid
                     • Mailgun
                     • Amazon SES
+                    
+                    🔍 Veja o console do navegador (F12) para logs detalhados de cada e-mail individual.
                 `;
                 
                 alert(details);
