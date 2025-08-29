@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📋 Gerenciar Chamados - WMS</title>
     
-    <!-- VERSÃO DEPLOY: 20250829_050500 - Botão APAGAR TODOS + Funcionalidade Admin Completa + Cache Bust -->
+    <!-- VERSÃO DEPLOY: 20250829_050600 - Fix Cards Empty State + Botão APAGAR TODOS -->
     <!-- Meta tags -->
     <meta name="description" content="Sistema de gerenciamento de chamados WMS com controle de status e histórico">
     <meta name="robots" content="noindex, nofollow">
@@ -14,7 +14,7 @@
     <meta http-equiv="Expires" content="0">
     <meta name="last-modified" content="Fri, 29 Aug 2025 05:20:00 GMT">
     <meta name="etag" content="v050500-clearall-function">
-    <meta name="build-version" content="20250829_050500">
+    <meta name="build-version" content="20250829_050600">
     <meta name="features" content="cards-toggle-solid-background-clear-all">
     <meta name="cache-bust" content="20250829050500">
     
@@ -733,7 +733,7 @@
         <!-- Header -->
         <div class="header">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h1 style="margin: 0;">📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_050500</small></h1>
+                <h1 style="margin: 0;">📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_050600</small></h1>
                 <div style="display: flex; gap: 8px; align-items: center;">
                     <a href="/chamados" style="
                         background: rgba(34, 197, 94, 0.15); 
@@ -1710,10 +1710,8 @@
         function renderChamadosCards() {
             const cardsContainer = document.getElementById('cardsView');
             
-            if (filteredChamados.length === 0) {
-                cardsContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px;"><h3>📝 Nenhum chamado encontrado</h3><p>Não há chamados que correspondam aos filtros selecionados.</p></div>';
-                return;
-            }
+            // Nota: O estado vazio é tratado pela função renderChamados()
+            // Esta função só é chamada quando há chamados para exibir
             
             const cardsHtml = filteredChamados.map(chamado => {
                 const priorityColors = {
