@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>👑 Admin - Gerenciar Usuários</title>
     
+    <!-- VERSÃO DEPLOY: 20250829_smtp_debug_v1 - Sistema SMTP com debug e correções funcionais -->
     <!-- Meta tags -->
     <meta name="description" content="Painel administrativo para gerenciar usuários do sistema WMS">
     <meta name="robots" content="noindex, nofollow">
@@ -911,6 +912,7 @@
             } else if (tabName === 'users') {
                 loadUsersTable();
             } else if (tabName === 'smtp-config') {
+                console.log('📧 Carregando configuração SMTP...');
                 loadSmtpConfig();
             }
         }
@@ -1339,6 +1341,8 @@
         
         // Carregar configuração SMTP
         function loadSmtpConfig() {
+            console.log('📧 Iniciando carregamento de configuração SMTP...');
+            
             // Primeiro carregar lista de usuários
             loadUserEmailList();
             
@@ -1381,8 +1385,13 @@
         
         // Carregar lista de usuários com email
         function loadUserEmailList() {
+            console.log('👥 Carregando lista de usuários...');
+            console.log('📊 Usuários disponíveis:', users);
+            
             const container = document.getElementById('userEmailList');
             const usersWithEmail = Object.entries(users).filter(([username, user]) => user.email && user.email.trim());
+            
+            console.log('📧 Usuários com email:', usersWithEmail);
             
             if (usersWithEmail.length === 0) {
                 container.innerHTML = `
@@ -1391,6 +1400,7 @@
                         <small>Adicione e-mails na aba "👥 Usuários" para ativar os alertas.</small>
                     </div>
                 `;
+                console.log('⚠️ Nenhum usuário com email encontrado');
                 return;
             }
             
@@ -1403,12 +1413,22 @@
                     </div>
                 </label>
             `).join('');
+            
+            console.log('✅ Lista de usuários com email carregada com sucesso');
         }
         
         // Testar conexão SMTP (simulação)
         function testSmtpConnection() {
+            console.log('🧪 Iniciando teste de conexão SMTP...');
+            
             const config = getSmtpConfig();
-            if (!config) return;
+            console.log('⚙️ Configuração SMTP:', config);
+            
+            if (!config) {
+                showFeedback('❌ Nenhuma configuração SMTP encontrada!', 'error');
+                console.log('❌ Nenhuma configuração encontrada');
+                return;
+            }
             
             updateSmtpStatus('🔄 Testando conexão SMTP...', 'info');
             
@@ -1417,27 +1437,42 @@
                 if (config.host && config.port && config.user) {
                     updateSmtpStatus('✅ Conexão SMTP simulada com sucesso! (Em ambiente real, seria testado no servidor)', 'success');
                     showFeedback('✅ Teste de conexão simulado com sucesso!', 'success');
+                    console.log('✅ Teste de conexão simulado executado com sucesso');
                 } else {
-                    updateSmtpStatus('❌ Erro na conexão. Verifique as configurações.', 'error');
-                    showFeedback('❌ Erro no teste de conexão!', 'error');
+                    updateSmtpStatus('❌ Configuração incompleta. Preencha todos os campos obrigatórios.', 'error');
+                    showFeedback('❌ Preencha todos os campos obrigatórios!', 'error');
+                    console.log('❌ Configuração SMTP incompleta:', {host: config.host, port: config.port, user: config.user});
                 }
             }, 2000);
         }
         
         // Enviar e-mail de teste
         function sendTestEmail() {
-            const config = getSmtpConfig();
-            if (!config) return;
+            console.log('📧 Iniciando envio de e-mail de teste...');
             
-            if (config.alertEmails.length === 0) {
-                showFeedback('❌ Adicione pelo menos um e-mail para alertas!', 'error');
+            const config = getSmtpConfig();
+            console.log('⚙️ Configuração SMTP para teste:', config);
+            
+            if (!config) {
+                showFeedback('❌ Nenhuma configuração SMTP encontrada!', 'error');
+                console.log('❌ Nenhuma configuração encontrada para teste');
                 return;
             }
+            
+            if (!config.alertUsers || config.alertUsers.length === 0) {
+                showFeedback('❌ Selecione pelo menos um usuário para receber alertas!', 'error');
+                console.log('❌ Nenhum usuário selecionado para alertas');
+                return;
+            }
+            
+            console.log('👥 Usuários selecionados para teste:', config.alertUsers);
             
             updateSmtpStatus('📧 Enviando e-mail de teste...', 'info');
             
             // Simular envio de e-mail (em ambiente real seria enviado pelo servidor)
             setTimeout(() => {
+                const emailList = config.alertUsers.map(user => `${user.name} <${user.email}>`);
+                
                 const testEmailContent = `
 📧 E-MAIL DE TESTE - Sistema WMS
 
@@ -1448,15 +1483,18 @@
 - Segurança: ${config.security.toUpperCase()}
 - Remetente: ${config.fromName}
 
-📬 Destinatários: ${config.alertEmails.join(', ')}
+📬 Destinatários: ${emailList.join(', ')}
+
+👥 Usuários selecionados:
+${config.alertUsers.map(user => `  • ${user.name} (${user.username}) - ${user.email}`).join('\n')}
 
 ⏰ Enviado em: ${new Date().toLocaleString('pt-BR')}
 
 Se você recebeu este e-mail, a configuração está funcionando!`;
                 
-                console.log('📧 E-mail de teste (simulado):', testEmailContent);
+                console.log('📧 E-MAIL DE TESTE (simulado):', testEmailContent);
                 
-                updateSmtpStatus(`✅ E-mail de teste simulado enviado para: ${config.alertEmails.join(', ')}`, 'success');
+                updateSmtpStatus(`✅ E-mail de teste simulado enviado para: ${emailList.join(', ')}`, 'success');
                 showFeedback('✅ E-mail de teste simulado! Verifique o console para ver o conteúdo.', 'success');
             }, 1500);
         }
@@ -1527,6 +1565,82 @@ Se você recebeu este e-mail, a configuração está funcionando!`;
                 showTab('smtp-config');
             }
         });
+        
+        // ===== FUNÇÃO DE TESTE COMPLETA SMTP =====
+        function testeCompletoSMTP() {
+            console.log('🧪 ===== TESTE COMPLETO DO SISTEMA SMTP =====');
+            
+            // 1. Verificar usuários
+            console.log('👥 1. Verificando usuários cadastrados...');
+            console.log('Usuários:', users);
+            
+            // 2. Criar usuário de teste com email se não existir
+            if (!users['teste'] || !users['teste'].email) {
+                console.log('📧 2. Criando usuário de teste com email...');
+                users['teste'] = {
+                    name: 'Usuário Teste',
+                    password: 'teste123',
+                    role: 'admin',
+                    email: 'teste@empresa.com',
+                    lastLogin: null,
+                    createdAt: new Date().getTime()
+                };
+                saveUsers();
+                console.log('✅ Usuário de teste criado');
+            } else {
+                console.log('✅ 2. Usuário de teste já existe');
+            }
+            
+            // 3. Carregar lista de usuários
+            console.log('📋 3. Carregando lista de usuários...');
+            loadUserEmailList();
+            
+            // 4. Criar configuração SMTP de teste
+            console.log('⚙️ 4. Criando configuração SMTP de teste...');
+            const configTeste = {
+                host: 'smtp.gmail.com',
+                port: 587,
+                user: 'sistema@empresa.com',
+                password: 'senha123',
+                security: 'tls',
+                fromName: 'Sistema WMS Teste',
+                alertUsers: [
+                    {username: 'teste', name: 'Usuário Teste', email: 'teste@empresa.com'}
+                ],
+                alerts: {
+                    novoChamado: true,
+                    statusChange: true,
+                    chamadoVencido: false,
+                    resumoDaily: false
+                },
+                enabled: true,
+                createdAt: new Date().getTime()
+            };
+            
+            localStorage.setItem('wms_smtp_config', JSON.stringify(configTeste));
+            console.log('✅ Configuração SMTP de teste salva');
+            
+            // 5. Testar carregamento
+            console.log('📥 5. Testando carregamento de configuração...');
+            loadSmtpConfig();
+            
+            // 6. Testar conexão
+            console.log('🔗 6. Testando conexão SMTP...');
+            setTimeout(() => {
+                testSmtpConnection();
+                
+                // 7. Testar envio de email
+                console.log('📧 7. Testando envio de email...');
+                setTimeout(() => {
+                    sendTestEmail();
+                    console.log('🎉 ===== TESTE COMPLETO FINALIZADO =====');
+                }, 3000);
+            }, 3000);
+        }
+        
+        // Tornar função disponível globalmente
+        window.testeCompletoSMTP = testeCompletoSMTP;
+        
     </script>
 </body>
 </html>
