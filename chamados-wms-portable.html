@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chamados WMS - Portátil v050600</title>
-    <!-- VERSÃO PORTÁTIL: 20250829_050600 - Offline Standalone Version -->
+    <!-- VERSÃO PORTÁTIL: 20250829_050600 - Offline + Base Compartilhada -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -488,6 +488,20 @@
             document.getElementById('textoGerado').textContent = textoFormatado;
             document.getElementById('resultado').style.display = 'block';
             
+            // === SALVAR NA BASE COMPARTILHADA ===
+            try {
+                const chamadoSalvo = saveChamado({
+                    titulo,
+                    categoria, 
+                    descricao,
+                    prioridade,
+                    textoFormatado
+                });
+                console.log('✅ Chamado salvo na base compartilhada:', chamadoSalvo);
+            } catch (error) {
+                console.warn('⚠️ Erro ao salvar chamado:', error);
+            }
+            
             // Atualizar link do WhatsApp Web
             atualizarLinkWhatsAppWeb(textoFormatado);
             
@@ -498,7 +512,7 @@
             });
             
             // Mostrar dica
-            mostrarFeedback('💡 Clique em "ABRIR WHATSAPP WEB" para enviar pelo navegador', 'info');
+            mostrarFeedback('✅ Chamado criado e salvo! Clique em "ABRIR WHATSAPP WEB" para enviar.', 'success');
         });
         
         function atualizarLinkWhatsAppWeb(texto) {
@@ -557,6 +571,49 @@
             setTimeout(() => {
                 feedback.style.display = 'none';
             }, 5000);
+        }
+        
+        // === INTEGRAÇÃO BASE COMPARTILHADA v050600 ===
+        
+        // Carregar chamados existentes
+        function loadChamados() {
+            const savedChamados = localStorage.getItem('wms_chamados');
+            return savedChamados ? JSON.parse(savedChamados) : [];
+        }
+        
+        // Salvar chamado na base compartilhada
+        function saveChamado(chamadoData) {
+            const chamados = loadChamados();
+            
+            // Gerar ID único baseado nos chamados existentes
+            const ultimoNumero = chamados.length > 0 
+                ? Math.max(...chamados.map(c => c.numero || c.id || 0))
+                : 0;
+            
+            const novoChamado = {
+                numero: ultimoNumero + 1,
+                id: ultimoNumero + 1,
+                titulo: chamadoData.titulo,
+                categoria: chamadoData.categoria, 
+                descricao: chamadoData.descricao,
+                prioridade: chamadoData.prioridade,
+                status: 'aberto',
+                criadoEm: new Date().getTime(),
+                atualizadoEm: new Date().getTime(),
+                usuario: 'Mobile User',
+                mensagem: chamadoData.textoFormatado,
+                historico: [{
+                    status: 'aberto',
+                    data: new Date().getTime(),
+                    usuario: 'Mobile User',
+                    observacao: 'Chamado criado via versão mobile/portátil'
+                }]
+            };
+            
+            chamados.push(novoChamado);
+            localStorage.setItem('wms_chamados', JSON.stringify(chamados));
+            
+            return novoChamado;
         }
         
         // Permitir Ctrl+Enter para submeter

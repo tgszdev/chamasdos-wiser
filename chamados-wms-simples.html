@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚨 Chamados WMS - Simples v050600</title>
-    <!-- VERSÃO SIMPLES: 20250829_050600 - Lightweight Offline Version -->
+    <!-- VERSÃO SIMPLES: 20250829_050600 - Lightweight + Base Compartilhada -->
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -226,7 +226,49 @@
         const texto = document.getElementById('texto');
         const whatsappWeb = document.getElementById('whatsappWeb');
 
+        // === INTEGRAÇÃO BASE COMPARTILHADA v050600 ===
         
+        // Carregar chamados existentes
+        function loadChamados() {
+            const savedChamados = localStorage.getItem('wms_chamados');
+            return savedChamados ? JSON.parse(savedChamados) : [];
+        }
+        
+        // Salvar chamado na base compartilhada
+        function saveChamado(chamadoData) {
+            const chamados = loadChamados();
+            
+            // Gerar ID único baseado nos chamados existentes
+            const ultimoNumero = chamados.length > 0 
+                ? Math.max(...chamados.map(c => c.numero || c.id || 0))
+                : 0;
+            
+            const novoChamado = {
+                numero: ultimoNumero + 1,
+                id: ultimoNumero + 1,
+                titulo: chamadoData.titulo,
+                categoria: chamadoData.categoria, 
+                descricao: chamadoData.descricao,
+                prioridade: chamadoData.prioridade,
+                status: 'aberto',
+                criadoEm: new Date().getTime(),
+                atualizadoEm: new Date().getTime(),
+                usuario: 'Mobile User (Simples)',
+                mensagem: chamadoData.mensagem,
+                historico: [{
+                    status: 'aberto',
+                    data: new Date().getTime(),
+                    usuario: 'Mobile User (Simples)',
+                    observacao: 'Chamado criado via versão mobile/simples'
+                }]
+            };
+            
+            chamados.push(novoChamado);
+            localStorage.setItem('wms_chamados', JSON.stringify(chamados));
+            
+            return novoChamado;
+        }
+
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -258,6 +300,20 @@
             
             texto.textContent = mensagem;
             resultado.style.display = 'block';
+            
+            // === SALVAR NA BASE COMPARTILHADA ===
+            try {
+                const chamadoSalvo = saveChamado({
+                    titulo,
+                    categoria, 
+                    descricao,
+                    prioridade,
+                    mensagem
+                });
+                console.log('✅ Chamado salvo na base compartilhada (simples):', chamadoSalvo);
+            } catch (error) {
+                console.warn('⚠️ Erro ao salvar chamado (simples):', error);
+            }
             
             resultado.scrollIntoView({ behavior: 'smooth' });
         });
