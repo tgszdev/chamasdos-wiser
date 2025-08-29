@@ -6,7 +6,8 @@ Um aplicativo web responsivo para gerar chamados WMS formatados e enviá-los dir
 
 ## 🌐 URLs do Aplicativo
 
-- **Demo Online**: https://3000-ixjmk6fkuy3nvsvaklcvh.e2b.dev
+- **Demo Online**: https://3000-ind8u1r79oh43o19fldih.e2b.dev
+- **Deploy Vercel**: ⚠️ Aguardando configuração (ver DEPLOY-VERCEL-STEPS.md)
 - **GitHub**: https://github.com/tgszdev/chamasdos-wiser ✅ ATUALIZADO
 - **Versão**: v20250829_050500 🚀
 
@@ -192,7 +193,8 @@ pm2 start ecosystem.config.cjs
 ## 🔄 Status do Deployment
 
 - **Desenvolvimento**: ✅ Ativo (localhost:3000)
-- **Demo Online**: ✅ Ativo (https://3000-ixjmk6fkuy3nvsvaklcvh.e2b.dev)
+- **Demo Online**: ✅ Ativo (https://3000-ind8u1r79oh43o19fldih.e2b.dev)
+- **Produção Vercel**: ⚠️ Pendente (instruções em DEPLOY-VERCEL-STEPS.md)
 - **Design Gmail-like**: ✅ Implementado (2024-08-29)
 - **Deploy Otimizado**: ✅ Pronto para Vercel/Netlify
 - **Package.json**: ✅ Otimizado para sites estáticos
