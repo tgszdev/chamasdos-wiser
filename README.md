@@ -6,10 +6,10 @@ Um aplicativo web responsivo para gerar chamados WMS formatados e enviá-los dir
 
 ## 🌐 URLs do Aplicativo
 
-- **Demo Online**: https://3000-ind8u1r79oh43o19fldih.e2b.dev
+- **Demo Online**: https://3000-i31sadssfro11fbzk77x7-6532622b.e2b.dev
 - **Deploy Vercel**: ⚠️ Aguardando configuração (ver DEPLOY-VERCEL-STEPS.md)
 - **GitHub**: https://github.com/tgszdev/chamasdos-wiser ✅ ATUALIZADO
-- **Versão**: v20250829_050600 🚀
+- **Versão**: v20250829_imagens_v1 📸
 
 ## ✨ Características Principais
 
@@ -24,8 +24,10 @@ Um aplicativo web responsivo para gerar chamados WMS formatados e enviá-los dir
 - ✅ **Sistema de prioridades** - com badges coloridas para fácil identificação
 - ✅ **Histórico completo** - rastreamento de alterações de status
 - ✅ **Filtros avançados** - por categoria, status, prioridade e período
+- ✅ **📷 Sistema de anexos** - upload, visualização e download de imagens
 - ✅ **Integração direta com WhatsApp** via URL scheme
 - ✅ **🔗 Base de dados compartilhada** - todas as versões (web/mobile) salvam na mesma base
+- ✅ **📸 UPLOAD DE IMAGENS** - anexar até 3 imagens de 5MB cada nos chamados
 - ✅ **Interface responsiva** otimizada para desktop e mobile
 - ✅ **Processo unificado** - criação automática + envio para WhatsApp
 
@@ -152,7 +154,15 @@ pm2 start ecosystem.config.cjs
 - Cores otimizadas para melhor legibilidade
 - Consistência visual em todas as páginas
 
-## 🚀 Melhorias Implementadas Recentemente - LEGIBILIDADE 100% CORRIGIDA! ✅
+## 🚀 Melhorias Implementadas Recentemente - UPLOAD DE IMAGENS ADICIONADO! 📸
+
+### **📸 Sistema de Imagens (NOVO - Última Atualização)**
+- ✅ **Upload de imagens** - até 3 imagens de 5MB cada por chamado
+- ✅ **Visualização integrada** - preview das imagens no sistema de gerenciamento
+- ✅ **Modal full-screen** - visualização em tela cheia com opção de download
+- ✅ **Validação robusta** - controle de tamanho, formato e quantidade
+- ✅ **Base64 storage** - armazenamento local sem necessidade de servidor
+- ✅ **Compatibilidade total** - funciona em todas as versões (web + mobile)
 
 ### **🎨 Design e UX (Implementado - Última Atualização)**
 - ✅ **Layout Gmail-like** - interface clean e familiar
@@ -281,6 +291,7 @@ Esta solução oferece um **sistema completo de chamados WMS** com:
 
 **🎯 PROBLEMA RESOLVIDO**: Lista de chamados agora é 100% legível!
 **🔗 NOVA FUNCIONALIDADE**: Base de dados compartilhada entre todas as versões!
-**🔄 Última atualização**: 29/08/2025 - Versão v20250829_050600 no GitHub
-**📊 Status**: ✅ Pronto para uso em produção - GitHub 100% sincronizado!
+**📸 SISTEMA DE IMAGENS**: Upload, visualização e gerenciamento completo de anexos!
+**🔄 Última atualização**: 29/08/2025 - Versão v20250829_imagens_v1
+**📊 Status**: ✅ Pronto para uso em produção - Sistema de imagens 100% funcional!
 **🚀 GitHub**: https://github.com/tgszdev/chamasdos-wiser (ATUALIZADO)

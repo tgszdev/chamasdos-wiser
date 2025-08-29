@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📋 Gerenciar Chamados - WMS</title>
     
-    <!-- VERSÃO DEPLOY: 20250829_050600 - Fix Cards Empty State + Botão APAGAR TODOS -->
+    <!-- VERSÃO DEPLOY: 20250829_imagens_v1 - Sistema de Upload de Imagens + Visualização Modal -->
     <!-- Meta tags -->
     <meta name="description" content="Sistema de gerenciamento de chamados WMS com controle de status e histórico">
     <meta name="robots" content="noindex, nofollow">
@@ -1611,6 +1611,78 @@
                             </div>
                         </div>
                         
+                        <!-- Imagens anexadas -->
+                        ${chamado && chamado.imagens && chamado.imagens.length > 0 ? `
+                        <div style="margin-bottom: 20px;">
+                            <span style="font-size: 12px; color: #5f6368; text-transform: uppercase; font-weight: 500; display: block; margin-bottom: 8px;">
+                                📸 Imagens Anexadas (${chamado.imagens.length})
+                            </span>
+                            <div style="
+                                display: grid;
+                                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                                gap: 12px;
+                                background: #f8f9fa;
+                                padding: 16px;
+                                border-radius: 8px;
+                                border: 1px solid #e9ecef;
+                                max-height: 400px;
+                                overflow-y: auto;
+                            ">
+                                ${chamado.imagens.map((img, index) => `
+                                    <div style="
+                                        position: relative;
+                                        background: white;
+                                        border-radius: 8px;
+                                        overflow: hidden;
+                                        border: 1px solid #dadce0;
+                                        cursor: pointer;
+                                        transition: transform 0.2s ease;
+                                    " onclick="openImageModal('${img.base64}', '${img.name}', ${index + 1}, ${chamado.imagens.length})" 
+                                       onmouseover="this.style.transform='scale(1.02)'" 
+                                       onmouseout="this.style.transform='scale(1)'">
+                                        <img src="${img.base64}" 
+                                             alt="${img.name}"
+                                             style="
+                                                width: 100%;
+                                                height: 120px;
+                                                object-fit: cover;
+                                                display: block;
+                                             ">
+                                        <div style="
+                                            position: absolute;
+                                            bottom: 0;
+                                            left: 0;
+                                            right: 0;
+                                            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+                                            color: white;
+                                            padding: 8px 6px 4px;
+                                            font-size: 10px;
+                                            text-align: center;
+                                        ">
+                                            ${img.name.length > 15 ? img.name.substring(0, 15) + '...' : img.name}
+                                        </div>
+                                        <div style="
+                                            position: absolute;
+                                            top: 4px;
+                                            right: 4px;
+                                            background: rgba(0,0,0,0.6);
+                                            color: white;
+                                            border-radius: 12px;
+                                            padding: 2px 6px;
+                                            font-size: 10px;
+                                            font-weight: 500;
+                                        ">
+                                            ${index + 1}/${chamado.imagens.length}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div style="margin-top: 8px; font-size: 11px; color: #5f6368; text-align: center;">
+                                💡 Clique em uma imagem para visualizar em tamanho completo
+                            </div>
+                        </div>
+                        ` : ''}
+                        
                         <!-- Botões de ação -->
                         <div style="display: flex; gap: 12px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid #e9ecef;">
                             <button onclick="this.parentElement.parentElement.parentElement.parentElement.remove()" style="
@@ -1926,6 +1998,158 @@
                 document.getElementById(id).addEventListener('change', applyFilters);
             });
         });
+        
+        // ===== SISTEMA DE VISUALIZAÇÃO DE IMAGENS =====
+        
+        // Função para abrir modal de imagem em tela cheia
+        function openImageModal(imageSrc, imageName, currentIndex, totalImages) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 20000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="
+                    position: relative;
+                    max-width: 90%;
+                    max-height: 90%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                ">
+                    <!-- Header do modal -->
+                    <div style="
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(10px);
+                        padding: 12px 20px;
+                        border-radius: 8px 8px 0 0;
+                        width: 100%;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 0;
+                    ">
+                        <div>
+                            <div style="font-weight: 600; color: #202124; font-size: 14px;">
+                                📸 ${imageName}
+                            </div>
+                            <div style="font-size: 12px; color: #5f6368;">
+                                Imagem ${currentIndex} de ${totalImages}
+                            </div>
+                        </div>
+                        <button onclick="this.closest('[style*=\"position: fixed\"]').remove()" style="
+                            background: rgba(0, 0, 0, 0.1);
+                            border: none;
+                            color: #202124;
+                            font-size: 18px;
+                            cursor: pointer;
+                            padding: 8px;
+                            border-radius: 4px;
+                            transition: all 0.2s ease;
+                        " onmouseover="this.style.background='rgba(0, 0, 0, 0.2)'" onmouseout="this.style.background='rgba(0, 0, 0, 0.1)'">
+                            ✕
+                        </button>
+                    </div>
+                    
+                    <!-- Imagem -->
+                    <div style="
+                        background: white;
+                        border-radius: 0 0 8px 8px;
+                        padding: 20px;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        max-height: calc(90vh - 80px);
+                        overflow: hidden;
+                    ">
+                        <img src="${imageSrc}" 
+                             alt="${imageName}"
+                             style="
+                                max-width: 100%;
+                                max-height: 100%;
+                                object-fit: contain;
+                                border-radius: 4px;
+                                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                             ">
+                    </div>
+                    
+                    <!-- Footer com ações -->
+                    <div style="
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(10px);
+                        padding: 12px 20px;
+                        border-radius: 8px;
+                        margin-top: 12px;
+                        display: flex;
+                        gap: 12px;
+                        align-items: center;
+                    ">
+                        <button onclick="downloadImage('${imageSrc}', '${imageName}')" style="
+                            background: #1a73e8;
+                            color: white;
+                            border: none;
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 12px;
+                            font-weight: 500;
+                            transition: all 0.2s ease;
+                        " onmouseover="this.style.background='#1557b0'" onmouseout="this.style.background='#1a73e8'">
+                            💾 Baixar Imagem
+                        </button>
+                        <div style="font-size: 11px; color: rgba(255, 255, 255, 0.8);">
+                            💡 Clique fora da imagem para fechar
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Fechar ao clicar fora
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Fechar com ESC
+            const handleEsc = (e) => {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', handleEsc);
+                }
+            };
+            document.addEventListener('keydown', handleEsc);
+            
+            document.body.appendChild(modal);
+        }
+        
+        // Função para baixar imagem
+        function downloadImage(imageSrc, imageName) {
+            try {
+                const link = document.createElement('a');
+                link.href = imageSrc;
+                link.download = imageName || 'imagem_chamado.jpg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showFeedback('✅ Imagem baixada com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao baixar imagem:', error);
+                showFeedback('❌ Erro ao baixar imagem. Tente clicar com botão direito e "Salvar imagem como..."', 'error');
+            }
+        }
+        
     </script>
 </body>
 </html>

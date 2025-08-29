@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chamados WMS - Portátil v050600</title>
-    <!-- VERSÃO PORTÁTIL: 20250829_050600 - Offline + Base Compartilhada -->
+    <title>Chamados WMS - Portátil v📸imagens</title>
+    <!-- VERSÃO PORTÁTIL: 20250829_imagens_v1 - Upload de Imagens Mobile + Base Compartilhada -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -299,6 +299,83 @@
         .prioridade-media { color: #ca8a04; }
         .prioridade-baixa { color: #16a34a; }
         
+        /* Estilos para upload de imagens - Mobile Otimizado */
+        .preview-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin: 8px 0;
+            max-height: 160px;
+            overflow-y: auto;
+        }
+        
+        .image-preview {
+            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            border: 1px solid #dadce0;
+            overflow: hidden;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .image-preview .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            touch-action: manipulation;
+        }
+        
+        .image-preview .remove-btn:hover {
+            background: rgba(239, 68, 68, 1);
+        }
+        
+        .image-preview .size-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 10px;
+            padding: 3px 4px;
+            text-align: center;
+        }
+        
+        .upload-info {
+            color: #5f6368;
+            font-size: 12px;
+            margin-top: 4px;
+            text-align: center;
+        }
+        
+        .upload-error {
+            color: #d93025;
+            font-size: 12px;
+            margin-top: 4px;
+            padding: 6px 8px;
+            background: rgba(217, 48, 37, 0.1);
+            border-radius: 4px;
+            text-align: center;
+        }
+        
         .footer {
             text-align: center;
             padding: 20px;
@@ -366,7 +443,7 @@
     
     <div class="container">
         <div class="header">
-            <h1>🚨 Chamados WMS <small style="font-size: 0.4em; opacity: 0.7;">v050600</small></h1>
+            <h1>🚨 Chamados WMS <small style="font-size: 0.4em; opacity: 0.7;">📸imagens</small></h1>
             <p>Os detalhes fazem toda a diferença: quanto mais completas forem as informações no chamado, mais rápida e eficaz será a análise e a solução.</p>
             <div class="version-info">
                 📱 Versão Portátil - Funciona Offline
@@ -406,6 +483,16 @@
                         <option value="🟡 Média" class="prioridade-media">🟡 Média</option>
                         <option value="🟢 Baixa" class="prioridade-baixa">🟢 Baixa</option>
                     </select>
+                </div>
+                
+                <div class="field">
+                    <label for="imagens">📸 Anexar Imagens (opcional - máx 5MB por imagem):</label>
+                    <input type="file" id="imagens" multiple accept="image/*">
+                    <div id="preview-container" class="preview-container"></div>
+                    <div id="upload-info" class="upload-info">
+                        <small>✅ Formatos: JPG, PNG, GIF, WEBP</small><br>
+                        <small>📊 Limite: 5MB por imagem, máx 3 imagens</small>
+                    </div>
                 </div>
                 
                 <button type="submit" class="btn btn-whatsapp">📱 GERAR MENSAGEM PARA WHATSAPP</button>
@@ -459,6 +546,163 @@
         function isMobile() {
             return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         }
+        
+        // ===== SISTEMA DE UPLOAD DE IMAGENS =====
+        
+        let uploadedImages = []; // Array para armazenar imagens como Base64
+        const maxFileSize = 5 * 1024 * 1024; // 5MB em bytes
+        const maxImages = 3; // Máximo de 3 imagens
+        
+        // Inicializar sistema de upload
+        document.addEventListener('DOMContentLoaded', function() {
+            const imagensInput = document.getElementById('imagens');
+            if (imagensInput) {
+                imagensInput.addEventListener('change', handleImageUpload);
+            }
+        });
+        
+        // Função para lidar com upload de imagens
+        function handleImageUpload(event) {
+            const files = Array.from(event.target.files);
+            const previewContainer = document.getElementById('preview-container');
+            const uploadInfo = document.getElementById('upload-info');
+            
+            // Limpar mensagens de erro anteriores
+            const errorDiv = document.querySelector('.upload-error');
+            if (errorDiv) errorDiv.remove();
+            
+            // Verificar limite de imagens
+            if (uploadedImages.length + files.length > maxImages) {
+                showUploadError(`Máximo de ${maxImages} imagens permitidas. Você já tem ${uploadedImages.length} imagem(ns).`);
+                event.target.value = ''; // Limpar input
+                return;
+            }
+            
+            files.forEach((file, index) => {
+                // Validar tipo de arquivo
+                if (!file.type.startsWith('image/')) {
+                    showUploadError(`Arquivo "${file.name}" não é uma imagem válida.`);
+                    return;
+                }
+                
+                // Validar tamanho do arquivo
+                if (file.size > maxFileSize) {
+                    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                    showUploadError(`Imagem "${file.name}" (${sizeMB}MB) excede o limite de 5MB.`);
+                    return;
+                }
+                
+                // Converter para Base64 e criar preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        base64: e.target.result,
+                        id: Date.now() + index // ID único
+                    };
+                    
+                    uploadedImages.push(imageData);
+                    createImagePreview(imageData);
+                    updateUploadInfo();
+                };
+                
+                reader.readAsDataURL(file);
+            });
+            
+            // Limpar input para permitir re-upload da mesma imagem se removida
+            event.target.value = '';
+        }
+        
+        // Criar preview da imagem
+        function createImagePreview(imageData) {
+            const previewContainer = document.getElementById('preview-container');
+            
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'image-preview';
+            previewDiv.dataset.imageId = imageData.id;
+            
+            const img = document.createElement('img');
+            img.src = imageData.base64;
+            img.alt = imageData.name;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '×';
+            removeBtn.type = 'button';
+            removeBtn.onclick = () => removeImage(imageData.id);
+            
+            const sizeInfo = document.createElement('div');
+            sizeInfo.className = 'size-info';
+            sizeInfo.textContent = formatFileSize(imageData.size);
+            
+            previewDiv.appendChild(img);
+            previewDiv.appendChild(removeBtn);
+            previewDiv.appendChild(sizeInfo);
+            
+            previewContainer.appendChild(previewDiv);
+        }
+        
+        // Remover imagem
+        function removeImage(imageId) {
+            uploadedImages = uploadedImages.filter(img => img.id !== imageId);
+            
+            const previewDiv = document.querySelector(`[data-image-id="${imageId}"]`);
+            if (previewDiv) {
+                previewDiv.remove();
+            }
+            
+            updateUploadInfo();
+        }
+        
+        // Atualizar informações de upload
+        function updateUploadInfo() {
+            const uploadInfo = document.getElementById('upload-info');
+            const totalImages = uploadedImages.length;
+            
+            if (totalImages === 0) {
+                uploadInfo.innerHTML = `
+                    <small>✅ Formatos: JPG, PNG, GIF, WEBP</small><br>
+                    <small>📊 Limite: 5MB por imagem, máx ${maxImages} imagens</small>
+                `;
+            } else {
+                const totalSize = uploadedImages.reduce((sum, img) => sum + img.size, 0);
+                uploadInfo.innerHTML = `
+                    <small>📸 ${totalImages}/${maxImages} imagens (${formatFileSize(totalSize)})</small><br>
+                    <small>✅ Toque no × para remover</small>
+                `;
+            }
+        }
+        
+        // Formatar tamanho do arquivo
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+        
+        // Mostrar erro de upload
+        function showUploadError(message) {
+            const uploadInfo = document.getElementById('upload-info');
+            
+            // Remover erro anterior se existir
+            const existingError = document.querySelector('.upload-error');
+            if (existingError) existingError.remove();
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'upload-error';
+            errorDiv.textContent = message;
+            
+            uploadInfo.parentNode.insertBefore(errorDiv, uploadInfo.nextSibling);
+            
+            // Auto remover após 5 segundos
+            setTimeout(() => {
+                if (errorDiv.parentNode) errorDiv.remove();
+            }, 5000);
+        }
 
         document.getElementById('chamadoForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -475,13 +719,17 @@
             
             const dataHoraAtual = formatarDataHora();
             
+            const imagensInfo = uploadedImages.length > 0 
+                ? `\n📸 Imagens anexadas: ${uploadedImages.length} arquivo(s)` 
+                : '';
+
             const textoFormatado = `🚨 CHAMADO WMS
 
 
 🗂️  Categoria: ${categoria}
 📝 Título: ${titulo}
 📄 Descrição: ${descricao}
-⚡ Prioridade: ${prioridade}
+⚡ Prioridade: ${prioridade}${imagensInfo}
 
 📅 Criado em: ${dataHoraAtual}`;
             
@@ -495,7 +743,8 @@
                     categoria, 
                     descricao,
                     prioridade,
-                    textoFormatado
+                    textoFormatado,
+                    imagens: uploadedImages // Adicionar imagens
                 });
                 console.log('✅ Chamado salvo na base compartilhada:', chamadoSalvo);
             } catch (error) {
@@ -560,6 +809,18 @@
             document.getElementById('chamadoForm').reset();
             document.getElementById('resultado').style.display = 'none';
             document.getElementById('categoria').focus();
+            
+            // Limpar imagens uploadadas
+            uploadedImages = [];
+            const previewContainer = document.getElementById('preview-container');
+            if (previewContainer) {
+                previewContainer.innerHTML = '';
+            }
+            updateUploadInfo();
+            
+            // Remover mensagens de erro de upload
+            const errorDiv = document.querySelector('.upload-error');
+            if (errorDiv) errorDiv.remove();
         });
         
         function mostrarFeedback(mensagem, tipo) {
@@ -602,11 +863,13 @@
                 atualizadoEm: new Date().getTime(),
                 usuario: 'Mobile User',
                 mensagem: chamadoData.textoFormatado,
+                // Novo: array de imagens em Base64
+                imagens: chamadoData.imagens || [],
                 historico: [{
                     status: 'aberto',
                     data: new Date().getTime(),
                     usuario: 'Mobile User',
-                    observacao: 'Chamado criado via versão mobile/portátil'
+                    observacao: `Chamado criado via versão mobile/portátil${chamadoData.imagens && chamadoData.imagens.length > 0 ? ` com ${chamadoData.imagens.length} imagem(ns)` : ''}`
                 }]
             };
             

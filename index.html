@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚨 Chamados WMS</title>
     
-    <!-- VERSÃO DEPLOY VERCEL: 20250829_032343 - Design Gmail-like ATUALIZADO -->
+    <!-- VERSÃO DEPLOY: 20250829_imagens_v1 - Sistema de Upload de Imagens COMPLETO -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -250,6 +250,80 @@
             border: 1px solid #bfdbfe;
         }
         
+        /* Estilos para upload de imagens */
+        .preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            margin: 8px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .image-preview {
+            position: relative;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            border: 1px solid #dadce0;
+            overflow: hidden;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .image-preview .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        
+        .image-preview .remove-btn:hover {
+            background: rgba(239, 68, 68, 1);
+        }
+        
+        .image-preview .size-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 10px;
+            padding: 2px 4px;
+            text-align: center;
+        }
+        
+        .upload-info {
+            color: #5f6368;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .upload-error {
+            color: #d93025;
+            font-size: 12px;
+            margin-top: 4px;
+            padding: 4px 8px;
+            background: rgba(217, 48, 37, 0.1);
+            border-radius: 4px;
+        }
+        
         .footer {
             text-align: center;
             padding: 20px;
@@ -340,6 +414,16 @@
                     </select>
                 </div>
                 
+                <div class="field">
+                    <label>📸 Anexar Imagens (opcional - máx 5MB por imagem):</label>
+                    <input type="file" id="imagens" multiple accept="image/*" style="margin-bottom: 8px;">
+                    <div id="preview-container" class="preview-container"></div>
+                    <div id="upload-info" class="upload-info">
+                        <small>✅ Formatos aceitos: JPG, PNG, GIF, WEBP</small><br>
+                        <small>📊 Limite: 5MB por imagem, máximo 3 imagens</small>
+                    </div>
+                </div>
+                
                 <button type="submit" class="btn btn-whatsapp">💻 GERAR E ABRIR WHATSAPP WEB</button>
             </form>
             
@@ -401,7 +485,7 @@
         }
         
         // Salvar chamado no localStorage
-        function salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario) {
+        function salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario, imagens = []) {
             const savedChamados = localStorage.getItem('wms_chamados');
             const chamados = savedChamados ? JSON.parse(savedChamados) : [];
             
@@ -418,6 +502,8 @@
                 usuario: usuario,
                 criadoEm: agora,
                 atualizadoEm: agora,
+                // Novo: array de imagens em Base64
+                imagens: imagens || [],
                 // Histórico de mudanças de status
                 historico: [
                     {
@@ -431,6 +517,8 @@
             
             chamados.push(novoChamado);
             localStorage.setItem('wms_chamados', JSON.stringify(chamados));
+            
+            console.log('📸 Chamado salvo com', imagens?.length || 0, 'imagem(ns)');
             
             return novoChamado;
         }
@@ -449,6 +537,163 @@
             return 'Usuário';
         }
         
+        // ===== SISTEMA DE UPLOAD DE IMAGENS =====
+        
+        let uploadedImages = []; // Array para armazenar imagens como Base64
+        const maxFileSize = 5 * 1024 * 1024; // 5MB em bytes
+        const maxImages = 3; // Máximo de 3 imagens
+        
+        // Inicializar sistema de upload
+        document.addEventListener('DOMContentLoaded', function() {
+            const imagensInput = document.getElementById('imagens');
+            if (imagensInput) {
+                imagensInput.addEventListener('change', handleImageUpload);
+            }
+        });
+        
+        // Função para lidar com upload de imagens
+        function handleImageUpload(event) {
+            const files = Array.from(event.target.files);
+            const previewContainer = document.getElementById('preview-container');
+            const uploadInfo = document.getElementById('upload-info');
+            
+            // Limpar mensagens de erro anteriores
+            const errorDiv = document.querySelector('.upload-error');
+            if (errorDiv) errorDiv.remove();
+            
+            // Verificar limite de imagens
+            if (uploadedImages.length + files.length > maxImages) {
+                showUploadError(`Máximo de ${maxImages} imagens permitidas. Você já tem ${uploadedImages.length} imagem(ns).`);
+                event.target.value = ''; // Limpar input
+                return;
+            }
+            
+            files.forEach((file, index) => {
+                // Validar tipo de arquivo
+                if (!file.type.startsWith('image/')) {
+                    showUploadError(`Arquivo "${file.name}" não é uma imagem válida.`);
+                    return;
+                }
+                
+                // Validar tamanho do arquivo
+                if (file.size > maxFileSize) {
+                    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+                    showUploadError(`Imagem "${file.name}" (${sizeMB}MB) excede o limite de 5MB.`);
+                    return;
+                }
+                
+                // Converter para Base64 e criar preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        base64: e.target.result,
+                        id: Date.now() + index // ID único
+                    };
+                    
+                    uploadedImages.push(imageData);
+                    createImagePreview(imageData);
+                    updateUploadInfo();
+                };
+                
+                reader.readAsDataURL(file);
+            });
+            
+            // Limpar input para permitir re-upload da mesma imagem se removida
+            event.target.value = '';
+        }
+        
+        // Criar preview da imagem
+        function createImagePreview(imageData) {
+            const previewContainer = document.getElementById('preview-container');
+            
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'image-preview';
+            previewDiv.dataset.imageId = imageData.id;
+            
+            const img = document.createElement('img');
+            img.src = imageData.base64;
+            img.alt = imageData.name;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '×';
+            removeBtn.type = 'button';
+            removeBtn.onclick = () => removeImage(imageData.id);
+            
+            const sizeInfo = document.createElement('div');
+            sizeInfo.className = 'size-info';
+            sizeInfo.textContent = formatFileSize(imageData.size);
+            
+            previewDiv.appendChild(img);
+            previewDiv.appendChild(removeBtn);
+            previewDiv.appendChild(sizeInfo);
+            
+            previewContainer.appendChild(previewDiv);
+        }
+        
+        // Remover imagem
+        function removeImage(imageId) {
+            uploadedImages = uploadedImages.filter(img => img.id !== imageId);
+            
+            const previewDiv = document.querySelector(`[data-image-id="${imageId}"]`);
+            if (previewDiv) {
+                previewDiv.remove();
+            }
+            
+            updateUploadInfo();
+        }
+        
+        // Atualizar informações de upload
+        function updateUploadInfo() {
+            const uploadInfo = document.getElementById('upload-info');
+            const totalImages = uploadedImages.length;
+            
+            if (totalImages === 0) {
+                uploadInfo.innerHTML = `
+                    <small>✅ Formatos aceitos: JPG, PNG, GIF, WEBP</small><br>
+                    <small>📊 Limite: 5MB por imagem, máximo ${maxImages} imagens</small>
+                `;
+            } else {
+                const totalSize = uploadedImages.reduce((sum, img) => sum + img.size, 0);
+                uploadInfo.innerHTML = `
+                    <small>📸 ${totalImages}/${maxImages} imagens adicionadas (${formatFileSize(totalSize)})</small><br>
+                    <small>✅ Clique no × para remover uma imagem</small>
+                `;
+            }
+        }
+        
+        // Formatar tamanho do arquivo
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+        
+        // Mostrar erro de upload
+        function showUploadError(message) {
+            const uploadInfo = document.getElementById('upload-info');
+            
+            // Remover erro anterior se existir
+            const existingError = document.querySelector('.upload-error');
+            if (existingError) existingError.remove();
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'upload-error';
+            errorDiv.textContent = message;
+            
+            uploadInfo.parentNode.insertBefore(errorDiv, uploadInfo.nextSibling);
+            
+            // Auto remover após 5 segundos
+            setTimeout(() => {
+                if (errorDiv.parentNode) errorDiv.remove();
+            }, 5000);
+        }
+        
 
         
         // Salvar chamado atual com dados do formulário
@@ -459,12 +704,12 @@
             const prioridade = document.getElementById('prioridade').value;
             const usuario = getCurrentUser();
             
-            console.log('🔍 Debug salvarChamadoAtual:', { categoria, titulo, descricao, prioridade, usuario });
+            console.log('🔍 Debug salvarChamadoAtual:', { categoria, titulo, descricao, prioridade, usuario, imagens: uploadedImages.length });
             
             if (categoria && titulo && descricao && prioridade) {
-                const chamado = salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario);
+                const chamado = salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario, uploadedImages);
                 console.log('✅ Chamado salvo:', chamado);
-                mostrarFeedback(`✅ Chamado #${chamado.numero} criado com sucesso!`, 'success');
+                mostrarFeedback(`✅ Chamado #${chamado.numero} criado com sucesso ${uploadedImages.length > 0 ? `com ${uploadedImages.length} imagem(ns)` : ''}!`, 'success');
                 return chamado;
             } else {
                 console.log('❌ Dados incompletos para salvar chamado');
@@ -512,13 +757,17 @@
             setTimeout(() => {
                 const dataHora = formatarDataHora();
                 
+                const imagensInfo = uploadedImages.length > 0 
+                    ? `\n📸 Imagens anexadas: ${uploadedImages.length} arquivo(s)` 
+                    : '';
+
                 const mensagem = `🚨 CHAMADO WMS
 
 
 🗂️ Categoria: ${categoria}
 📝 Título: ${titulo}
 📄 Descrição: ${descricao}
-⚡ Prioridade: ${prioridade}
+⚡ Prioridade: ${prioridade}${imagensInfo}
 
 📅 Criado em: ${dataHora}`;
                 
@@ -526,7 +775,7 @@
                 
                 // SEMPRE salvar o chamado primeiro
                 const usuario = getCurrentUser();
-                const chamado = salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario);
+                const chamado = salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario, uploadedImages);
                 
                 resultado.style.display = 'block';
                 
@@ -599,6 +848,19 @@
             form.reset();
             resultado.style.display = 'none';
             document.getElementById('categoria').focus();
+            
+            // Limpar imagens uploadadas
+            uploadedImages = [];
+            const previewContainer = document.getElementById('preview-container');
+            if (previewContainer) {
+                previewContainer.innerHTML = '';
+            }
+            updateUploadInfo();
+            
+            // Remover mensagens de erro de upload
+            const errorDiv = document.querySelector('.upload-error');
+            if (errorDiv) errorDiv.remove();
+            
             mostrarFeedback('🔄 Formulário limpo! Pronto para novo chamado.', 'info');
         });
         

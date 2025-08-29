@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚨 Chamados WMS - Simples v050600</title>
-    <!-- VERSÃO SIMPLES: 20250829_050600 - Lightweight + Base Compartilhada -->
+    <title>🚨 Chamados WMS - Simples v📸imagens</title>
+    <!-- VERSÃO SIMPLES: 20250829_imagens_v1 - Upload Simples de Imagens + Base Compartilhada -->
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -204,6 +204,15 @@
                     </select>
                 </div>
                 
+                <div class="field">
+                    <label>📸 Anexar Imagens (opcional):</label>
+                    <input type="file" id="imagens" multiple accept="image/*" style="font-size: 14px;">
+                    <small style="display: block; color: rgba(255,255,255,0.8); font-size: 11px; margin-top: 4px;">
+                        Máx 3 imagens de 5MB cada
+                    </small>
+                    <div id="image-count" style="color: rgba(255,255,255,0.9); font-size: 12px; margin-top: 4px;"></div>
+                </div>
+                
                 <button type="submit" class="btn btn-primary">📱 GERAR PARA WHATSAPP</button>
             </form>
             
@@ -225,6 +234,66 @@
         const resultado = document.getElementById('resultado');
         const texto = document.getElementById('texto');
         const whatsappWeb = document.getElementById('whatsappWeb');
+
+        // Sistema de imagens simples
+        let uploadedImages = [];
+        const maxImages = 3;
+        const maxFileSize = 5 * 1024 * 1024; // 5MB
+        
+        // Event listener para upload de imagens
+        document.getElementById('imagens').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const validImages = [];
+            
+            for (let file of files) {
+                if (file.type.startsWith('image/') && file.size <= maxFileSize) {
+                    validImages.push(file);
+                }
+            }
+            
+            if (validImages.length > maxImages) {
+                validImages.splice(maxImages);
+            }
+            
+            // Converter para Base64
+            uploadedImages = [];
+            let processed = 0;
+            
+            if (validImages.length === 0) {
+                updateImageCount();
+                return;
+            }
+            
+            validImages.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadedImages.push({
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        base64: event.target.result,
+                        id: Date.now() + index
+                    });
+                    
+                    processed++;
+                    if (processed === validImages.length) {
+                        updateImageCount();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        function updateImageCount() {
+            const countDiv = document.getElementById('image-count');
+            if (uploadedImages.length > 0) {
+                const totalSize = uploadedImages.reduce((sum, img) => sum + img.size, 0);
+                const sizeMB = (totalSize / (1024 * 1024)).toFixed(1);
+                countDiv.textContent = `📸 ${uploadedImages.length} imagem(ns) selecionada(s) (${sizeMB}MB)`;
+            } else {
+                countDiv.textContent = '';
+            }
+        }
 
         // === INTEGRAÇÃO BASE COMPARTILHADA v050600 ===
         
@@ -255,11 +324,13 @@
                 atualizadoEm: new Date().getTime(),
                 usuario: 'Mobile User (Simples)',
                 mensagem: chamadoData.mensagem,
+                // Novo: array de imagens em Base64
+                imagens: chamadoData.imagens || [],
                 historico: [{
                     status: 'aberto',
                     data: new Date().getTime(),
                     usuario: 'Mobile User (Simples)',
-                    observacao: 'Chamado criado via versão mobile/simples'
+                    observacao: `Chamado criado via versão mobile/simples${chamadoData.imagens && chamadoData.imagens.length > 0 ? ` com ${chamadoData.imagens.length} imagem(ns)` : ''}`
                 }]
             };
             
@@ -288,13 +359,17 @@
                 hour: '2-digit', minute: '2-digit'
             });
             
+            const imagensInfo = uploadedImages.length > 0 
+                ? `\n📸 Imagens anexadas: ${uploadedImages.length} arquivo(s)` 
+                : '';
+
             const mensagem = `🚨 CHAMADO WMS
 
 
 🗂️ Categoria: ${categoria}
 📝 Título: ${titulo}
 📄 Descrição: ${descricao}
-⚡ Prioridade: ${prioridade}
+⚡ Prioridade: ${prioridade}${imagensInfo}
 
 📅 Criado em: ${dataHora}`;
             
@@ -308,7 +383,8 @@
                     categoria, 
                     descricao,
                     prioridade,
-                    mensagem
+                    mensagem,
+                    imagens: uploadedImages
                 });
                 console.log('✅ Chamado salvo na base compartilhada (simples):', chamadoSalvo);
             } catch (error) {
@@ -352,6 +428,10 @@
             form.reset();
             resultado.style.display = 'none';
             document.getElementById('categoria').focus();
+            
+            // Limpar imagens
+            uploadedImages = [];
+            updateImageCount();
         });
         
         function mostrarFeedback(msg, tipo) {
