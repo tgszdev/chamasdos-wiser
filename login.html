@@ -49,14 +49,16 @@
         }
         
         .login-container {
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(20px);
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border-radius: 16px;
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.1),
+                0 1px 3px rgba(0, 0, 0, 0.08);
             max-width: 400px;
             width: 90%;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(0, 0, 0, 0.08);
             animation: slideIn 0.6s ease-out;
         }
         
@@ -66,37 +68,31 @@
         }
         
         .login-header {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            color: #202124;
+            padding: 24px 32px;
+            text-align: left;
             position: relative;
-        }
-        
-        .login-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M 8 0 L 0 0 0 8" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-            opacity: 0.3;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
         }
         
         .login-header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 4px;
             position: relative;
             z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         
         .login-header p {
-            opacity: 0.9;
+            color: #5f6368;
             font-size: 14px;
             position: relative;
             z-index: 1;
+            margin: 0;
         }
         
         .login-form {
@@ -104,52 +100,51 @@
         }
         
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 16px;
             position: relative;
         }
         
         .form-group label {
             display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #374151;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #202124;
             font-size: 14px;
         }
         
         .form-group input {
             width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.9);
-            color: #1f2937;
+            padding: 12px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.95);
+            color: #202124;
         }
         
         .form-group input:focus {
             outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-            transform: translateY(-1px);
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
             background: white;
         }
         
         .form-group input::placeholder {
-            color: #9ca3af;
+            color: #9aa0a6;
         }
         
 
         
         .login-btn {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            padding: 12px 16px;
+            background: #1a73e8;
             color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
+            border: 1px solid #1a73e8;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;

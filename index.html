@@ -55,67 +55,73 @@
         }
         
         .container {
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(20px);
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-radius: 16px;
+            box-shadow: 
+                0 2px 8px rgba(0, 0, 0, 0.1),
+                0 1px 3px rgba(0, 0, 0, 0.08);
             max-width: 500px;
             width: 100%;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(0, 0, 0, 0.08);
         }
         
         .header {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            padding: 30px;
-            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            color: #202124;
+            padding: 24px 32px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
         }
         
         .header h1 { 
-            font-size: 24px; 
-            margin-bottom: 10px; 
-            font-weight: 700;
+            font-size: 20px; 
+            margin-bottom: 4px; 
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         
         .header p { 
-            opacity: 0.9; 
+            color: #5f6368;
             font-size: 14px; 
             line-height: 1.4;
+            margin: 0;
         }
         
         .form {
-            padding: 30px;
+            padding: 24px 32px;
         }
         
         .field {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         
         .field label {
             display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #374151;
-            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #202124;
+            font-size: 14px;
         }
         
         .field select, .field input, .field textarea {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: white;
-            color: #1f2937;
+            padding: 12px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.95);
+            color: #202124;
         }
         
         .field select:focus, .field input:focus, .field textarea:focus {
             outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-            transform: translateY(-1px);
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
         }
         
         .field textarea {
@@ -126,14 +132,14 @@
         
         .btn {
             width: 100%;
-            padding: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
-            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid;
+            border-radius: 8px;
             cursor: pointer;
             margin-bottom: 12px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-decoration: none;
             display: block;
             text-align: center;
@@ -153,32 +159,34 @@
         }
         
         .btn:hover::before { left: 100%; }
-        .btn:hover { transform: translateY(-2px); }
+        .btn:hover { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
         
         .btn-whatsapp { 
-            background: linear-gradient(135deg, #25d366, #128c7e); 
+            background: #25d366;
             color: white; 
-            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.3);
+            border-color: #25d366;
         }
         
         .btn-whatsapp:hover { 
-            box-shadow: 0 12px 35px rgba(37, 211, 102, 0.4); 
+            background: #1eb757;
+            border-color: #1eb757;
         }
         
         .btn-success { 
-            background: linear-gradient(135deg, #10b981, #059669); 
+            background: #1a73e8;
             color: white; 
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            border-color: #1a73e8;
         }
         
         .btn-success:hover { 
-            box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4); 
+            background: #1557b0;
+            border-color: #1557b0;
         }
         
         .btn-secondary { 
-            background: linear-gradient(135deg, #6b7280, #4b5563); 
-            color: white; 
-            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.3);
+            background: rgba(255, 255, 255, 0.9);
+            color: #5f6368;
+            border-color: #dadce0;
         }
         
         .btn-secondary:hover { 
