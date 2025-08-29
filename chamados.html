@@ -734,7 +734,7 @@
     <div class="chamados-container">
         <!-- Header -->
         <div class="header">
-            <h1>📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_035900</small></h1>
+            <h1>📋 Gerenciar Chamados <small style="font-size: 0.5em; color: #1a73e8; background: rgba(26, 115, 232, 0.1); padding: 2px 6px; border-radius: 4px; font-weight: 400;">v20250829_040540</small></h1>
             <p>Controle e acompanhe todos os chamados WMS com status e histórico completo • <strong style="color: #0d7736;">Visualização Completa com Modal Profissional</strong></p>
         </div>
         
@@ -1081,26 +1081,26 @@
                     <td><span class="priority-badge priority-${chamado.prioridade.replace(/🔴|🟠|🟡|🟢/g, '').trim().toLowerCase()}">${chamado.prioridade}</span></td>
                     <td><span class="status-badge status-${chamado.status}">${getStatusText(chamado.status)}</span></td>
                     <td>
-                        <small style="color: #0f172a; font-weight: 600;">${new Date(chamado.criadoEm).toLocaleString('pt-BR')}</small>
+                        <small style="color: #0f172a; font-weight: 600;">${formatDateWithoutComma(chamado.criadoEm)}</small>
                         <br><small style="color: #64748b;">${chamado.usuario}</small>
                     </td>
                     <td>
                         ${infoAtendido ? 
-                            `<small style="color: #d97706; font-weight: 600;">${new Date(infoAtendido.data).toLocaleString('pt-BR')}</small>
+                            `<small style="color: #d97706; font-weight: 600;">${formatDateWithoutComma(infoAtendido.data)}</small>
                              <br><small style="color: #64748b;">${infoAtendido.usuario}</small>` :
                             '<small style="color: #94a3b8;">-</small>'
                         }
                     </td>
                     <td>
                         ${infoFinalizado ? 
-                            `<small style="color: #16a34a; font-weight: 600;">${new Date(infoFinalizado.data).toLocaleString('pt-BR')}</small>
+                            `<small style="color: #16a34a; font-weight: 600;">${formatDateWithoutComma(infoFinalizado.data)}</small>
                              <br><small style="color: #64748b;">${infoFinalizado.usuario}</small>` :
                             '<small style="color: #94a3b8;">-</small>'
                         }
                     </td>
                     <td>
                         ${infoCancelado ? 
-                            `<small style="color: #dc2626; font-weight: 600;">${new Date(infoCancelado.data).toLocaleString('pt-BR')}</small>
+                            `<small style="color: #dc2626; font-weight: 600;">${formatDateWithoutComma(infoCancelado.data)}</small>
                              <br><small style="color: #64748b;">${infoCancelado.usuario}</small>` :
                             '<small style="color: #94a3b8;">-</small>'
                         }
@@ -1136,7 +1136,6 @@
                                 </button>
                             ` : ''}
                         </div>
-                        <br><small style="color: #64748b;">${chamado.usuario}</small>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -1152,6 +1151,11 @@
                 'cancelado': 'Cancelado'
             };
             return statusMap[status] || status;
+        }
+        
+        // Formatar data sem vírgula
+        function formatDateWithoutComma(timestamp) {
+            return new Date(timestamp).toLocaleString('pt-BR').replace(',', '');
         }
         
         // Alterar status do chamado
@@ -1342,7 +1346,7 @@
                                 📋 Chamado #${chamado ? chamado.numero || chamado.id : id}
                             </h3>
                             <p style="color: #5f6368; margin: 4px 0 0 0; font-size: 13px;">
-                                ${chamado ? `Criado em ${new Date(chamado.criadoEm || chamado.created_at).toLocaleString('pt-BR')} • ${chamado.usuario || 'Usuário'}` : 'Detalhes do chamado'}
+                                ${chamado ? `Criado em ${formatDateWithoutComma(chamado.criadoEm || chamado.created_at)} • ${chamado.usuario || 'Usuário'}` : 'Detalhes do chamado'}
                             </p>
                         </div>
                         <button onclick="this.parentElement.parentElement.parentElement.remove()" style="
@@ -1473,7 +1477,7 @@
             
             let historyText = `📋 HISTÓRICO DO CHAMADO #${numero}\n\n`;
             chamado.historico.forEach((item, index) => {
-                const data = new Date(item.data).toLocaleString('pt-BR');
+                const data = formatDateWithoutComma(item.data);
                 historyText += `${index + 1}. ${data}\n`;
                 historyText += `   Status: ${getStatusText(item.status)}\n`;
                 historyText += `   Usuário: ${item.usuario}\n`;
