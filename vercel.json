@@ -19,6 +19,10 @@
     {
       "source": "/admin",
       "destination": "/admin.html"
+    },
+    {
+      "source": "/chamados",
+      "destination": "/chamados.html"
     }
   ]
 }

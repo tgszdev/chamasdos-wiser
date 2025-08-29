@@ -367,6 +367,73 @@
             });
         }
         
+        // ===== SISTEMA DE GERENCIAMENTO DE CHAMADOS =====
+        
+        // Gerar próximo número do chamado
+        function getNextChamadoNumber() {
+            const savedChamados = localStorage.getItem('wms_chamados');
+            const chamados = savedChamados ? JSON.parse(savedChamados) : [];
+            
+            if (chamados.length === 0) return 1001; // Começar em 1001
+            
+            const maxNumber = Math.max(...chamados.map(c => c.numero));
+            return maxNumber + 1;
+        }
+        
+        // Salvar chamado no localStorage
+        function salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario) {
+            const savedChamados = localStorage.getItem('wms_chamados');
+            const chamados = savedChamados ? JSON.parse(savedChamados) : [];
+            
+            const novoChamado = {
+                numero: getNextChamadoNumber(),
+                categoria: categoria,
+                titulo: titulo,
+                descricao: descricao,
+                prioridade: prioridade,
+                mensagem: mensagem,
+                status: 'aberto', // Status inicial sempre "aberto"
+                usuario: usuario,
+                criadoEm: new Date().getTime(),
+                atualizadoEm: new Date().getTime()
+            };
+            
+            chamados.push(novoChamado);
+            localStorage.setItem('wms_chamados', JSON.stringify(chamados));
+            
+            return novoChamado;
+        }
+        
+        // Obter dados da sessão do usuário
+        function getCurrentUser() {
+            const savedLogin = localStorage.getItem('wms_session') || sessionStorage.getItem('wms_session');
+            if (savedLogin) {
+                try {
+                    const session = JSON.parse(atob(savedLogin));
+                    return session.name || session.user || 'Usuário';
+                } catch (e) {
+                    return 'Usuário';
+                }
+            }
+            return 'Usuário';
+        }
+        
+        // Salvar chamado atual com dados do formulário
+        function salvarChamadoAtual(mensagem) {
+            const categoria = document.getElementById('categoria').value;
+            const titulo = document.getElementById('titulo').value;
+            const descricao = document.getElementById('descricao').value;
+            const prioridade = document.getElementById('prioridade').value;
+            const usuario = getCurrentUser();
+            
+            if (categoria && titulo && descricao && prioridade) {
+                const chamado = salvarChamado(categoria, titulo, descricao, prioridade, mensagem, usuario);
+                mostrarFeedback(`✅ Chamado #${chamado.numero} criado com sucesso!`, 'success');
+                return chamado;
+            }
+            return null;
+        }
+        
         // Função para abrir WhatsApp Web
         function abrirWhatsAppWeb() {
             const mensagem = texto.textContent;
@@ -374,6 +441,9 @@
                 mostrarFeedback('❌ Gere a mensagem primeiro!', 'info');
                 return;
             }
+            
+            // Salvar chamado antes de abrir WhatsApp
+            salvarChamadoAtual(mensagem);
             
             const url = `https://web.whatsapp.com/send?text=${encodeURIComponent(mensagem)}`;
             window.open(url, '_blank');
@@ -562,7 +632,7 @@
                 top: 0;
                 left: 0;
                 right: 0;
-                background: rgba(255, 255, 255, 0.15);
+                background: rgba(255, 255, 255, 0.05);
                 color: #333;
                 padding: 10px 20px;
                 font-size: 13px;
@@ -570,9 +640,9 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                backdrop-filter: blur(20px);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-                box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(15px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
             `;
             
             const adminLink = session.role === 'admin' ? `
@@ -594,6 +664,19 @@
             userBar.innerHTML = `
                 <span style="color: #4a5568; font-weight: 500;">👤 <strong>${session.name}</strong> <span style="opacity: 0.7;">• ${session.role}</span></span>
                 <div style="display: flex; align-items: center;">
+                    <a href="/chamados" style="
+                        background: rgba(34, 197, 94, 0.15);
+                        color: #059669;
+                        text-decoration: none;
+                        padding: 6px 12px;
+                        border-radius: 20px;
+                        font-size: 12px;
+                        font-weight: 500;
+                        margin-right: 12px;
+                        transition: all 0.3s ease;
+                        border: 1px solid rgba(34, 197, 94, 0.2);
+                    " onmouseover="this.style.background='rgba(34, 197, 94, 0.25)'; this.style.transform='translateY(-1px)'" 
+                       onmouseout="this.style.background='rgba(34, 197, 94, 0.15)'; this.style.transform='translateY(0)'">📋 Chamados</a>
                     ${adminLink}
                     <button onclick="logout()" style="
                         background: rgba(220, 38, 127, 0.15);
