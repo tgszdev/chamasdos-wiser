@@ -371,27 +371,50 @@
     </div>
 
     <script>
-        // Configuração de usuários (em produção, isso seria criptografado)
-        const USERS = {
-            'admin': {
-                password: 'wms2024',
-                name: 'Administrador',
-                role: 'admin',
-                lastLogin: null
-            },
-            'supervisor': {
-                password: 'sup123',
-                name: 'Supervisor',
-                role: 'supervisor', 
-                lastLogin: null
-            },
-            'operador': {
-                password: 'op456',
-                name: 'Operador',
-                role: 'user',
-                lastLogin: null
+        // Sistema de usuários unificado com admin.html
+        let USERS = {};
+        
+        // Carregar usuários do localStorage ou usar padrão
+        function loadUsers() {
+            const savedUsers = localStorage.getItem('wms_users');
+            if (savedUsers) {
+                USERS = JSON.parse(savedUsers);
+            } else {
+                // Usuários padrão (mesmos do admin.html)
+                USERS = {
+                    'admin': {
+                        password: 'wms2024',
+                        name: 'Administrador',
+                        role: 'admin',
+                        email: 'admin@wms.com',
+                        lastLogin: null,
+                        createdAt: new Date().getTime()
+                    },
+                    'supervisor': {
+                        password: 'sup123',
+                        name: 'Supervisor',
+                        role: 'supervisor',
+                        email: 'supervisor@wms.com',
+                        lastLogin: null,
+                        createdAt: new Date().getTime()
+                    },
+                    'operador': {
+                        password: 'op456',
+                        name: 'Operador',
+                        role: 'user',
+                        email: 'operador@wms.com',
+                        lastLogin: null,
+                        createdAt: new Date().getTime()
+                    }
+                };
+                saveUsers();
             }
-        };
+        }
+        
+        // Salvar usuários no localStorage
+        function saveUsers() {
+            localStorage.setItem('wms_users', JSON.stringify(USERS));
+        }
         
         // Controle de tentativas
         let loginAttempts = 0;
@@ -454,8 +477,9 @@
                     sessionStorage.setItem('wms_session', encodedSession);
                 }
                 
-                // Atualizar último login
+                // Atualizar último login e salvar
                 USERS[username].lastLogin = new Date().getTime();
+                saveUsers();
                 
                 // Reset tentativas
                 loginAttempts = 0;
@@ -571,7 +595,8 @@
         
         // Função para mostrar ajuda
         function showHelp() {
-            alert(`🔐 CREDENCIAIS DE ACESSO:\n\nUsuários disponíveis:\n• admin / wms2024\n• supervisor / sup123\n• operador / op456\n\n📞 Para suporte: Entre em contato com o administrador do sistema.`);
+            const usersList = Object.keys(USERS).map(username => `• ${username} / ${USERS[username].password}`).join('\n');
+            alert(`🔐 CREDENCIAIS DE ACESSO:\n\nUsuários disponíveis:\n${usersList}\n\n📞 Para suporte: Entre em contato com o administrador do sistema.`);
         }
         
         // Verificar bloqueio a cada segundo
@@ -579,6 +604,13 @@
         
         // Verificar se já está logado ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
+            // IMPORTANTE: Carregar usuários ANTES de verificar login
+            loadUsers();
+            
+            // Log para desenvolvimento
+            console.log('🔐 Sistema de Login WMS carregado');
+            console.log('👥 Usuários disponíveis:', Object.keys(USERS));
+            
             if (!checkExistingLogin()) {
                 // Focar no campo usuário
                 usernameInput.focus();
@@ -618,9 +650,7 @@
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('selectstart', e => e.preventDefault());
         
-        // Log de tentativas (desenvolvimento)
-        console.log('🔐 Sistema de Login WMS carregado');
-        console.log('👥 Usuários disponíveis:', Object.keys(USERS));
+        // Log de tentativas (desenvolvimento) - movido para dentro da inicialização
     </script>
 </body>
 </html>
